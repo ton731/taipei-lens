@@ -9,28 +9,38 @@ const FragilityCurve = ({ fragilityCurveData }) => {
   // 處理真實資料，如果沒有資料則使用假資料
   const processData = () => {
     if (!fragilityCurveData || typeof fragilityCurveData !== 'object') {
-      // 假資料：地震規模 vs 損壞機率
+      // 假資料：使用正確的地震強度範圍
       return [
-        { magnitude: 3, damageProb: 2 },
-        { magnitude: 4, damageProb: 8 },
-        { magnitude: 5, damageProb: 25 },
-        { magnitude: 6, damageProb: 55 },
-        { magnitude: 7, damageProb: 85 },
-        { magnitude: 8, damageProb: 95 },
-        { magnitude: 9, damageProb: 99 }
+        { magnitude: '3', displayValue: '3級', damageProb: 2 },
+        { magnitude: '4', displayValue: '4級', damageProb: 8 },
+        { magnitude: '5弱', displayValue: '5弱', damageProb: 25 },
+        { magnitude: '5強', displayValue: '5強', damageProb: 40 },
+        { magnitude: '6弱', displayValue: '6弱', damageProb: 55 },
+        { magnitude: '6強', displayValue: '6強', damageProb: 75 },
+        { magnitude: '7', displayValue: '7級', damageProb: 85 }
       ];
     }
 
-    // 將真實資料轉換為圖表格式
-    const intensities = Object.keys(fragilityCurveData)
-      .map(k => parseFloat(k))
-      .filter(k => !isNaN(k))
-      .sort((a, b) => a - b);
+    // 定義正確的地震強度順序
+    const intensityOrder = ['3', '4', '5弱', '5強', '6弱', '6強', '7'];
+    const intensityDisplayMap = {
+      '3': '3級',
+      '4': '4級', 
+      '5弱': '5弱',
+      '5強': '5強',
+      '6弱': '6弱',
+      '6強': '6強',
+      '7': '7級'
+    };
 
-    return intensities.map(intensity => ({
-      magnitude: intensity,
-      damageProb: (fragilityCurveData[intensity.toString()] || 0) * 100 // 轉換為百分比
-    }));
+    // 將真實資料轉換為圖表格式，按照正確順序排列
+    return intensityOrder
+      .filter(intensity => fragilityCurveData.hasOwnProperty(intensity))
+      .map(intensity => ({
+        magnitude: intensity,
+        displayValue: intensityDisplayMap[intensity],
+        damageProb: (fragilityCurveData[intensity] || 0) * 100 // 轉換為百分比
+      }));
   };
 
   const data = processData();
@@ -48,14 +58,28 @@ const FragilityCurve = ({ fragilityCurveData }) => {
   const magnitudes = data.map(d => d.magnitude);
   const probs = data.map(d => d.damageProb);
   
-  const xMin = Math.min(...magnitudes, 3);
-  const xMax = Math.max(...magnitudes, 9);
+  // 為地震強度建立索引映射 (0-based)
+  const intensityIndexMap = {
+    '3': 0,
+    '4': 1, 
+    '5弱': 2,
+    '5強': 3,
+    '6弱': 4,
+    '6強': 5,
+    '7': 6
+  };
+  
+  const xMin = 0; // 第一個強度的索引
+  const xMax = data.length - 1; // 最後一個強度的索引
   const yMin = 0;
   const yMax = 100;
 
-  // 座標轉換函數
+  // 座標轉換函數 - 使用索引而非實際強度值
   const getX = (magnitude) => {
-    return padding.left + ((magnitude - xMin) / (xMax - xMin)) * chartWidth;
+    const intensityOrder = ['3', '4', '5弱', '5強', '6弱', '6強', '7'];
+    const dataIndex = data.findIndex(d => d.magnitude === magnitude);
+    const normalizedIndex = dataIndex / Math.max(data.length - 1, 1); // 避免除以0
+    return padding.left + normalizedIndex * chartWidth;
   };
 
   const getY = (damageProb) => {
@@ -91,16 +115,16 @@ const FragilityCurve = ({ fragilityCurveData }) => {
   // Y軸刻度（0%, 25%, 50%, 75%, 100%）
   const yTicks = [0, 25, 50, 75, 100];
 
-  // 動態生成 X 軸刻度
+  // 動態生成 X 軸刻度 - 使用實際的地震強度
   const generateXTicks = () => {
     if (data.length <= 4) {
-      // 如果資料點少，直接用資料點作為刻度
-      return magnitudes;
+      // 如果資料點少，直接用所有資料點作為刻度
+      return data.map(d => d.magnitude);
     } else {
-      // 如果資料點多，選擇均勻分布的刻度
-      const range = xMax - xMin;
-      const step = range / 3;
-      return [xMin, xMin + step, xMin + 2 * step, xMax].map(v => Math.round(v * 10) / 10);
+      // 如果資料點多，選擇部分刻度以避免擁擠
+      const step = Math.max(1, Math.floor(data.length / 4));
+      return data.filter((_, index) => index % step === 0 || index === data.length - 1)
+                 .map(d => d.magnitude);
     }
   };
   
@@ -225,6 +249,8 @@ const FragilityCurve = ({ fragilityCurveData }) => {
       {/* X軸刻度標籤 */}
       {xTicks.map(tick => {
         const x = getX(tick);
+        const dataPoint = data.find(d => d.magnitude === tick);
+        const displayLabel = dataPoint ? dataPoint.displayValue : tick;
         return (
           <text
             key={`x-label-${tick}`}
@@ -234,7 +260,7 @@ const FragilityCurve = ({ fragilityCurveData }) => {
             fontSize="9"
             fill="#666"
           >
-            {tick}級
+            {displayLabel}
           </text>
         );
       })}
@@ -261,7 +287,7 @@ const FragilityCurve = ({ fragilityCurveData }) => {
         fill="#444"
         fontWeight="500"
       >
-        地震規模
+        地震強度
       </text>
     </svg>
   );
