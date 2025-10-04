@@ -17,6 +17,9 @@ class Settings:
     # JWT 配置
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "")
 
+    # 環境配置
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "production")  # development 或 production，預設為 production
+
     # API 配置
     API_PREFIX: str = "/api"
     CORS_ORIGINS: list = ["*"]
@@ -35,5 +38,13 @@ class Settings:
         if not self.MAPBOX_STATISTICAL_AREA_TILESET_ID:
             raise ValueError("MAPBOX_STATISTICAL_AREA_TILESET_ID environment variable is required")
         return True
+
+    def is_production(self) -> bool:
+        """判斷是否為生產環境"""
+        return self.ENVIRONMENT.lower() == "production"
+
+    def is_development(self) -> bool:
+        """判斷是否為開發環境"""
+        return self.ENVIRONMENT.lower() == "development"
 
 settings = Settings()

@@ -9,12 +9,24 @@ from src.routers import mapbox, llm, auth
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# 根據環境決定是否啟用 API 文檔
+# Development: 顯示完整 API 文檔
+# Production: 完全禁用文檔，提高安全性
+ENABLE_DOCS = settings.is_development()
+
 # 建立 FastAPI 應用
 app = FastAPI(
     title="Taipei Lens Backend API",
     description="台北都市韌性規劃平台後端 API",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/docs" if ENABLE_DOCS else None,          # Swagger UI
+    redoc_url="/redoc" if ENABLE_DOCS else None,        # ReDoc
+    openapi_url="/openapi.json" if ENABLE_DOCS else None  # OpenAPI schema
 )
+
+# 記錄當前環境與文檔狀態
+logger.info(f"Environment: {settings.ENVIRONMENT}")
+logger.info(f"API Documentation: {'Enabled' if ENABLE_DOCS else 'Disabled'}")
 
 # 設定 CORS
 app.add_middleware(
