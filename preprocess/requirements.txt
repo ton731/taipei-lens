@@ -1,0 +1,7 @@
+geopandas
+folium
+odfpy
+scipy
+tqdm
+matplotlib
+chardet
