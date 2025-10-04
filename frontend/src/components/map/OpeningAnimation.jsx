@@ -61,69 +61,77 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch
     // 設定為地球投影
     mapInstance.setProjection('globe');
 
-    // 階段1：直接開始地球旋轉（已經在全球視角了）
-    setTimeout(() => {
+    // 階段1：地球旋轉到亞洲上空
+    const startRotation = () => {
       console.log('開始地球旋轉');
       mapInstance.easeTo({
-        center: [121.5654, 25.0330], // 旋轉到亞洲上空
+        center: [121.5654, 25.0330],
         zoom: 2,
         pitch: 0,
         bearing: 0,
         duration: 4000,
-        easing: (t) => t // 線性緩動
+        easing: (t) => t
       });
-    }, 500);
 
-    // 階段2：5.5秒後（0.5秒延遲 + 4秒旋轉 + 1秒停留）執行第一階段 zoom in 到台灣
-    setTimeout(() => {
-      console.log('停留1秒後執行第一階段 zoom in 到台灣視角');
+      // 使用事件驅動：等待旋轉完成後停留1秒
+      mapInstance.once('moveend', () => {
+        setTimeout(startFirstZoom, 1000);
+      });
+    };
 
-      // 第一階段：zoom in 到台灣視角（在 globe projection 下，zoom 7 是安全的）
+    // 階段2：第一階段 zoom in 到台灣視角（降低 zoom 到 5，更穩定）
+    const startFirstZoom = () => {
+      console.log('執行第一階段 zoom in 到台灣視角');
       mapInstance.flyTo({
         center: [121.5654, 25.0330],
-        zoom: 7,
+        zoom: 5,
         pitch: 0,
         bearing: 0,
         duration: 3000,
         essential: true
       });
 
-      // 3秒後切換投影
-      setTimeout(() => {
-        console.log('切換投影到 mercator');
+      // 使用事件驅動：等待 zoom 完成後切換投影
+      mapInstance.once('moveend', switchProjection);
+    };
 
-        // 切換到 mercator 投影
-        mapInstance.setProjection('mercator');
+    // 階段3：切換投影到 mercator
+    const switchProjection = () => {
+      console.log('切換投影到 mercator');
+      mapInstance.setProjection('mercator');
 
-        // 通知 React 狀態更新
-        if (onProjectionSwitch) {
-          onProjectionSwitch();
+      // 通知 React 狀態更新
+      if (onProjectionSwitch) {
+        onProjectionSwitch();
+      }
+
+      // 縮短等待時間到 500ms（投影切換完成）
+      setTimeout(startFinalZoom, 500);
+    };
+
+    // 階段4：第二階段 zoom in 到台北市最終視角
+    const startFinalZoom = () => {
+      console.log('繼續 zoom in 到台北市');
+      mapInstance.flyTo({
+        center: [121.5654, 25.0330],
+        zoom: 14,
+        pitch: 45,
+        bearing: 0,
+        duration: 3000,
+        essential: true
+      });
+
+      // 使用事件驅動：等待 zoom 完成後觸發回調
+      mapInstance.once('moveend', () => {
+        console.log('Zoom in 完成');
+        if (onAnimationComplete) {
+          onAnimationComplete();
         }
+      });
+    };
 
-        // 等待1秒讓投影切換完成，然後繼續 zoom in
-        setTimeout(() => {
-          console.log('繼續 zoom in 到台北市');
-
-          // 第二階段：zoom in 到台北市最終視角
-          mapInstance.flyTo({
-            center: [121.5654, 25.0330],
-            zoom: 14,
-            pitch: 45,
-            bearing: 0,
-            duration: 3000,
-            essential: true
-          });
-
-          // 動畫完成後的回調
-          setTimeout(() => {
-            console.log('Zoom in 完成');
-            if (onAnimationComplete) {
-              onAnimationComplete();
-            }
-          }, 3000);
-        }, 1000);
-      }, 3000);
-    }, 5500);
+    // 延遲 500ms 開始動畫
+    setTimeout(startRotation, 500);
 
     // 清理函數
     return () => {
