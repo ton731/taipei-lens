@@ -58,53 +58,33 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
     hasStartedRef.current = true;
     console.log('開場動畫開始（使用 Globe 投影）');
 
-    // 階段0：旋轉地球（低倍率，僅改變 bearing）
-    const startSpinGlobe = () => {
-      console.log('開始旋轉地球');
-      // 確保在低倍率下的全球視角
+    // 階段A：沿地軸（水平）旋轉，從非洲開始，讓台灣置中（zoom 保持不變）
+    const startSpinToTaiwan = () => {
+      console.log('沿地軸水平旋轉：起點非洲 → 終點台灣置中');
+      // 初始：非洲附近（赤道）、水平視角，只用 bearing 旋轉
+      mapInstance.easeTo({ center: [20, 0], zoom: 1.3, pitch: 0, bearing: -90, duration: 0 });
+      // 單段動畫：同步旋轉與平移，將台灣帶到畫面中央（保持 zoom 低倍率）
       mapInstance.easeTo({
-        center: [0, 20],
-        zoom: 1.2,
+        center: [121.0, 23.7],
+        zoom: 1.3,
         pitch: 0,
-        bearing: -30,
-        duration: 0
-      });
-
-      // 緩慢旋轉到另一個方位
-      mapInstance.easeTo({
-        bearing: 110,
-        duration: 3000,
+        bearing: 0,              // 順時鐘旋轉至北向上
+        duration: 3200,          // 稍慢一些，讓旋轉更自然
         easing: (t) => t
       });
 
-      mapInstance.once('idle', startPanToAsia);
-    };
-
-    // 階段1：從全球視角移動到亞洲上空
-    const startPanToAsia = () => {
-      console.log('開始移動到亞洲上空');
-      mapInstance.easeTo({
-        center: [110, 25],
-        zoom: 2.5,
-        pitch: 0,
-        bearing: 0,
-        duration: 4000,
-        easing: (t) => t
-      });
-
-      // 使用事件驅動：等地圖 idle 後再直接 zoom in 到台北，避免與持續渲染競態
       mapInstance.once('idle', startZoomToTaipei);
     };
 
-    // 階段2：直接 zoom in 到台北市（最簡化：2D、低倍率、短時長）
+    // 階段B：單次連續 zoom in 到台北（不分段），最後加適度傾角
     const startZoomToTaipei = () => {
       console.log('直接 zoom in 到台北市');
       mapInstance.easeTo({
         center: [121.5500, 25.0330], // 視角向左（西）微調
-        zoom: 13,                    // 維持較深倍率
-        pitch: 20,                   // 加一點傾角，視覺更立體
+        zoom: 13,                    // 較深倍率
+        pitch: 20,                   // 適度傾角
         bearing: 0,
-        duration: 1700,              // 稍微調整時長以順暢
+        duration: 3200,              // 再慢一點點
         essential: true
       });
 
@@ -117,8 +97,8 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
       });
     };
 
-    // 延遲 500ms 開始動畫（先旋轉地球）
-    setTimeout(startSpinGlobe, 500);
+    // 延遲 500ms 開始動畫（沿地軸水平旋轉，讓台灣置中）
+    setTimeout(startSpinToTaiwan, 500);
 
     // 清理函數
     return () => {
@@ -132,7 +112,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
   useEffect(() => {
     let interval = setInterval(() => {
       setOpacity(prev => (prev === 0 ? 1 : 0));
-    }, 800); // 每0.8秒閃爍一次
+    }, 500); // 更快：每0.5秒閃爍一次
 
     // 4.5秒後開始淡出熱點（配合 zoom in 到台北的時間）
     const fadeOutTimeout = setTimeout(() => {
