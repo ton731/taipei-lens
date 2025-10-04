@@ -109,7 +109,7 @@ const BuildingPopup = ({ data }) => {
         Seismic Fragility Curve
       </div>
 
-      {/* Fragility Curve 圖表 */}
+      {/* Fragility Curve Chart */}
       <FragilityCurve fragilityCurveData={data.properties?.fragility_curve} />
     </div>
   );

@@ -231,16 +231,16 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       let minLabel = `${config.minValue}${config.unit}`;
       let maxLabel = `${config.maxValue.toLocaleString()}${config.unit}`;
       
-      // 如果是結構脆弱度圖層，添加地震強度信息
+      // If structural vulnerability layer, add earthquake intensity info
       if (selectedDataLayer === 'structural_vulnerability') {
-        title = `${config.title} (地震強度: ${earthquakeIntensity})`;
-        minLabel = `0% (無風險)`;
-        maxLabel = `100% (極高風險)`;
+        title = `${config.title} (Earthquake Intensity: ${earthquakeIntensity})`;
+        minLabel = `0% (No Risk)`;
+        maxLabel = `100% (Extreme Risk)`;
       }
       
-      // 如果是 LST 圖層，顯示原始溫度值範圍
+      // If LST layer, display original temperature value range
       if (selectedDataLayer === 'lst') {
-        // 保持原始邏輯，因為 config.minValue 和 config.maxValue 已經設置為原始溫度值
+        // Keep original logic, as config.minValue and config.maxValue are already set to original temperature values
         minLabel = `${config.minValue}${config.unit}`;
         maxLabel = `${config.maxValue}${config.unit}`;
       }

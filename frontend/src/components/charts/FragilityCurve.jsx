@@ -11,26 +11,26 @@ const FragilityCurve = ({ fragilityCurveData }) => {
     if (!fragilityCurveData || typeof fragilityCurveData !== 'object') {
       // 假資料：使用正確的地震強度範圍
       return [
-        { magnitude: '3', displayValue: '3級', damageProb: 2 },
-        { magnitude: '4', displayValue: '4級', damageProb: 8 },
-        { magnitude: '5弱', displayValue: '5弱', damageProb: 25 },
-        { magnitude: '5強', displayValue: '5強', damageProb: 40 },
-        { magnitude: '6弱', displayValue: '6弱', damageProb: 55 },
-        { magnitude: '6強', displayValue: '6強', damageProb: 75 },
-        { magnitude: '7', displayValue: '7級', damageProb: 85 }
+        { magnitude: '3', displayValue: '3', damageProb: 2 },
+        { magnitude: '4', displayValue: '4', damageProb: 8 },
+        { magnitude: '5弱', displayValue: '5-', damageProb: 25 },
+        { magnitude: '5強', displayValue: '5+', damageProb: 40 },
+        { magnitude: '6弱', displayValue: '6-', damageProb: 55 },
+        { magnitude: '6強', displayValue: '6+', damageProb: 75 },
+        { magnitude: '7', displayValue: '7', damageProb: 85 }
       ];
     }
 
     // 定義正確的地震強度順序
     const intensityOrder = ['3', '4', '5弱', '5強', '6弱', '6強', '7'];
     const intensityDisplayMap = {
-      '3': '3級',
-      '4': '4級', 
-      '5弱': '5弱',
-      '5強': '5強',
-      '6弱': '6弱',
-      '6強': '6強',
-      '7': '7級'
+      '3': '3',
+      '4': '4', 
+      '5弱': '5-',
+      '5強': '5+',
+      '6弱': '6-',
+      '6強': '6+',
+      '7': '7'
     };
 
     // 將真實資料轉換為圖表格式，按照正確順序排列

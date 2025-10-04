@@ -82,7 +82,7 @@ export const LAYER_CONFIGS = {
     outlineColor: '#d67e4b'
   },
   structural_vulnerability: {
-    title: '結構脆弱度',
+    title: 'Structural Vulnerability',
     property: 'fragility_curve',
     colorStops: [
       { value: 0, color: '#fff7e6' },      // 與建築屋齡相同的配色
@@ -99,7 +99,7 @@ export const LAYER_CONFIGS = {
     isDynamic: true
   },
   lst: {
-    title: 'LST地表溫度',
+    title: 'LST Surface Temperature',
     property: 'norm_lst_p90',
     colorStops: [
       { value: 0, color: '#fff7e6' },
@@ -116,7 +116,7 @@ export const LAYER_CONFIGS = {
     displayOriginalValues: true  // 標記此圖層需要顯示原始值而非標準化值
   },
   ndvi: {
-    title: 'NDVI植被指數',
+    title: 'NDVI Vegetation Index',
     property: 'ndvi_mean',
     colorStops: [
       { value: 0, color: '#fff7e6' },

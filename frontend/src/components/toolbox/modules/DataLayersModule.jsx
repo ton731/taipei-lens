@@ -4,11 +4,11 @@ import StructuralVulnerabilityControl from '../../ui/StructuralVulnerabilityCont
 import { LAYER_CONFIGS, generateLegendGradient } from '../../../config/layerConfig';
 
 const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = null, earthquakeIntensity, onEarthquakeIntensityChange }) => {
-  // 將結構脆弱度圖層分開，方便單獨處理
+  // Separate structural vulnerability layer for individual handling
   const structuralVulnerabilityLayer = {
     id: 'structural_vulnerability',
-    label: '結構脆弱度',
-    description: '結構倒塌機率',
+    label: 'Structural Vulnerability',
+    description: 'Structural collapse probability',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
         <path d="M12 2l3.5 7h7l-5.5 4 2 7-7-5-7 5 2-7-5.5-4h7z" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -80,8 +80,8 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
     },
     {
       id: 'lst',
-      label: 'LST地表溫度',
-      description: '地表溫度分布',
+      label: 'Surface Temperature',
+      description: 'Land surface temperature distribution',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -98,8 +98,8 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
     },
     {
       id: 'ndvi',
-      label: 'NDVI植被指數',
-      description: '植被覆蓋指數分布',
+      label: 'Vegetation Index',
+      description: 'Distribution of Normalized Difference Vegetation Index (NDVI)',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -140,7 +140,7 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
       </div>
 
       <div>
-        {/* 結構脆弱度圖層 - 放在最前面 */}
+        {/* Structural Vulnerability Layer - Place at the front */}
         <RadioLayerToggle
           key={structuralVulnerabilityLayer.id}
           id={structuralVulnerabilityLayer.id}
@@ -151,7 +151,7 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
           onChange={() => handleLayerChange(structuralVulnerabilityLayer.id)}
         />
 
-        {/* 地震強度控制 - 緊接在結構脆弱度後面 */}
+        {/* Earthquake Intensity Control - Right after Structural Vulnerability */}
         {selectedLayer === 'structural_vulnerability' && earthquakeIntensity && onEarthquakeIntensityChange && (
           <div style={{ marginTop: '8px', marginBottom: '8px' }}>
             <StructuralVulnerabilityControl
@@ -161,7 +161,7 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
           </div>
         )}
 
-        {/* 結構脆弱度的 colorbar */}
+        {/* Structural Vulnerability colorbar */}
         {selectedLayer === 'structural_vulnerability' && (
           <div style={{
             marginTop: '8px',
@@ -187,8 +187,8 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
                       fontSize: '10px',
                       color: '#888'
                     }}>
-                      <span>0% (無風險)</span>
-                      <span>100% (極高風險)</span>
+                      <span>0% (No Risk)</span>
+                      <span>100% (Extreme Risk)</span>
                     </div>
                   </div>
                 );
@@ -198,7 +198,7 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
           </div>
         )}
 
-        {/* 其他圖層 - 每個圖層選項後面跟著自己的 colorbar */}
+        {/* Other layers - Each layer option followed by its own colorbar */}
         {otherLayers.map((layer) => (
           <div key={layer.id}>
             <RadioLayerToggle
@@ -210,7 +210,7 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
               onChange={() => handleLayerChange(layer.id)}
             />
             
-            {/* 該圖層的 colorbar - 只在選中時顯示 */}
+            {/* Layer's colorbar - Only show when selected */}
             {selectedLayer === layer.id && (
               <div style={{
                 marginTop: '8px',
