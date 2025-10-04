@@ -4,22 +4,22 @@ import './ChatBot.css'
 
 // Sample questions list
 const SAMPLE_QUESTIONS = [
-  'Which are the top three districts in Taipei with the highest population?',
-  'Which districts have an elderly population ratio exceeding 20% and average building age over 40 years?',
-  'Which district has the highest number of elderly people living alone?',
-  'Which districts have the highest proportion of low-income households?',
-  'Which district has the highest elderly population ratio?',
-  'Which district has the largest total population?',
-  'What are the top three districts with the youngest average building age?',
-  'Which districts have a total population exceeding 200,000?',
-  'Which districts have an elderly population ratio exceeding 25%?',
-  'What are the main objectives of urban renewal in Taipei City?',
-  'What is the floor area ratio incentive system?',
-  'What are some notable urban renewal cases in Taipei City?',
-  'What is the difference between renovation and reconstruction?',
-  'What is the Dangerous and Old Buildings Reconstruction Ordinance?',
-  'What floor area ratio incentives can be obtained through urban renewal?',
-  'Why is Taipei City promoting urban resilience planning?'
+  'Top 3 districts by population?',
+  'Districts with elderly ratio >20% and building age >40 years?',
+  'District with most elderly living alone?',
+  'Districts with highest low-income ratio?',
+  'District with highest elderly ratio?',
+  'District with largest population?',
+  'Top 3 districts with newest buildings?',
+  'Districts with population over 200k?',
+  'Districts with elderly ratio >25%?',
+  'Main goals of Taipei urban renewal?',
+  'What is floor area ratio incentive?',
+  'Notable urban renewal cases in Taipei?',
+  'Difference between renovation and reconstruction?',
+  'What is the dangerous buildings ordinance?',
+  'Urban renewal FAR incentives?',
+  'Why promote urban resilience in Taipei?'
 ]
 
 function ChatBot({ onMouseEnter, onHighlightAreas }) {
