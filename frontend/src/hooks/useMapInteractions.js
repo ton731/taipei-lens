@@ -8,7 +8,7 @@ import { useState, useCallback, useEffect } from 'react';
  * @param {Function} externalSetHoverInfo - External setHoverInfo function (optional)
  * @returns {Object} Hover info, highlighted building, setup interaction function
  */
-export const useMapInteractions = (mapInstance, customBuildingData, statisticalAreaSourceLayer, externalSetHoverInfo = null) => {
+export const useMapInteractions = (mapInstance, customBuildingData, statisticalAreaSourceLayer, externalSetHoverInfo = null, enabled = true) => {
   const [internalHoverInfo, setInternalHoverInfo] = useState(null);
   const [highlightedBuilding, setHighlightedBuilding] = useState(null);
 
@@ -48,13 +48,23 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
     let hoveredStatisticalAreaId = null;
 
     setTimeout(() => {
-      const style = map.getStyle();
-      const layers = style.layers || [];
+      // 地圖尚未完全就緒時直接跳過初始化
+      if (!map || !map.getStyle || !map.isStyleLoaded || !map.isStyleLoaded()) {
+        return;
+      }
+
+      const style = map.getStyle && map.getStyle();
+      const layers = (style && Array.isArray(style.layers)) ? style.layers : [];
 
       const allLayers = layers.map(l => ({ id: l.id, type: l.type, source: l.source }));
 
       // Mouse move handler for hover effects and highlighting
       const onMouseMove = (e) => {
+        // 地圖尚未載入完成或正在移動時，不進行昂貴的查詢，避免在動畫/樣式更新期間觸發渲染重算
+        if (!map.isStyleLoaded || !map.isStyleLoaded() || (map.isMoving && map.isMoving())) {
+          return;
+        }
+
         const features = map.queryRenderedFeatures(e.point);
 
         // First check if there are buildings
@@ -251,10 +261,10 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
 
   // Auto-setup interactions when map and data are ready
   useEffect(() => {
-    if (mapInstance && customBuildingData !== null) {
+    if (enabled && mapInstance && customBuildingData !== null) {
       setupBuildingInteractions(mapInstance);
     }
-  }, [mapInstance, customBuildingData, setupBuildingInteractions]);
+  }, [enabled, mapInstance, customBuildingData, setupBuildingInteractions]);
 
   return {
     hoverInfo,

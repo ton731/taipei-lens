@@ -25,7 +25,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   // Opening animation state
   const [isOpeningAnimationComplete, setIsOpeningAnimationComplete] = useState(false);
   const [maxBounds, setMaxBounds] = useState(undefined);
-  const [mapProjection, setMapProjection] = useState('globe');
 
   // Layer selection state
   const [selectedDataLayer, setSelectedDataLayer] = useState(null);
@@ -88,7 +87,13 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   const {
     hoverInfo,
     highlightedBuilding
-  } = useMapInteractions(mapInstance, customBuildingData, statisticalAreaSourceLayer, externalSetHoverInfo || null);
+  } = useMapInteractions(
+    mapInstance,
+    customBuildingData,
+    statisticalAreaSourceLayer,
+    externalSetHoverInfo || null,
+    isOpeningAnimationComplete // 互動只在動畫完成後啟用
+  );
 
   // Use external hoverInfo if provided, otherwise use internal
   const actualHoverInfo = externalHoverInfo !== undefined ? externalHoverInfo : hoverInfo;
@@ -138,20 +143,18 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }));
   }, []);
 
-  // Handle projection switch during animation
-  const handleProjectionSwitch = useCallback(() => {
-    setMapProjection('mercator');
-  }, []);
-
   // Handle animation completion
   const handleAnimationComplete = useCallback(() => {
+    // 停止可能尚未完成的相機動畫
+    if (mapInstance && mapInstance.stop) {
+      try { mapInstance.stop(); } catch (_) {}
+    }
+
     setIsOpeningAnimationComplete(true);
-    // Set bounds after animation completes
-    setMaxBounds([
-      [121.46, 24.95],  // 西南角 [經度, 緯度]
-      [121.67, 25.20]   // 東北角 [經度, 緯度]
-    ]);
-  }, []);
+
+    // 暫不設定 maxBounds，以排除遞迴來源可能性
+    // 如需再加回，請在確認穩定後逐步恢復
+  }, [mapInstance]);
 
   // Handle LLM highlight areas
   useEffect(() => {
@@ -221,7 +224,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
         mapStyle={styleUrl}
-        projection={mapProjection}
+        projection='globe'
         maxBounds={maxBounds}
         mapConfig={{
           basemap: {
@@ -260,12 +263,11 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           <OpeningAnimation
             mapInstance={mapInstance}
             onAnimationComplete={handleAnimationComplete}
-            onProjectionSwitch={handleProjectionSwitch}
           />
         )}
 
-        {/* Map layers */}
-        {isStyleLoaded && (
+        {/* Map layers：動畫完成後再渲染，降低動畫期間的計算負擔 */}
+        {isStyleLoaded && isOpeningAnimationComplete && (
           <MapLayers
             buildingData={buildingData}
             sourceLayerName={sourceLayerName}

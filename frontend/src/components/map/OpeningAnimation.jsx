@@ -47,7 +47,7 @@ const GLOBAL_HOTSPOTS = [
   { id: 31, coordinates: [3.3792, 6.5244], name: 'Lagos' },           // 拉哥斯
 ];
 
-const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch }) => {
+const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
   const [opacity, setOpacity] = useState(0);
   const animationFrameRef = useRef(null);
   const hasStartedRef = useRef(false); // 防止重複執行
@@ -56,74 +56,49 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch
     if (!mapInstance || hasStartedRef.current) return;
 
     hasStartedRef.current = true;
-    console.log('開場動畫開始');
+    console.log('開場動畫開始（使用 Globe 投影）');
 
-    // 設定為地球投影
-    mapInstance.setProjection('globe');
-
-    // 階段1：直接開始地球旋轉（已經在全球視角了）
-    setTimeout(() => {
-      console.log('開始地球旋轉');
+    // 階段A：沿地軸（水平）旋轉，從非洲開始，讓台灣置中（zoom 保持不變）
+    const startSpinToTaiwan = () => {
+      console.log('沿地軸水平旋轉：起點非洲 → 終點台灣置中');
+      // 初始：非洲附近（赤道）、水平視角，只用 bearing 旋轉
+      mapInstance.easeTo({ center: [20, 0], zoom: 1.3, pitch: 0, bearing: -90, duration: 0 });
+      // 單段動畫：同步旋轉與平移，將台灣帶到畫面中央（保持 zoom 低倍率）
       mapInstance.easeTo({
-        center: [121.5654, 25.0330], // 旋轉到亞洲上空
-        zoom: 2,
+        center: [121.0, 23.7],
+        zoom: 1.3,
         pitch: 0,
-        bearing: 0,
-        duration: 4000,
-        easing: (t) => t // 線性緩動
+        bearing: 0,              // 順時鐘旋轉至北向上
+        duration: 3200,          // 稍慢一些，讓旋轉更自然
+        easing: (t) => t
       });
-    }, 500);
 
-    // 階段2：5.5秒後（0.5秒延遲 + 4秒旋轉 + 1秒停留）執行第一階段 zoom in 到台灣
-    setTimeout(() => {
-      console.log('停留1秒後執行第一階段 zoom in 到台灣視角');
+      mapInstance.once('idle', startZoomToTaipei);
+    };
 
-      // 第一階段：zoom in 到台灣視角（在 globe projection 下，zoom 7 是安全的）
-      mapInstance.flyTo({
-        center: [121.5654, 25.0330],
-        zoom: 7,
-        pitch: 0,
+    // 階段B：單次連續 zoom in 到台北（不分段），最後加適度傾角
+    const startZoomToTaipei = () => {
+      console.log('直接 zoom in 到台北市');
+      mapInstance.easeTo({
+        center: [121.5500, 25.0330], // 視角向左（西）微調
+        zoom: 13,                    // 較深倍率
+        pitch: 20,                   // 適度傾角
         bearing: 0,
-        duration: 3000,
+        duration: 3200,              // 再慢一點點
         essential: true
       });
 
-      // 3秒後切換投影
-      setTimeout(() => {
-        console.log('切換投影到 mercator');
-
-        // 切換到 mercator 投影
-        mapInstance.setProjection('mercator');
-
-        // 通知 React 狀態更新
-        if (onProjectionSwitch) {
-          onProjectionSwitch();
+      // 使用事件驅動：等待完全 idle 後觸發回調，確保樣式/資料都已穩定
+      mapInstance.once('idle', () => {
+        console.log('Zoom in 完成');
+        if (onAnimationComplete) {
+          onAnimationComplete();
         }
+      });
+    };
 
-        // 等待1秒讓投影切換完成，然後繼續 zoom in
-        setTimeout(() => {
-          console.log('繼續 zoom in 到台北市');
-
-          // 第二階段：zoom in 到台北市最終視角
-          mapInstance.flyTo({
-            center: [121.5654, 25.0330],
-            zoom: 14,
-            pitch: 45,
-            bearing: 0,
-            duration: 3000,
-            essential: true
-          });
-
-          // 動畫完成後的回調
-          setTimeout(() => {
-            console.log('Zoom in 完成');
-            if (onAnimationComplete) {
-              onAnimationComplete();
-            }
-          }, 3000);
-        }, 1000);
-      }, 3000);
-    }, 5500);
+    // 延遲 500ms 開始動畫（沿地軸水平旋轉，讓台灣置中）
+    setTimeout(startSpinToTaiwan, 500);
 
     // 清理函數
     return () => {
@@ -131,15 +106,15 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [mapInstance, onAnimationComplete, onProjectionSwitch]);
+  }, [mapInstance, onAnimationComplete]);
 
   // 閃爍效果動畫 - 在 zoom in 時逐漸淡出
   useEffect(() => {
     let interval = setInterval(() => {
       setOpacity(prev => (prev === 0 ? 1 : 0));
-    }, 800); // 每0.8秒閃爍一次
+    }, 500); // 更快：每0.5秒閃爍一次
 
-    // 5.5秒後開始淡出熱點（配合切換投影的時間）
+    // 4.5秒後開始淡出熱點（配合 zoom in 到台北的時間）
     const fadeOutTimeout = setTimeout(() => {
       clearInterval(interval);
       // 逐漸淡出
@@ -152,7 +127,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch
         }
         setOpacity(fadeOpacity);
       }, 200);
-    }, 5500);
+    }, 4500);
 
     return () => {
       clearInterval(interval);
