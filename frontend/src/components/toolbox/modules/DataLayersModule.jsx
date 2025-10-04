@@ -240,16 +240,22 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
         )}
 
         {/* Other layers - Each layer option followed by its own colorbar */}
-        {otherLayers.map((layer) => (
-          <div key={layer.id}>
-            <RadioLayerToggle
-              id={layer.id}
-              label={layer.label}
-              description={layer.description}
-              icon={layer.icon}
-              checked={selectedLayer === layer.id}
-              onChange={() => handleLayerChange(layer.id)}
-            />
+        {otherLayers.map((layer) => {
+          // NASA 圖層列表
+          const nasaLayers = ['lst', 'ndvi', 'coverage_strict_300m', 'viirs_mean'];
+          const isNasaLayer = nasaLayers.includes(layer.id);
+          
+          return (
+            <div key={layer.id}>
+              <RadioLayerToggle
+                id={layer.id}
+                label={layer.label}
+                description={layer.description}
+                icon={layer.icon}
+                checked={selectedLayer === layer.id}
+                onChange={() => handleLayerChange(layer.id)}
+                showNasaIcon={isNasaLayer}
+              />
             
             {/* Layer's colorbar - Only show when selected */}
             {selectedLayer === layer.id && (
@@ -284,8 +290,9 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
                 ))}
               </div>
             )}
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
