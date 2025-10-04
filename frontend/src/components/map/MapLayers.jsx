@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Source, Layer } from 'react-map-gl/mapbox';
-import { LAYER_CONFIGS, generateFillColorExpression } from '../../config/layerConfig';
+import { LAYER_CONFIGS, generateFillColorExpression, interpolateFragilityCurve } from '../../config/layerConfig';
 import { ANALYSIS_MODULES } from '../../config/analysisModuleConfig';
 
 /**
@@ -24,8 +24,62 @@ const MapLayers = ({
   statisticalAreaMapboxUrl,
   selectedDataLayer,
   highlightedBuilding,
-  analysisResults
+  analysisResults,
+  earthquakeIntensity
 }) => {
+  // 生成建築物顏色表達式 - 支援結構脆弱度圖層
+  const getBuildingColorExpression = () => {
+    if (selectedDataLayer === 'structural_vulnerability') {
+      console.log('MapLayers: 結構脆弱度圖層被選中，地震強度:', earthquakeIntensity);
+      const config = LAYER_CONFIGS.structural_vulnerability;
+      
+      // 暫時使用簡化的方案：根據建築物年齡來估計脆弱度
+      // 年齡越大，在高地震強度下越脆弱
+      return [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        '#FF6B35', // hover 顏色
+        [
+          'case',
+          ['has', 'age'],
+          [
+            'interpolate',
+            ['linear'],
+            // 使用建築物年齡作為代理指標
+            // 並根據地震強度調整顏色深淺
+            ['*', 
+              ['get', 'age'],
+              // 地震強度越大，乘數越大
+              ['case',
+                ['==', earthquakeIntensity, '3'], 0.01,
+                ['==', earthquakeIntensity, '5弱'], 0.015,
+                ['==', earthquakeIntensity, '5強'], 0.02,
+                ['==', earthquakeIntensity, '6弱'], 0.025,
+                ['==', earthquakeIntensity, '6強'], 0.03,
+                ['==', earthquakeIntensity, '7'], 0.035,
+                0.02
+              ]
+            ],
+            0, '#fff7e6',      // 與建築屋齡相同的配色
+            0.2, '#fdd49e',
+            0.4, '#fdae6b',
+            0.6, '#fd8d3c',
+            0.8, '#e6550d',
+            1, '#8c3a00'
+          ],
+          '#f5f5f5' // 沒有 age 資料的建築物用淺灰色而非純白色
+        ]
+      ];
+    } else {
+      return [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        '#FF6B35',
+        '#f8f8f8' // 預設使用淺灰色而非純白色，避免與可能的黑色背景產生對比問題
+      ];
+    }
+  };
+
   // Custom 3D buildings layer configuration
   const customBuildingsLayer = {
     id: 'custom-3d-buildings',
@@ -34,12 +88,7 @@ const MapLayers = ({
     type: 'fill-extrusion',
     minzoom: 10,
     paint: {
-      'fill-extrusion-color': [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false],
-        '#FF6B35',
-        '#F5F5F0'
-      ],
+      'fill-extrusion-color': getBuildingColorExpression(),
       'fill-extrusion-height': [
         'case',
         ['has', 'height'],
@@ -49,7 +98,7 @@ const MapLayers = ({
         10
       ],
       'fill-extrusion-base': 0,
-      'fill-extrusion-opacity': 0.85
+      'fill-extrusion-opacity': selectedDataLayer === 'structural_vulnerability' ? 0.9 : 0.85
     }
   };
 
@@ -364,11 +413,11 @@ const MapLayers = ({
           type="vector"
           url={statisticalAreaMapboxUrl}
         >
-          {/* Base layer: displayed when no data layer is selected, only has hover border */}
-          {!selectedDataLayer && renderBaseStatisticalAreaLayer()}
+          {/* 基礎圖層：沒有選擇資料圖層時顯示，或選擇結構脆弱度時也顯示（因為結構脆弱度是在建築物上著色） */}
+          {(!selectedDataLayer || selectedDataLayer === 'structural_vulnerability') && renderBaseStatisticalAreaLayer()}
 
-          {/* Data layer: displayed when data layer is selected, includes color fill */}
-          {selectedDataLayer && renderDataLayer(selectedDataLayer)}
+          {/* 資料圖層：選擇資料圖層時顯示，包含顏色填充（但排除結構脆弱度，因為它是在建築物上著色） */}
+          {selectedDataLayer && selectedDataLayer !== 'structural_vulnerability' && renderDataLayer(selectedDataLayer)}
 
           {/* Analysis result highlight layer: displays analysis results from all modules */}
           {renderAnalysisHighlightLayers()}

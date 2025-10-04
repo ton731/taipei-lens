@@ -21,6 +21,10 @@ import { useMapInteractions } from './hooks/useMapInteractions';
 // Config
 import { LAYER_CONFIGS, generateLegendGradient } from './config/layerConfig';
 
+// 視角配置常數
+const BUILDING_VIEW_ZOOM = 16.5; // 結構脆弱度圖層的視角高度 (數值越大越接近地面，範圍通常是 0-22)
+const ZOOM_ANIMATION_DURATION = 1500; // 視角變化動畫持續時間（毫秒）
+
 const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetHoverInfo, llmHighlightAreas, clearLlmHighlight }) => {
   // Opening animation state
   const [isOpeningAnimationComplete, setIsOpeningAnimationComplete] = useState(false);
@@ -29,6 +33,9 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   // Layer selection state
   const [selectedDataLayer, setSelectedDataLayer] = useState(null);
   const [activeLegends, setActiveLegends] = useState([]);
+  
+  // 結構脆弱度圖層的地震強度狀態 - 使用離散值
+  const [earthquakeIntensity, setEarthquakeIntensity] = useState('6弱');
 
   // General analysis results state - stores analysis results from all modules
   const [analysisResults, setAnalysisResults] = useState({
@@ -100,13 +107,43 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
   // Handle layer changes from DataLayersModule
   const handleDataLayerChange = useCallback((layerId) => {
+    console.log('MapComponent: 接收到圖層變化', { 
+      newLayerId: layerId, 
+      currentLayer: selectedDataLayer 
+    });
     setSelectedDataLayer(layerId);
 
     // Clear AI highlight when opening layer
     if (layerId && clearLlmHighlight) {
       clearLlmHighlight();
     }
-  }, [clearLlmHighlight]);
+    
+    if (layerId === 'structural_vulnerability') {
+      console.log('MapComponent: 選擇了結構脆弱度圖層，當前地震強度:', earthquakeIntensity);
+      
+      // 自動調整地圖視角到較低的高度以顯示建築物細節
+      if (mapInstance) {
+        const currentCenter = mapInstance.getCenter();
+        const currentBearing = mapInstance.getBearing();
+        const currentPitch = mapInstance.getPitch();
+        
+        mapInstance.flyTo({
+          center: currentCenter,
+          zoom: BUILDING_VIEW_ZOOM,
+          bearing: currentBearing,
+          pitch: currentPitch,
+          duration: ZOOM_ANIMATION_DURATION,
+          essential: true
+        });
+      }
+    }
+  }, [clearLlmHighlight, selectedDataLayer, earthquakeIntensity, mapInstance]);
+
+  // 處理地震強度變化
+  const handleEarthquakeIntensityChange = useCallback((intensity) => {
+    console.log('地震強度變化:', intensity);
+    setEarthquakeIntensity(intensity);
+  }, []);
 
   // General analysis execution callback - shared by all modules
   const handleAnalysisExecute = useCallback((moduleId, highlightedCodes) => {
@@ -190,15 +227,33 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
     const config = LAYER_CONFIGS[selectedDataLayer];
     if (config) {
+      let title = config.title;
+      let minLabel = `${config.minValue}${config.unit}`;
+      let maxLabel = `${config.maxValue.toLocaleString()}${config.unit}`;
+      
+      // If structural vulnerability layer, add earthquake intensity info
+      if (selectedDataLayer === 'structural_vulnerability') {
+        title = `${config.title} (Earthquake Intensity: ${earthquakeIntensity})`;
+        minLabel = `0% (No Risk)`;
+        maxLabel = `100% (Extreme Risk)`;
+      }
+      
+      // If LST layer, display original temperature value range
+      if (selectedDataLayer === 'lst') {
+        // Keep original logic, as config.minValue and config.maxValue are already set to original temperature values
+        minLabel = `${config.minValue}${config.unit}`;
+        maxLabel = `${config.maxValue}${config.unit}`;
+      }
+      
       setActiveLegends([{
-        title: config.title,
+        title: title,
         type: 'gradient',
         gradient: generateLegendGradient(config),
-        minLabel: `${config.minValue}${config.unit}`,
-        maxLabel: `${config.maxValue.toLocaleString()}${config.unit}`
+        minLabel: minLabel,
+        maxLabel: maxLabel
       }]);
     }
-  }, [selectedDataLayer]);
+  }, [selectedDataLayer, earthquakeIntensity]);
 
   if (!mapboxPublicToken) {
     return (
@@ -278,6 +333,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
             selectedDataLayer={selectedDataLayer}
             highlightedBuilding={highlightedBuilding}
             analysisResults={analysisResults}
+            earthquakeIntensity={earthquakeIntensity}
           />
         )}
 
@@ -299,6 +355,8 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           moduleConfigs={moduleConfigs}
           onModuleConfigChange={handleModuleConfigChange}
           analysisResults={analysisResults}
+          earthquakeIntensity={earthquakeIntensity}
+          onEarthquakeIntensityChange={handleEarthquakeIntensityChange}
         />}
 
         {/* Hover Popup - only show after animation */}

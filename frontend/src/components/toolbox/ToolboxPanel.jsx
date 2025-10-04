@@ -19,7 +19,9 @@ const ToolboxPanel = ({
   onClearDataLayer,
   moduleConfigs,
   onModuleConfigChange,
-  analysisResults
+  analysisResults,
+  earthquakeIntensity,
+  onEarthquakeIntensityChange
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openSection, setOpenSection] = useState(null); // 'data', 'renovation', 'reconstruction', 'test'
@@ -141,6 +143,8 @@ const ToolboxPanel = ({
                   onLayerChange={onDataLayerChange}
                   activeLegends={activeLegends}
                   selectedLayer={selectedDataLayer}
+                  earthquakeIntensity={earthquakeIntensity}
+                  onEarthquakeIntensityChange={onEarthquakeIntensityChange}
                 />
               </AccordionSection>
 

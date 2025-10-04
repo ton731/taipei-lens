@@ -1,22 +1,49 @@
 import React from 'react';
 
 /**
- * FragilityCurve - Fragility Curve Chart Component
- * Rendered using pure SVG, displays building damage probability under different earthquake intensities
+ * FragilityCurve - 易損性曲線圖表組件
+ * 使用純 SVG 繪製，顯示建築物在不同地震強度下的損壞機率
+ * @param {Object} fragilityCurveData - fragility curve 資料 {地震強度: 機率}
  */
-const FragilityCurve = () => {
-  // Mock data: Earthquake magnitude vs. Damage probability
-  // X-axis: Earthquake magnitude 3-9
-  // Y-axis: Damage probability 0-100%
-  const mockData = [
-    { magnitude: 3, damageProb: 2 },
-    { magnitude: 4, damageProb: 8 },
-    { magnitude: 5, damageProb: 25 },
-    { magnitude: 6, damageProb: 55 },
-    { magnitude: 7, damageProb: 85 },
-    { magnitude: 8, damageProb: 95 },
-    { magnitude: 9, damageProb: 99 }
-  ];
+const FragilityCurve = ({ fragilityCurveData }) => {
+  // 處理真實資料，如果沒有資料則使用假資料
+  const processData = () => {
+    if (!fragilityCurveData || typeof fragilityCurveData !== 'object') {
+      // 假資料：使用正確的地震強度範圍
+      return [
+        { magnitude: '3', displayValue: '3', damageProb: 2 },
+        { magnitude: '4', displayValue: '4', damageProb: 8 },
+        { magnitude: '5弱', displayValue: '5-', damageProb: 25 },
+        { magnitude: '5強', displayValue: '5+', damageProb: 40 },
+        { magnitude: '6弱', displayValue: '6-', damageProb: 55 },
+        { magnitude: '6強', displayValue: '6+', damageProb: 75 },
+        { magnitude: '7', displayValue: '7', damageProb: 85 }
+      ];
+    }
+
+    // 定義正確的地震強度順序
+    const intensityOrder = ['3', '4', '5弱', '5強', '6弱', '6強', '7'];
+    const intensityDisplayMap = {
+      '3': '3',
+      '4': '4', 
+      '5弱': '5-',
+      '5強': '5+',
+      '6弱': '6-',
+      '6強': '6+',
+      '7': '7'
+    };
+
+    // 將真實資料轉換為圖表格式，按照正確順序排列
+    return intensityOrder
+      .filter(intensity => fragilityCurveData.hasOwnProperty(intensity))
+      .map(intensity => ({
+        magnitude: intensity,
+        displayValue: intensityDisplayMap[intensity],
+        damageProb: (fragilityCurveData[intensity] || 0) * 100 // 轉換為百分比
+      }));
+  };
+
+  const data = processData();
 
   // SVG size settings
   const width = 200;
@@ -27,13 +54,32 @@ const FragilityCurve = () => {
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
-  // Data range
-  const xMin = 3, xMax = 9;
-  const yMin = 0, yMax = 100;
+  // 動態計算數據範圍
+  const magnitudes = data.map(d => d.magnitude);
+  const probs = data.map(d => d.damageProb);
+  
+  // 為地震強度建立索引映射 (0-based)
+  const intensityIndexMap = {
+    '3': 0,
+    '4': 1, 
+    '5弱': 2,
+    '5強': 3,
+    '6弱': 4,
+    '6強': 5,
+    '7': 6
+  };
+  
+  const xMin = 0; // 第一個強度的索引
+  const xMax = data.length - 1; // 最後一個強度的索引
+  const yMin = 0;
+  const yMax = 100;
 
-  // Coordinate transformation functions
+  // 座標轉換函數 - 使用索引而非實際強度值
   const getX = (magnitude) => {
-    return padding.left + ((magnitude - xMin) / (xMax - xMin)) * chartWidth;
+    const intensityOrder = ['3', '4', '5弱', '5強', '6弱', '6強', '7'];
+    const dataIndex = data.findIndex(d => d.magnitude === magnitude);
+    const normalizedIndex = dataIndex / Math.max(data.length - 1, 1); // 避免除以0
+    return padding.left + normalizedIndex * chartWidth;
   };
 
   const getY = (damageProb) => {
@@ -41,14 +87,14 @@ const FragilityCurve = () => {
   };
 
   // Generate SVG path
-  const pathData = mockData.map((point, index) => {
+  const pathData = data.map((point, index) => {
     const x = getX(point.magnitude);
     const y = getY(point.damageProb);
     return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
   }).join(' ');
 
   // Generate smooth curve (using quadratic Bezier curve)
-  const smoothPathData = mockData.map((point, index, array) => {
+  const smoothPathData = data.map((point, index, array) => {
     const x = getX(point.magnitude);
     const y = getY(point.damageProb);
 
@@ -69,8 +115,20 @@ const FragilityCurve = () => {
   // Y-axis ticks (0%, 25%, 50%, 75%, 100%)
   const yTicks = [0, 25, 50, 75, 100];
 
-  // X-axis ticks (3, 5, 7, 9)
-  const xTicks = [3, 5, 7, 9];
+  // 動態生成 X 軸刻度 - 使用實際的地震強度
+  const generateXTicks = () => {
+    if (data.length <= 4) {
+      // 如果資料點少，直接用所有資料點作為刻度
+      return data.map(d => d.magnitude);
+    } else {
+      // 如果資料點多，選擇部分刻度以避免擁擠
+      const step = Math.max(1, Math.floor(data.length / 4));
+      return data.filter((_, index) => index % step === 0 || index === data.length - 1)
+                 .map(d => d.magnitude);
+    }
+  };
+  
+  const xTicks = generateXTicks();
 
   return (
     <svg
@@ -154,8 +212,8 @@ const FragilityCurve = () => {
         </linearGradient>
       </defs>
 
-      {/* Data points */}
-      {mockData.map(point => {
+      {/* 數據點 */}
+      {data.map(point => {
         const x = getX(point.magnitude);
         const y = getY(point.damageProb);
         return (
@@ -191,6 +249,8 @@ const FragilityCurve = () => {
       {/* X-axis tick labels */}
       {xTicks.map(tick => {
         const x = getX(tick);
+        const dataPoint = data.find(d => d.magnitude === tick);
+        const displayLabel = dataPoint ? dataPoint.displayValue : tick;
         return (
           <text
             key={`x-label-${tick}`}
@@ -200,7 +260,7 @@ const FragilityCurve = () => {
             fontSize="9"
             fill="#666"
           >
-            {tick}
+            {displayLabel}
           </text>
         );
       })}

@@ -7,6 +7,47 @@ import FragilityCurve from '../charts/FragilityCurve';
  */
 const BuildingPopup = ({ data }) => {
   const displayFields = ['height', 'floor', 'area'];
+  
+  // 調試：檢查建築物完整數據結構
+  React.useEffect(() => {
+    console.log('=== BuildingPopup 建築物數據調試 ===');
+    console.log('完整 data 對象:', data);
+    console.log('data.properties:', data.properties);
+    
+    if (data.properties) {
+      console.log('所有屬性鍵值:', Object.keys(data.properties));
+      console.log('屬性數量:', Object.keys(data.properties).length);
+      
+      // 檢查 fragility_curve
+      if (data.properties.fragility_curve) {
+        console.log('✅ 找到 fragility_curve 數據:', data.properties.fragility_curve);
+        console.log('fragility_curve 型態:', typeof data.properties.fragility_curve);
+        console.log('fragility_curve 鍵值:', Object.keys(data.properties.fragility_curve));
+        console.log('fragility_curve 值:', Object.values(data.properties.fragility_curve));
+      } else {
+        console.log('❌ 沒有找到 fragility_curve 屬性');
+        
+        // 檢查是否有相似的屬性名稱
+        const keys = Object.keys(data.properties);
+        const similarKeys = keys.filter(key => 
+          key.toLowerCase().includes('fragility') || 
+          key.toLowerCase().includes('curve') ||
+          key.toLowerCase().includes('vulnerability') ||
+          key.toLowerCase().includes('seismic')
+        );
+        
+        if (similarKeys.length > 0) {
+          console.log('找到相似的屬性:', similarKeys);
+          similarKeys.forEach(key => {
+            console.log(`${key}:`, data.properties[key]);
+          });
+        }
+      }
+    } else {
+      console.log('❌ data.properties 不存在');
+    }
+    console.log('=== BuildingPopup 調試結束 ===');
+  }, [data]);
 
   return (
     <div style={{
@@ -69,7 +110,7 @@ const BuildingPopup = ({ data }) => {
       </div>
 
       {/* Fragility Curve Chart */}
-      <FragilityCurve />
+      <FragilityCurve fragilityCurveData={data.properties?.fragility_curve} />
     </div>
   );
 };

@@ -80,6 +80,56 @@ export const LAYER_CONFIGS = {
     maxValue: 2.11,
     unit: '%',
     outlineColor: '#d67e4b'
+  },
+  structural_vulnerability: {
+    title: 'Structural Vulnerability',
+    property: 'fragility_curve',
+    colorStops: [
+      { value: 0, color: '#fff7e6' },      // 與建築屋齡相同的配色
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
+    ],
+    minValue: 0,
+    maxValue: 1,
+    unit: '',
+    outlineColor: '#d67e4b',
+    isDynamic: true
+  },
+  lst: {
+    title: 'LST Surface Temperature',
+    property: 'norm_lst_p90',
+    colorStops: [
+      { value: 0, color: '#fff7e6' },
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
+    ],
+    minValue: 2.5996,      // 原始溫度範圍的最小值
+    maxValue: 35.4709,     // 原始溫度範圍的最大值
+    unit: '°C',
+    outlineColor: '#d67e4b',
+    displayOriginalValues: true  // 標記此圖層需要顯示原始值而非標準化值
+  },
+  ndvi: {
+    title: 'NDVI Vegetation Index',
+    property: 'ndvi_mean',
+    colorStops: [
+      { value: 0, color: '#fff7e6' },
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
+    ],
+    minValue: 0,
+    maxValue: 1,
+    unit: '',
+    outlineColor: '#d67e4b'
   }
 };
 
@@ -104,4 +154,75 @@ export const generateFillColorExpression = (layerConfig) => {
 export const generateLegendGradient = (layerConfig) => {
   const colors = layerConfig.colorStops.map(stop => stop.color).join(', ');
   return `linear-gradient(to right, ${colors})`;
+};
+
+/**
+ * 從 fragility curve 數據中插值計算特定地震強度下的倒塌機率
+ * @param {Object} fragilityCurve - fragility curve 數據 {強度: 機率}
+ * @param {number} targetIntensity - 目標地震強度
+ * @returns {number} 倒塌機率 (0-1)
+ */
+export const interpolateFragilityCurve = (fragilityCurve, targetIntensity) => {
+  if (!fragilityCurve || typeof fragilityCurve !== 'object') {
+    return 0;
+  }
+
+  const intensities = Object.keys(fragilityCurve).map(k => parseFloat(k)).sort((a, b) => a - b);
+  
+  if (intensities.length === 0) {
+    return 0;
+  }
+
+  // 如果目標強度小於最小值，返回最小值對應的機率
+  if (targetIntensity <= intensities[0]) {
+    return fragilityCurve[intensities[0]] || 0;
+  }
+
+  // 如果目標強度大於最大值，返回最大值對應的機率
+  if (targetIntensity >= intensities[intensities.length - 1]) {
+    return fragilityCurve[intensities[intensities.length - 1]] || 0;
+  }
+
+  // 找到目標強度的相鄰兩個點進行線性插值
+  for (let i = 0; i < intensities.length - 1; i++) {
+    const lowerIntensity = intensities[i];
+    const upperIntensity = intensities[i + 1];
+    
+    if (targetIntensity >= lowerIntensity && targetIntensity <= upperIntensity) {
+      const lowerProb = fragilityCurve[lowerIntensity] || 0;
+      const upperProb = fragilityCurve[upperIntensity] || 0;
+      
+      // 線性插值
+      const ratio = (targetIntensity - lowerIntensity) / (upperIntensity - lowerIntensity);
+      return lowerProb + ratio * (upperProb - lowerProb);
+    }
+  }
+
+  return 0;
+};
+
+/**
+ * 生成結構脆弱度圖層的動態 fill-color 表達式
+ * @param {number} earthquakeIntensity - 地震強度
+ * @returns {Array} Mapbox expression
+ */
+export const generateStructuralVulnerabilityExpression = (earthquakeIntensity) => {
+  const config = LAYER_CONFIGS.structural_vulnerability;
+  
+  // 使用 Mapbox expression 來動態計算每個建築物的倒塌機率
+  const expression = [
+    'case',
+    ['has', 'fragility_curve'],
+    [
+      'interpolate',
+      ['linear'],
+      // 這裡需要一個自定義函數來處理 fragility curve 插值
+      // 由於 Mapbox expression 的限制，我們先用簡化版本
+      ['coalesce', ['get', earthquakeIntensity.toString(), ['get', 'fragility_curve']], 0],
+      ...config.colorStops.flatMap(stop => [stop.value, stop.color])
+    ],
+    config.colorStops[0].color // 默認顏色
+  ];
+  
+  return expression;
 };

@@ -21,7 +21,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 # 資料路徑
 input_geojson_path = "data/basic_statistical_area/geojson/basic_statistical_area.geojson"
-output_geojson_path = "data/basic_statistical_area/geojson/basic_statistical_area_with_features_w_fragility_test.geojson"
+output_geojson_path = "data/basic_statistical_area/geojson/basic_statistical_area_with_features_w_fragility_test_2.geojson"
 
 population_json_path = "data/social_vulnerability/processed/population_by_age_district.json"
 low_income_json_path = "data/social_vulnerability/processed/low_income_district.json"
@@ -32,6 +32,10 @@ building_geojson_path = "data/building/geojson_w_fragility/building_extracted_wi
 # LST 和 NDVI 資料路徑
 lst_geojson_path = "data/ndvi_lst/result_lst_minstatic.geojson"
 ndvi_geojson_path = "data/ndvi_lst/result_ndvi_minstatic.geojson"
+
+# 土壤液化風險和綠地覆蓋率資料路徑
+liq_risk_geojson_path = "data/ndvi_lst/taipei_liquefaction_risk.geojson"  # 待確認路徑
+coverage_geojson_path = "data/ndvi_lst/taipei_open_space_coverage_ndvi.geojson"  # 待確認路徑
 
 # ==================== 測試參數 ====================
 # 設定為 True 進行小量測試，False 使用全部資料
@@ -347,6 +351,8 @@ PROPERTIES_TO_NORMALIZE = [
     'low_income_percentage',
     'avg_building_age',
     'lst_p90',           # 地表溫度 p90 值
+    'coverage_strict_300m',  # 綠地覆蓋率（需標準化）
+    # 注意：liq_risk 不加入此列表，因為不需要標準化
 ]
 
 
@@ -424,7 +430,9 @@ def add_social_vulnerability_to_geojson(
     building_age_data=None,
     fragility_curve_data=None,
     lst_data=None,
-    ndvi_data=None
+    ndvi_data=None,
+    liq_risk_data=None,
+    coverage_data=None
 ):
     """
     為 GeoJSON 的每個最小統計區加入社會脆弱性資料、建築物年齡資料、fragility curve 和環境資料
@@ -449,6 +457,10 @@ def add_social_vulnerability_to_geojson(
         LST p90 資料（以 CODEBASE 為 key）
     ndvi_data : dict, optional
         NDVI mean 資料（以 CODEBASE 為 key）
+    liq_risk_data : dict, optional
+        土壤液化風險資料（以 CODEBASE 為 key）
+    coverage_data : dict, optional
+        綠地覆蓋率資料（以 CODEBASE 為 key）
     """
 
     print(f"正在讀取 GeoJSON: {geojson_path}")
@@ -542,6 +554,20 @@ def add_social_vulnerability_to_geojson(
                 vulnerability_data['ndvi_mean'] = ndvi_data[codebase]
             else:
                 vulnerability_data['ndvi_mean'] = None
+        
+        # 加入土壤液化風險資料（不需標準化）
+        if liq_risk_data and codebase:
+            if codebase in liq_risk_data:
+                vulnerability_data['liq_risk'] = liq_risk_data[codebase]
+            else:
+                vulnerability_data['liq_risk'] = None
+        
+        # 加入綠地覆蓋率資料（需標準化）
+        if coverage_data and codebase:
+            if codebase in coverage_data:
+                vulnerability_data['coverage_strict_300m'] = coverage_data[codebase]
+            else:
+                vulnerability_data['coverage_strict_300m'] = None
 
         # 將資料加入 properties
         if vulnerability_data:
@@ -616,6 +642,10 @@ def add_social_vulnerability_to_geojson(
             print(f"\n  Fragility Curve 平均值 (不標準化):")
             for magnitude, probability in example_props['avg_fragility_curve'].items():
                 print(f"    震度 {magnitude}: {probability}")
+        
+        # 顯示土壤液化風險（如果存在）
+        if 'liq_risk' in example_props:
+            print(f"\n  土壤液化風險 (不標準化): {example_props['liq_risk']}")
 
 
 def main():
@@ -637,6 +667,8 @@ def main():
         '建築物資料': building_geojson_path,
         'LST 資料': lst_geojson_path,
         'NDVI 資料': ndvi_geojson_path,
+        '土壤液化風險資料': liq_risk_geojson_path,
+        '綠地覆蓋率資料': coverage_geojson_path,
     }
 
     print(f"\n📂 檢查輸入檔案:")
@@ -663,6 +695,8 @@ def main():
     print(f"\n📥 載入環境資料:")
     lst_data = load_environmental_data(lst_geojson_path, 'p90', 'LST')
     ndvi_data = load_environmental_data(ndvi_geojson_path, 'mean', 'NDVI')
+    liq_risk_data = load_environmental_data(liq_risk_geojson_path, 'liq_risk', '土壤液化風險')  # 使用正確欄位名 'liq_risk'
+    coverage_data = load_environmental_data(coverage_geojson_path, 'coverage_strict_300m', '綠地覆蓋率')  # 使用正確欄位名 'coverage_strict_300m'
 
     # 計算建築物平均年齡
     print(f"\n" + "=" * 60)
@@ -691,7 +725,9 @@ def main():
             building_age_data=building_age_data,
             fragility_curve_data=fragility_curve_data,
             lst_data=lst_data,
-            ndvi_data=ndvi_data
+            ndvi_data=ndvi_data,
+            liq_risk_data=liq_risk_data,
+            coverage_data=coverage_data
         )
 
         print(f"\n" + "=" * 60)
