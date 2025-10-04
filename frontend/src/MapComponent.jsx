@@ -189,8 +189,13 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
     setIsOpeningAnimationComplete(true);
 
-    // 暫不設定 maxBounds，以排除遞迴來源可能性
-    // 如需再加回，請在確認穩定後逐步恢復
+    // 在動畫完成後限制可移動的邊界於台北市範圍（稍微延遲以確保 idle）
+    setTimeout(() => {
+      setMaxBounds([
+        [121.46, 24.95],  // 西南角 [經度, 緯度]
+        [121.67, 25.20]   // 東北角 [經度, 緯度]
+      ]);
+    }, 300);
   }, [mapInstance]);
 
   // Handle LLM highlight areas
