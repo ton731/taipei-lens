@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-LLM 服務：處理 OpenAI API 通訊與對話邏輯
+LLM Service: Handles OpenAI API communication and conversation logic
 """
 import json
 import logging
@@ -15,26 +15,31 @@ logger = logging.getLogger(__name__)
 
 
 class ChatService:
-    """聊天服務類別，負責處理與 OpenAI API 的通訊與對話流程"""
+    """Chat service class responsible for handling communication with OpenAI API and conversation flow"""
 
-    # 系統提示詞
+    # System prompt
     SYSTEM_PROMPT = """
-        你是台北都市韌性規劃平台 Taipei Lens 的 AI 助手。
-        你的任務是協助都市規劃師了解台北市的都市更新、建築風險評估、氣候韌性等相關議題。
-        這個台北都市韌性規劃平台有將台北市劃分成行政區（如大安區、信義區）、統計區/最小統計（如A6310-0024-00、A6311-0787-00）區兩種層次，統計區是比行政區更細的區域，一個行政區有包含多個統計區。
-        請用專業但易懂的方式回答問題，並提供具體且實用的建議。
-        請以 markdown 的格式來輸出。請不要使用 #，請主要使用 markdown 的 bullet point 以及粗體來呈現就好。
+        You are the AI assistant for Taipei Lens, the Taipei Urban Resilience Planning Platform.
+        Your task is to help urban planners understand issues related to urban renewal, building risk assessment, and climate resilience in Taipei City.
+        The Taipei Urban Resilience Planning Platform divides Taipei City into two levels: administrative districts (such as Da'an District, Xinyi District) and statistical areas (such as A6310-0024-00, A6311-0787-00). Statistical areas are finer regions than administrative districts, and one administrative district contains multiple statistical areas.
+
+        **Language Response Rule:**
+        - If the user asks a question in Chinese (Traditional Chinese), respond in Chinese.
+        - Otherwise, respond in English by default.
+
+        Please answer questions in a professional yet understandable manner and provide specific and practical suggestions.
+        Please output in markdown format. Do not use #. Please mainly use markdown bullet points and bold text for presentation.
     """
 
     def __init__(self, api_key: str):
         """
-        初始化 ChatService
+        Initialize ChatService
 
         Args:
             api_key: OpenAI API key
 
         Raises:
-            ValueError: 當 API key 為空時
+            ValueError: When API key is empty
         """
         if not api_key:
             raise ValueError("OpenAI API key is required")
@@ -50,33 +55,33 @@ class ChatService:
         max_tokens: int = 1000
     ) -> Tuple[str, str, Optional[HighlightArea]]:
         """
-        處理聊天請求，支援 function calling
+        Handle chat request with function calling support
 
         Args:
-            question: 使用者的問題
-            model: OpenAI 模型名稱
-            temperature: 溫度參數
-            max_tokens: 最大 token 數
+            question: User's question
+            model: OpenAI model name
+            temperature: Temperature parameter
+            max_tokens: Maximum number of tokens
 
         Returns:
             Tuple[answer, model_used, highlight_areas]
-            - answer: AI 的回答
-            - model_used: 使用的模型名稱
-            - highlight_areas: 需要高亮的區域（可能為 None）
+            - answer: AI's response
+            - model_used: Model name used
+            - highlight_areas: Areas to highlight (may be None)
 
         Raises:
-            OpenAIError: 當 OpenAI API 調用失敗時
+            OpenAIError: When OpenAI API call fails
         """
         try:
             logger.info(f"Processing chat request: {question[:100]}...")
 
-            # 準備 messages
+            # Prepare messages
             messages = [
                 {"role": "system", "content": self.SYSTEM_PROMPT},
                 {"role": "user", "content": question}
             ]
 
-            # 第一次調用 OpenAI API（附帶 tools）
+            # First call to OpenAI API (with tools)
             response = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
@@ -88,14 +93,14 @@ class ChatService:
             response_message = response.choices[0].message
             finish_reason = response.choices[0].finish_reason
 
-            # 初始化 highlight_areas
+            # Initialize highlight_areas
             highlight_areas = None
 
-            # 檢查是否需要呼叫 function
+            # Check if function calls are needed
             if finish_reason == "tool_calls" and response_message.tool_calls:
                 # logger.info(f"LLM requested {len(response_message.tool_calls)} tool call(s)")
 
-                # 處理 function calling
+                # Handle function calling
                 answer, model_used, highlight_areas = self._handle_function_calls(
                     messages=messages,
                     response_message=response_message,
@@ -105,7 +110,7 @@ class ChatService:
                 )
 
             else:
-                # 不需要 function calling，直接返回答案
+                # No function calling needed, return answer directly
                 answer = response_message.content
                 model_used = response.model
                 # logger.info(f"Direct response from OpenAI without function calls (model: {model_used})")
@@ -128,48 +133,48 @@ class ChatService:
         max_tokens: int
     ) -> Tuple[str, str, Optional[HighlightArea]]:
         """
-        處理 function calling 流程
+        Handle function calling flow
 
         Args:
-            messages: 對話訊息列表
-            response_message: OpenAI 的回應訊息
-            model: OpenAI 模型名稱
-            temperature: 溫度參數
-            max_tokens: 最大 token 數
+            messages: List of conversation messages
+            response_message: OpenAI response message
+            model: OpenAI model name
+            temperature: Temperature parameter
+            max_tokens: Maximum number of tokens
 
         Returns:
             Tuple[answer, model_used, highlight_areas]
         """
-        # 將 assistant 的回應加入 messages
+        # Add assistant's response to messages
         messages.append(response_message)
 
-        # 用於收集行政區資訊
+        # Collect district information
         collected_district_ids = []
-        feature_name = None  # 用於記錄查詢的特徵名稱
+        feature_name = None  # Record the queried feature name
 
-        # 執行所有 tool calls
+        # Execute all tool calls
         for tool_call in response_message.tool_calls:
             function_name = tool_call.function.name
             function_args = json.loads(tool_call.function.arguments)
 
             # logger.info(f"Executing function: {function_name}")
 
-            # 執行 function
+            # Execute function
             function_result = tool_service.execute_function_call(function_name, function_args)
 
-            # 收集行政區 highlight 資訊
+            # Collect district highlight information
             if "district" in function_name:
-                # 記錄特徵名稱
+                # Record feature name
                 if "feature" in function_args:
                     feature_name = function_args["feature"]
 
-                # function_result 是一個包含 district 的 list of dict
+                # function_result is a list of dict containing district
                 if isinstance(function_result, list):
                     for item in function_result:
                         if "district" in item:
                             collected_district_ids.append(item["district"])
 
-            # 將 function 結果加入 messages
+            # Add function result to messages
             messages.append({
                 "role": "tool",
                 "tool_call_id": tool_call.id,
@@ -177,17 +182,17 @@ class ChatService:
                 "content": json.dumps(function_result, ensure_ascii=False)
             })
 
-        # 建立 highlight_areas 物件（如果有收集到行政區資料）
+        # Create highlight_areas object (if district data was collected)
         highlight_areas = None
         if collected_district_ids and feature_name:
-            # 獲取行政區內的統計區詳細資料
+            # Get statistical area details within districts
             try:
                 stat_details_data = data_service.get_statistical_areas_by_districts(
                     district_names=collected_district_ids,
                     feature=feature_name
                 )
 
-                # 轉換成 StatisticalAreaDetail 物件列表
+                # Convert to StatisticalAreaDetail object list
                 stat_details = [
                     StatisticalAreaDetail(**detail)
                     for detail in stat_details_data["statistical_areas"]
@@ -204,19 +209,19 @@ class ChatService:
                 # logger.info(f"Collected {len(collected_district_ids)} districts with {len(stat_details)} statistical areas for highlighting")
             except Exception as e:
                 logger.error(f"Error getting statistical area details: {e}")
-                # 如果取得統計區詳細資料失敗，退回到只 highlight 行政區
+                # If getting statistical area details fails, fall back to highlighting only districts
                 highlight_areas = HighlightArea(
                     type="district",
                     ids=collected_district_ids
                 )
         elif collected_district_ids:
-            # 如果沒有特徵名稱（例如使用 filter_district_by_conditions），則只 highlight 行政區
+            # If no feature name (e.g., using filter_district_by_conditions), only highlight districts
             highlight_areas = HighlightArea(
                 type="district",
                 ids=collected_district_ids
             )
 
-        # 第二次調用 OpenAI API（附帶 function 結果）
+        # Second call to OpenAI API (with function results)
         # logger.info("Sending function results back to OpenAI...")
         second_response = self.client.chat.completions.create(
             model=model,
@@ -232,4 +237,4 @@ class ChatService:
         return answer, model_used, highlight_areas
 
 
-# 注意：不創建全局實例，因為需要 API key 才能初始化
+# Note: No global instance is created because API key is required for initialization
