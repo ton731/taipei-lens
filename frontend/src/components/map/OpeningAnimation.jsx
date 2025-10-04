@@ -78,11 +78,11 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
     const startZoomToTaipei = () => {
       console.log('直接 zoom in 到台北市');
       mapInstance.easeTo({
-        center: [121.5654, 25.0330],
-        zoom: 13,      // 更深倍率，顯示更大的台北
-        pitch: 0,      // 完全 2D，避免 3D 計算
+        center: [121.5500, 25.0330], // 視角向左（西）微調
+        zoom: 13,                    // 維持較深倍率
+        pitch: 20,                   // 加一點傾角，視覺更立體
         bearing: 0,
-        duration: 1600, // 稍微加長以保持順暢
+        duration: 1700,              // 稍微調整時長以順暢
         essential: true
       });
 
