@@ -9,7 +9,8 @@ export const useMapInitialization = () => {
   const [isStyleLoaded, setIsStyleLoaded] = useState(false);
 
   const mapboxPublicToken = import.meta.env.VITE_MAPBOX_ACCESS_PUBLIC_TOKEN;
-  const styleUrl = import.meta.env.VITE_MAPBOX_STYLE_URL || 'mapbox://styles/mapbox/standard';
+  // 改為輕量樣式，降低初始化負擔
+  const styleUrl = import.meta.env.VITE_MAPBOX_STYLE_URL || 'mapbox://styles/mapbox/light-v11';
 
   // 初始視角設為全球視角，避免載入台北建築資料
   const initialViewState = {
@@ -28,10 +29,11 @@ export const useMapInitialization = () => {
     if (map.isStyleLoaded && map.isStyleLoaded()) {
       setIsStyleLoaded(true);
 
-      // Hide default buildings from Mapbox Standard Style
+      // 嘗試關閉 basemap 3D 物件以降低負擔（若可用）
       setTimeout(() => {
         if (map.getConfigProperty) {
-          map.setConfigProperty('basemap', 'showBuildings', false);
+          try { map.setConfigProperty('basemap', 'showBuildings', false); } catch (_) {}
+          try { map.setConfigProperty('basemap', 'show3dObjects', false); } catch (_) {}
         }
       }, 100);
     } else {
@@ -40,9 +42,10 @@ export const useMapInitialization = () => {
         if (map.isStyleLoaded && map.isStyleLoaded()) {
           setIsStyleLoaded(true);
 
-          // Hide default buildings from Mapbox Standard Style
+          // 關閉 basemap 3D 物件
           if (map.getConfigProperty) {
-            map.setConfigProperty('basemap', 'showBuildings', false);
+            try { map.setConfigProperty('basemap', 'showBuildings', false); } catch (_) {}
+            try { map.setConfigProperty('basemap', 'show3dObjects', false); } catch (_) {}
           }
         } else {
           setTimeout(checkStyleLoaded, 100);

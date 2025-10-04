@@ -145,20 +145,15 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
   // Handle animation completion
   const handleAnimationComplete = useCallback(() => {
-    // 停止可能尚未完成的相機動畫，避免與後續 bounds 設定產生競態
+    // 停止可能尚未完成的相機動畫
     if (mapInstance && mapInstance.stop) {
       try { mapInstance.stop(); } catch (_) {}
     }
 
     setIsOpeningAnimationComplete(true);
 
-    // 延後設定 bounds，確保地圖已 idle，避免觸發矩陣重算遞迴
-    setTimeout(() => {
-      setMaxBounds([
-        [121.46, 24.95],  // 西南角 [經度, 緯度]
-        [121.67, 25.20]   // 東北角 [經度, 緯度]
-      ]);
-    }, 300);
+    // 暫不設定 maxBounds，以排除遞迴來源可能性
+    // 如需再加回，請在確認穩定後逐步恢復
   }, [mapInstance]);
 
   // Handle LLM highlight areas

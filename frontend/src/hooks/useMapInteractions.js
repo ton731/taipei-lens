@@ -48,8 +48,13 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
     let hoveredStatisticalAreaId = null;
 
     setTimeout(() => {
-      const style = map.getStyle();
-      const layers = style.layers || [];
+      // 地圖尚未完全就緒時直接跳過初始化
+      if (!map || !map.getStyle || !map.isStyleLoaded || !map.isStyleLoaded()) {
+        return;
+      }
+
+      const style = map.getStyle && map.getStyle();
+      const layers = (style && Array.isArray(style.layers)) ? style.layers : [];
 
       const allLayers = layers.map(l => ({ id: l.id, type: l.type, source: l.source }));
 
