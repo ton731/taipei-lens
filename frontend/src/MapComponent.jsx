@@ -9,6 +9,7 @@ import MapTitle from './components/map/MapTitle';
 import MapLayers from './components/map/MapLayers';
 import BuildingPopup from './components/map/BuildingPopup';
 import DistrictPopup from './components/map/DistrictPopup';
+import OpeningAnimation from './components/map/OpeningAnimation';
 
 // Hooks
 import { useMapInitialization } from './hooks/useMapInitialization';
@@ -21,6 +22,10 @@ import { useMapInteractions } from './hooks/useMapInteractions';
 import { LAYER_CONFIGS, generateLegendGradient } from './config/layerConfig';
 
 const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetHoverInfo, llmHighlightAreas, clearLlmHighlight }) => {
+  // Opening animation state
+  const [isOpeningAnimationComplete, setIsOpeningAnimationComplete] = useState(false);
+  const [maxBounds, setMaxBounds] = useState(undefined);
+
   // Layer selection state
   const [selectedDataLayer, setSelectedDataLayer] = useState(null);
   const [activeLegends, setActiveLegends] = useState([]);
@@ -132,6 +137,16 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }));
   }, []);
 
+  // Handle animation completion
+  const handleAnimationComplete = useCallback(() => {
+    setIsOpeningAnimationComplete(true);
+    // Set bounds after animation completes
+    setMaxBounds([
+      [121.46, 24.95],  // 西南角 [經度, 緯度]
+      [121.67, 25.20]   // 東北角 [經度, 緯度]
+    ]);
+  }, []);
+
   // Handle LLM highlight areas
   useEffect(() => {
     if (llmHighlightAreas) {
@@ -200,10 +215,8 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
         mapStyle={styleUrl}
-        maxBounds={[
-          [121.46, 24.95],  // 西南角 [經度, 緯度]
-          [121.67, 25.20]   // 東北角 [經度, 緯度]
-        ]}
+        projection='globe'
+        maxBounds={maxBounds}
         mapConfig={{
           basemap: {
             show3dObjects: true,
@@ -236,6 +249,14 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           }
         }}
       >
+        {/* Opening animation */}
+        {isStyleLoaded && !isOpeningAnimationComplete && (
+          <OpeningAnimation
+            mapInstance={mapInstance}
+            onAnimationComplete={handleAnimationComplete}
+          />
+        )}
+
         {/* Map layers */}
         {isStyleLoaded && (
           <MapLayers
@@ -251,11 +272,11 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           />
         )}
 
-        {/* Map title */}
-        <MapTitle />
+        {/* Map title - only show after animation */}
+        {isOpeningAnimationComplete && <MapTitle />}
 
-        {/* Toolbox panel */}
-        <ToolboxPanel
+        {/* Toolbox panel - only show after animation */}
+        {isOpeningAnimationComplete && <ToolboxPanel
           onMouseEnter={() => externalSetHoverInfo(null)}
           onDataLayerChange={handleDataLayerChange}
           activeLegends={activeLegends}
@@ -269,10 +290,10 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           moduleConfigs={moduleConfigs}
           onModuleConfigChange={handleModuleConfigChange}
           analysisResults={analysisResults}
-        />
+        />}
 
-        {/* Hover Popup */}
-        {actualHoverInfo && (
+        {/* Hover Popup - only show after animation */}
+        {isOpeningAnimationComplete && actualHoverInfo && (
           <Popup
             longitude={actualHoverInfo.longitude}
             latitude={actualHoverInfo.latitude}
