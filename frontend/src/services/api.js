@@ -1,5 +1,7 @@
 // API 服務層，處理與後端的通訊
 
+import { apiFetch } from '../lib/httpClient';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
@@ -8,7 +10,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
  */
 export const getBuildingTilesetInfo = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/mapbox/building-tileset-info`, {
+    const response = await apiFetch(`${API_BASE_URL}/mapbox/building-tileset-info`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +44,7 @@ export const getBuildingTilesUrls = () => {
  */
 export const getBuildingMapboxUrl = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/mapbox/building-mapbox-url`, {
+    const response = await apiFetch(`${API_BASE_URL}/mapbox/building-mapbox-url`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -67,7 +69,7 @@ export const getBuildingMapboxUrl = async () => {
  */
 export const checkBackendHealth = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/mapbox/health`);
+    const response = await apiFetch(`${API_BASE_URL}/mapbox/health`);
     return await response.json();
   } catch (error) {
     console.error('Backend health check failed:', error);
@@ -81,7 +83,7 @@ export const checkBackendHealth = async () => {
  */
 export const getDistrictTilesetInfo = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/mapbox/district-tileset-info`, {
+    const response = await apiFetch(`${API_BASE_URL}/mapbox/district-tileset-info`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -115,7 +117,7 @@ export const getDistrictTilesUrls = () => {
  */
 export const getDistrictMapboxUrl = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/mapbox/district-mapbox-url`, {
+    const response = await apiFetch(`${API_BASE_URL}/mapbox/district-mapbox-url`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -140,7 +142,7 @@ export const getDistrictMapboxUrl = async () => {
  */
 export const getStatisticalAreaTilesetInfo = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/mapbox/statistical-area-tileset-info`, {
+    const response = await apiFetch(`${API_BASE_URL}/mapbox/statistical-area-tileset-info`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -174,7 +176,7 @@ export const getStatisticalAreaTilesUrls = () => {
  */
 export const getStatisticalAreaMapboxUrl = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/mapbox/statistical-area-mapbox-url`, {
+    const response = await apiFetch(`${API_BASE_URL}/mapbox/statistical-area-mapbox-url`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

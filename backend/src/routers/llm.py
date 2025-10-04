@@ -2,20 +2,21 @@
 """
 LLM 相關的 API Router
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 import logging
 from openai import OpenAIError
 
 from src.config import settings
 from src.models.llm_models import ChatRequest, ChatResponse
 from src.services.llm_service import ChatService
+from src.security.auth import require_auth
 
 router = APIRouter(prefix="/llm", tags=["llm"])
 logger = logging.getLogger(__name__)
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest) -> ChatResponse:
+async def chat(request: ChatRequest, session: str = Depends(require_auth)) -> ChatResponse:
     """
     與 AI 聊天的端點，支援 function calling
 

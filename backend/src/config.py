@@ -14,6 +14,9 @@ class Settings:
     # OpenAI 配置
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 
+    # JWT 配置
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "")
+
     # API 配置
     API_PREFIX: str = "/api"
     CORS_ORIGINS: list = ["*"]

@@ -6,3 +6,4 @@ python-dotenv
 pydantic
 python-multipart
 openai==2.0.1
+python-jose[cryptography]

@@ -2,12 +2,13 @@
 """
 Mapbox 相關的 API Router
 """
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response, Depends
 import logging
 
 from src.config import settings
 from src.models.mapbox_models import TilesetInfo
 from src.services.mapbox_service import MapboxService
+from src.security.auth import require_auth
 
 router = APIRouter(prefix="/mapbox", tags=["mapbox"])
 logger = logging.getLogger(__name__)
@@ -38,7 +39,7 @@ def _get_mapbox_service() -> MapboxService:
 
 
 @router.get("/building-mapbox-url")
-async def get_building_mapbox_url():
+async def get_building_mapbox_url(session: str = Depends(require_auth)):
     """回傳建築物 tileset 的 mapbox:// URL（包含 tileset ID）"""
     try:
         service = _get_mapbox_service()
@@ -51,21 +52,21 @@ async def get_building_mapbox_url():
 
 
 @router.get("/building-tileset-info", response_model=TilesetInfo)
-async def get_building_tileset_info() -> TilesetInfo:
+async def get_building_tileset_info(session: str = Depends(require_auth)) -> TilesetInfo:
     """獲取建築物 Mapbox tileset 資訊（不暴露 tileset ID）"""
     service = _get_mapbox_service()
     return await service.get_tileset_info("building")
 
 
 @router.get("/building-tiles/{z}/{x}/{y}.pbf")
-async def get_building_tile(z: int, x: int, y: int) -> Response:
+async def get_building_tile(z: int, x: int, y: int, session: str = Depends(require_auth)) -> Response:
     """代理建築物 Mapbox vector tiles 請求（不暴露 tileset ID）"""
     service = _get_mapbox_service()
     return await service.get_tile("building", z, x, y)
 
 
 @router.get("/district-mapbox-url")
-async def get_district_mapbox_url():
+async def get_district_mapbox_url(session: str = Depends(require_auth)):
     """回傳行政區 tileset 的 mapbox:// URL（包含 tileset ID）"""
     try:
         service = _get_mapbox_service()
@@ -78,21 +79,21 @@ async def get_district_mapbox_url():
 
 
 @router.get("/district-tileset-info", response_model=TilesetInfo)
-async def get_district_tileset_info() -> TilesetInfo:
+async def get_district_tileset_info(session: str = Depends(require_auth)) -> TilesetInfo:
     """獲取行政區 Mapbox tileset 資訊（不暴露 tileset ID）"""
     service = _get_mapbox_service()
     return await service.get_tileset_info("district")
 
 
 @router.get("/district-tiles/{z}/{x}/{y}.pbf")
-async def get_district_tile(z: int, x: int, y: int) -> Response:
+async def get_district_tile(z: int, x: int, y: int, session: str = Depends(require_auth)) -> Response:
     """代理行政區 Mapbox vector tiles 請求（不暴露 tileset ID）"""
     service = _get_mapbox_service()
     return await service.get_tile("district", z, x, y)
 
 
 @router.get("/statistical-area-mapbox-url")
-async def get_statistical_area_mapbox_url():
+async def get_statistical_area_mapbox_url(session: str = Depends(require_auth)):
     """回傳最小統計區域 tileset 的 mapbox:// URL（包含 tileset ID）"""
     try:
         service = _get_mapbox_service()
@@ -105,14 +106,14 @@ async def get_statistical_area_mapbox_url():
 
 
 @router.get("/statistical-area-tileset-info", response_model=TilesetInfo)
-async def get_statistical_area_tileset_info() -> TilesetInfo:
+async def get_statistical_area_tileset_info(session: str = Depends(require_auth)) -> TilesetInfo:
     """獲取最小統計區域 Mapbox tileset 資訊（不暴露 tileset ID）"""
     service = _get_mapbox_service()
     return await service.get_tileset_info("statistical_area")
 
 
 @router.get("/statistical-area-tiles/{z}/{x}/{y}.pbf")
-async def get_statistical_area_tile(z: int, x: int, y: int) -> Response:
+async def get_statistical_area_tile(z: int, x: int, y: int, session: str = Depends(require_auth)) -> Response:
     """代理最小統計區域 Mapbox vector tiles 請求（不暴露 tileset ID）"""
     service = _get_mapbox_service()
     return await service.get_tile("statistical_area", z, x, y)

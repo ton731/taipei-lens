@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 
 from src.config import settings
-from src.routers import mapbox, llm
+from src.routers import mapbox, llm, auth
 
 # 設定 logging
 logging.basicConfig(level=logging.INFO)
@@ -26,6 +26,7 @@ app.add_middleware(
 )
 
 # 包含路由
+app.include_router(auth.router, prefix=settings.API_PREFIX)  # 認證路由（無需 JWT）
 app.include_router(mapbox.router, prefix=settings.API_PREFIX)
 app.include_router(llm.router, prefix=settings.API_PREFIX)
 
