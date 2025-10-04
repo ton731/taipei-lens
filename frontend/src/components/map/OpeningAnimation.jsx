@@ -47,7 +47,7 @@ const GLOBAL_HOTSPOTS = [
   { id: 31, coordinates: [3.3792, 6.5244], name: 'Lagos' },           // 拉哥斯
 ];
 
-const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
+const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch }) => {
   const [opacity, setOpacity] = useState(0);
   const animationFrameRef = useRef(null);
   const hasStartedRef = useRef(false); // 防止重複執行
@@ -95,6 +95,11 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
         // 切換到 mercator 投影
         mapInstance.setProjection('mercator');
 
+        // 通知 React 狀態更新
+        if (onProjectionSwitch) {
+          onProjectionSwitch();
+        }
+
         // 等待1秒讓投影切換完成，然後繼續 zoom in
         setTimeout(() => {
           console.log('繼續 zoom in 到台北市');
@@ -126,7 +131,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [mapInstance, onAnimationComplete]);
+  }, [mapInstance, onAnimationComplete, onProjectionSwitch]);
 
   // 閃爍效果動畫 - 在 zoom in 時逐漸淡出
   useEffect(() => {
