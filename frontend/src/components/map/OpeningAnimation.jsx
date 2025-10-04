@@ -70,8 +70,8 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
         easing: (t) => t
       });
 
-      // 使用事件驅動：移動完成後直接 zoom in 到台北
-      mapInstance.once('moveend', startZoomToTaipei);
+      // 使用事件驅動：等地圖 idle 後再直接 zoom in 到台北，避免與持續渲染競態
+      mapInstance.once('idle', startZoomToTaipei);
     };
 
     // 階段2：直接 zoom in 到台北市
@@ -80,14 +80,14 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
       mapInstance.flyTo({
         center: [121.5654, 25.0330],
         zoom: 14,
-        pitch: 45,
+        pitch: 35,
         bearing: 0,
         duration: 3000,
         essential: true
       });
 
-      // 使用事件驅動：等待 zoom 完成後觸發回調
-      mapInstance.once('moveend', () => {
+      // 使用事件驅動：等待完全 idle 後觸發回調，確保樣式/資料都已穩定
+      mapInstance.once('idle', () => {
         console.log('Zoom in 完成');
         if (onAnimationComplete) {
           onAnimationComplete();

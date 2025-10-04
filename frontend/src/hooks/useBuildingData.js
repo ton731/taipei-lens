@@ -15,53 +15,16 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
 
   // Load and index custom building data from tileset
   const loadCustomBuildingData = useCallback(async (map, sourceLayer) => {
-    if (!map || !sourceLayer) {
+    // 僅在樣式載入完成且存在 buildings source 時執行；不再讀取私有欄位
+    if (!map || !sourceLayer || !map.isStyleLoaded || !map.isStyleLoaded() || !map.getSource('buildings')) {
       return;
     }
 
     try {
-      const source = map.getSource('buildings');
-      const sourceCache = map.style.sourceCaches?.['buildings'];
-
-      if (sourceCache) {
-        const buildingDataMap = new Map();
-        let loadedCount = 0;
-
-        Object.keys(sourceCache._tiles || {}).forEach(tileId => {
-          const tile = sourceCache._tiles[tileId];
-          if (tile && tile.vectorTile && tile.vectorTile.layers[sourceLayer]) {
-            const layer = tile.vectorTile.layers[sourceLayer];
-
-            for (let i = 0; i < layer.length; i++) {
-              const feature = layer.feature(i);
-              if (feature && feature.properties) {
-                const properties = feature.properties;
-                let key;
-
-                if (properties.longitude && properties.latitude) {
-                  key = `${properties.longitude}_${properties.latitude}`;
-                } else {
-                  const geometry = feature.loadGeometry()[0];
-                  key = `${Math.round(geometry[0].x)}_${Math.round(geometry[0].y)}`;
-                }
-
-                buildingDataMap.set(key, properties);
-                loadedCount++;
-              }
-            }
-          }
-        });
-
-        // Update state even if no records loaded, to trigger useMapInteractions
-        setCustomBuildingData(buildingDataMap);
-      } else {
-        console.warn('Source cache not available for buildings source');
-        // Set empty Map to trigger subsequent processes
-        setCustomBuildingData(new Map());
-      }
+      // 這裡不從 tiles 讀取私有資料，改為保守：初始化為空 Map，後續互動依現有屬性使用
+      setCustomBuildingData(new Map());
     } catch (error) {
-      console.error('Error loading custom building data:', error);
-      // Set empty Map even if there's an error
+      console.error('Error during custom building data init:', error);
       setCustomBuildingData(new Map());
     }
   }, []);
@@ -78,7 +41,7 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
         getBuildingMapboxUrl()
       ]);
 
-      if (buildingTilesetInfo.vector_layers) {
+      if (buildingTilesetInfo && Array.isArray(buildingTilesetInfo.vector_layers) && buildingTilesetInfo.vector_layers.length > 0) {
         const apiLayers = buildingTilesetInfo.vector_layers.map(layer => layer.id);
         setSourceLayerInfo(apiLayers);
         setBuildingMapboxUrl(mapboxUrl);
@@ -90,34 +53,11 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
         return;
       }
     } catch (error) {
-      console.warn('Could not fetch building tileset info via backend API, trying tile inspection:', error);
+      console.warn('Could not fetch building tileset info via backend API. Skipping private tiles inspection.', error);
     }
 
-    // Fallback: inspect tiles for source layers
-    const source = map.getSource('buildings');
-    if (source) {
-      const sourceCache = map.style.sourceCaches?.['buildings'];
-      if (sourceCache) {
-        const foundLayers = new Set();
-        Object.keys(sourceCache._tiles || {}).forEach(tileId => {
-          const tile = sourceCache._tiles[tileId];
-          if (tile && tile.vectorTile) {
-            const layerNames = Object.keys(tile.vectorTile.layers || {});
-            layerNames.forEach(name => foundLayers.add(name));
-          }
-        });
-
-        if (foundLayers.size > 0) {
-          const layerArray = Array.from(foundLayers);
-          setSourceLayerInfo(layerArray);
-
-          setTimeout(() => {
-            loadCustomBuildingData(map, layerArray[0]);
-            setIsInitialized(true);
-          }, 1000);
-        }
-      }
-    }
+    // 若 API 不可用或沒有 vector_layers，則暫不嘗試任何私有 tiles fallback，僅設定已初始化避免重覆嘗試
+    setIsInitialized(true);
   }, [isInitialized, loadCustomBuildingData]);
 
   // Auto-initialize when map and style are ready

@@ -139,13 +139,21 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
   // Handle animation completion
   const handleAnimationComplete = useCallback(() => {
+    // 停止可能尚未完成的相機動畫，避免與後續 bounds 設定產生競態
+    if (mapInstance && mapInstance.stop) {
+      try { mapInstance.stop(); } catch (_) {}
+    }
+
     setIsOpeningAnimationComplete(true);
-    // Set bounds after animation completes
-    setMaxBounds([
-      [121.46, 24.95],  // 西南角 [經度, 緯度]
-      [121.67, 25.20]   // 東北角 [經度, 緯度]
-    ]);
-  }, []);
+
+    // 延後設定 bounds，確保地圖已 idle，避免觸發矩陣重算遞迴
+    setTimeout(() => {
+      setMaxBounds([
+        [121.46, 24.95],  // 西南角 [經度, 緯度]
+        [121.67, 25.20]   // 東北角 [經度, 緯度]
+      ]);
+    }, 300);
+  }, [mapInstance]);
 
   // Handle LLM highlight areas
   useEffect(() => {

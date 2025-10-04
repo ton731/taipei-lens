@@ -55,6 +55,11 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
 
       // Mouse move handler for hover effects and highlighting
       const onMouseMove = (e) => {
+        // 地圖尚未載入完成或正在移動時，不進行昂貴的查詢，避免在動畫/樣式更新期間觸發渲染重算
+        if (!map.isStyleLoaded || !map.isStyleLoaded() || (map.isMoving && map.isMoving())) {
+          return;
+        }
+
         const features = map.queryRenderedFeatures(e.point);
 
         // First check if there are buildings
