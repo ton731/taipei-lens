@@ -74,15 +74,15 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
       mapInstance.once('idle', startZoomToTaipei);
     };
 
-    // 階段2：直接 zoom in 到台北市
+    // 階段2：直接 zoom in 到台北市（最簡化：2D、低倍率、短時長）
     const startZoomToTaipei = () => {
       console.log('直接 zoom in 到台北市');
-      mapInstance.flyTo({
+      mapInstance.easeTo({
         center: [121.5654, 25.0330],
-        zoom: 14,
-        pitch: 35,
+        zoom: 11,      // 降低倍率，減少計算
+        pitch: 0,      // 完全 2D，避免 3D 計算
         bearing: 0,
-        duration: 3000,
+        duration: 1500, // 短時間
         essential: true
       });
 

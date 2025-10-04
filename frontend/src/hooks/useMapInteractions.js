@@ -8,7 +8,7 @@ import { useState, useCallback, useEffect } from 'react';
  * @param {Function} externalSetHoverInfo - External setHoverInfo function (optional)
  * @returns {Object} Hover info, highlighted building, setup interaction function
  */
-export const useMapInteractions = (mapInstance, customBuildingData, statisticalAreaSourceLayer, externalSetHoverInfo = null) => {
+export const useMapInteractions = (mapInstance, customBuildingData, statisticalAreaSourceLayer, externalSetHoverInfo = null, enabled = true) => {
   const [internalHoverInfo, setInternalHoverInfo] = useState(null);
   const [highlightedBuilding, setHighlightedBuilding] = useState(null);
 
@@ -256,10 +256,10 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
 
   // Auto-setup interactions when map and data are ready
   useEffect(() => {
-    if (mapInstance && customBuildingData !== null) {
+    if (enabled && mapInstance && customBuildingData !== null) {
       setupBuildingInteractions(mapInstance);
     }
-  }, [mapInstance, customBuildingData, setupBuildingInteractions]);
+  }, [enabled, mapInstance, customBuildingData, setupBuildingInteractions]);
 
   return {
     hoverInfo,

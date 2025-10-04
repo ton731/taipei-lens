@@ -87,7 +87,13 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   const {
     hoverInfo,
     highlightedBuilding
-  } = useMapInteractions(mapInstance, customBuildingData, statisticalAreaSourceLayer, externalSetHoverInfo || null);
+  } = useMapInteractions(
+    mapInstance,
+    customBuildingData,
+    statisticalAreaSourceLayer,
+    externalSetHoverInfo || null,
+    isOpeningAnimationComplete // 互動只在動畫完成後啟用
+  );
 
   // Use external hoverInfo if provided, otherwise use internal
   const actualHoverInfo = externalHoverInfo !== undefined ? externalHoverInfo : hoverInfo;
@@ -265,8 +271,8 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           />
         )}
 
-        {/* Map layers */}
-        {isStyleLoaded && (
+        {/* Map layers：動畫完成後再渲染，降低動畫期間的計算負擔 */}
+        {isStyleLoaded && isOpeningAnimationComplete && (
           <MapLayers
             buildingData={buildingData}
             sourceLayerName={sourceLayerName}
