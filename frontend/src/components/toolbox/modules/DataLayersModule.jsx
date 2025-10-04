@@ -107,6 +107,47 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
           <line x1="12" y1="15" x2="12" y2="21" stroke="currentColor" strokeWidth="2"/>
         </svg>
       )
+    },
+    {
+      id: 'liq_risk',
+      label: 'Liquefaction Risk',
+      description: 'Soil liquefaction risk distribution',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2v20m8-10H4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M8 8l8 8m0-8l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <rect x="6" y="6" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" rx="2"/>
+        </svg>
+      )
+    },
+    {
+      id: 'coverage_strict_300m',
+      label: 'Green Space Coverage',
+      description: 'Green space coverage within 300m radius',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7v10c0 5.55 3.84 10 9 11 5.16-1 9-5.45 9-11V7l-10-5z" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    },
+    {
+      id: 'viirs_mean',
+      label: 'Nighttime Light',
+      description: 'VIIRS nighttime light intensity distribution',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2"/>
+          <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" strokeWidth="2"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" strokeWidth="2"/>
+          <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2"/>
+          <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" strokeWidth="2"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" strokeWidth="2"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" strokeWidth="2"/>
+        </svg>
+      )
     }
   ];
 

@@ -130,6 +130,56 @@ export const LAYER_CONFIGS = {
     maxValue: 1,
     unit: '',
     outlineColor: '#d67e4b'
+  },
+  liq_risk: {
+    title: 'Liquefaction Risk',
+    property: 'liq_risk',
+    colorStops: [
+      { value: 0, color: '#fff7e6' },
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
+    ],
+    minValue: 0,
+    maxValue: 1,
+    unit: '',
+    outlineColor: '#d67e4b'
+  },
+  coverage_strict_300m: {
+    title: 'Green Space Coverage (300m)',
+    property: 'norm_coverage_strict_300m',
+    colorStops: [
+      { value: 0, color: '#fff7e6' },
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
+    ],
+    minValue: 0.0000,
+    maxValue: 100.0000,
+    unit: '%',
+    outlineColor: '#d67e4b',
+    displayOriginalValues: true
+  },
+  viirs_mean: {
+    title: 'VIIRS Nighttime Light',
+    property: 'norm_viirs_mean',
+    colorStops: [
+      { value: 0, color: '#fff7e6' },
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
+    ],
+    minValue: 1.7152,
+    maxValue: 129.8500,
+    unit: 'nW·cm⁻²·sr⁻¹',
+    outlineColor: '#d67e4b',
+    displayOriginalValues: true
   }
 };
 
