@@ -78,7 +78,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
     setTimeout(() => {
       console.log('停留1秒後執行 zoom in 動畫');
 
-      // 直接執行 zoom in，不切換投影
+      // 完整的 zoom in 動畫（在 globe projection 下）
       mapInstance.flyTo({
         center: [121.5654, 25.0330],
         zoom: 14,
@@ -88,13 +88,17 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
         essential: true
       });
 
-      // 動畫完成後的回調
+      // 動畫完成後立即切換投影（避免停留在 globe + 高 zoom + pitch 的狀態）
       setTimeout(() => {
-        console.log('Zoom in 完成');
+        console.log('Zoom in 完成，立即切換到 mercator');
+
+        // 切換到 mercator 投影以避免無限遞歸問題
+        mapInstance.setProjection('mercator');
+
         if (onAnimationComplete) {
           onAnimationComplete();
         }
-      }, 5500);
+      }, 5000);
     }, 5500);
 
     // 清理函數
