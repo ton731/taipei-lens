@@ -66,7 +66,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
       console.log('開始地球旋轉');
       mapInstance.easeTo({
         center: [121.5654, 25.0330], // 旋轉到亞洲上空
-        zoom: 1,
+        zoom: 2,
         pitch: 0,
         bearing: 0,
         duration: 4000,
@@ -81,7 +81,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
       // 完整的 zoom in 動畫（在 globe projection 下）
       mapInstance.flyTo({
         center: [121.5654, 25.0330],
-        zoom: 14,
+        zoom: 12,
         pitch: 45,
         bearing: 0,
         duration: 5000,

@@ -42,8 +42,8 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   // Module configuration state - stores weights and threshold configurations for all modules
   const [moduleConfigs, setModuleConfigs] = useState({
     test: {
-      weights: { building_age: 0.5, pop_density: 0.5 },
-      threshold: 0.7
+      weights: { building_age: 0.7, pop_density: 0.3 },
+      threshold: 0.4
     },
     roadGreening: {
       weights: { surface_temp: 0.4, inverse_green_cover: 0.3, pop_density: 0.3 },
