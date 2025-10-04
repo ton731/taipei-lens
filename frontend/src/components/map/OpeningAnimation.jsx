@@ -79,10 +79,10 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
       console.log('直接 zoom in 到台北市');
       mapInstance.easeTo({
         center: [121.5654, 25.0330],
-        zoom: 11,      // 降低倍率，減少計算
+        zoom: 13,      // 更深倍率，顯示更大的台北
         pitch: 0,      // 完全 2D，避免 3D 計算
         bearing: 0,
-        duration: 1500, // 短時間
+        duration: 1600, // 稍微加長以保持順暢
         essential: true
       });
 
