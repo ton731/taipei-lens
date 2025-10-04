@@ -9,6 +9,7 @@
 import json
 import sys
 from pathlib import Path
+import numpy as np
 import geopandas as gpd
 from shapely.geometry import shape, Point
 import warnings
@@ -20,13 +21,23 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 # 資料路徑
 input_geojson_path = "data/basic_statistical_area/geojson/basic_statistical_area.geojson"
-output_geojson_path = "data/basic_statistical_area/geojson/basic_statistical_area_with_features.geojson"
+output_geojson_path = "data/basic_statistical_area/geojson/basic_statistical_area_with_features_w_fragility_test.geojson"
 
 population_json_path = "data/social_vulnerability/processed/population_by_age_district.json"
 low_income_json_path = "data/social_vulnerability/processed/low_income_district.json"
 elderly_alone_json_path = "data/social_vulnerability/processed/live_alone_elderly_district.json"
 
-building_geojson_path = "data/building/geojson/building_4326_age.geojson"
+building_geojson_path = "data/building/geojson_w_fragility/building_extracted_with_fragility.geojson"
+
+# LST 和 NDVI 資料路徑
+lst_geojson_path = "data/ndvi_lst/result_lst_minstatic.geojson"
+ndvi_geojson_path = "data/ndvi_lst/result_ndvi_minstatic.geojson"
+
+# ==================== 測試參數 ====================
+# 設定為 True 進行小量測試，False 使用全部資料
+TEST_MODE = False
+TEST_BUILDING_LIMIT = 360000  # 測試時只使用前 N 棟建築物
+TEST_AREA_LIMIT = 50       # 測試時只使用前 N 個統計區
 
 
 def load_json(file_path):
@@ -37,6 +48,58 @@ def load_json(file_path):
     except Exception as e:
         print(f"❌ 無法讀取檔案 {file_path}: {e}")
         return None
+
+
+def load_environmental_data(geojson_path, value_key, data_name):
+    """
+    載入環境資料（LST 或 NDVI）GeoJSON 並提取指定數值
+    
+    Parameters:
+    -----------
+    geojson_path : str
+        GeoJSON 檔案路徑
+    value_key : str
+        要提取的數值 key（如 'p90' 或 'mean'）
+    data_name : str
+        資料名稱（用於顯示訊息）
+    
+    Returns:
+    --------
+    dict : 以 CODEBASE 為 key，數值為 value 的字典
+    """
+    print(f"\n📊 正在載入 {data_name} 資料...")
+    print(f"   讀取檔案: {geojson_path}")
+    
+    try:
+        # 載入 GeoJSON
+        geojson_data = load_json(geojson_path)
+        if not geojson_data:
+            raise Exception(f"無法載入 {data_name} 檔案")
+        
+        # 提取資料
+        environmental_data = {}
+        features = geojson_data.get('features', [])
+        
+        # 測試模式下限制處理的 features 數量
+        if TEST_MODE:
+            original_count = len(features)
+            features = features[:TEST_AREA_LIMIT * 10]  # 多處理一些以確保有足夠的對應
+            print(f"   🧪 測試模式：處理前 {len(features):,} 個 features（共 {original_count:,} 個）")
+        
+        for feature in features:
+            properties = feature.get('properties', {})
+            codebase = properties.get('CODEBASE')
+            value = properties.get(value_key)
+            
+            if codebase and value is not None:
+                environmental_data[codebase] = value
+        
+        print(f"   ✅ 成功載入 {len(environmental_data):,} 筆 {data_name} 資料")
+        return environmental_data
+        
+    except Exception as e:
+        print(f"   ❌ 載入 {data_name} 失敗: {e}")
+        return {}
 
 
 def calculate_building_age_by_district(building_geojson_path, statistical_area_geojson_path):
@@ -59,12 +122,26 @@ def calculate_building_age_by_district(building_geojson_path, statistical_area_g
 
     # 讀取建築物 GeoJSON
     buildings_gdf = gpd.read_file(building_geojson_path)
-    print(f"   ✅ 已讀取 {len(buildings_gdf):,} 棟建築物")
+    
+    # 測試模式：限制建築物數量
+    if TEST_MODE:
+        original_count = len(buildings_gdf)
+        buildings_gdf = buildings_gdf.head(TEST_BUILDING_LIMIT)
+        print(f"   🧪 測試模式：使用前 {len(buildings_gdf):,} 棟建築物（共 {original_count:,} 棟）")
+    else:
+        print(f"   ✅ 已讀取 {len(buildings_gdf):,} 棟建築物")
 
     # 讀取最小統計區 GeoJSON
     print(f"   讀取統計區資料: {statistical_area_geojson_path}")
     areas_gdf = gpd.read_file(statistical_area_geojson_path)
-    print(f"   ✅ 已讀取 {len(areas_gdf):,} 個統計區")
+    
+    # 測試模式：限制統計區數量
+    if TEST_MODE:
+        original_area_count = len(areas_gdf)
+        areas_gdf = areas_gdf.head(TEST_AREA_LIMIT)
+        print(f"   🧪 測試模式：使用前 {len(areas_gdf):,} 個統計區（共 {original_area_count:,} 個）")
+    else:
+        print(f"   ✅ 已讀取 {len(areas_gdf):,} 個統計區")
 
     # 確保兩個 GeoDataFrame 使用相同的座標系統
     if buildings_gdf.crs != areas_gdf.crs:
@@ -122,13 +199,154 @@ def calculate_building_age_by_district(building_geojson_path, statistical_area_g
     return area_avg_age
 
 
+def calculate_fragility_curve_by_district(building_geojson_path, statistical_area_geojson_path):
+    """
+    計算每個最小統計區的 fragility curve 平均值
+    
+    Parameters:
+    -----------
+    building_geojson_path : str
+        建築物 GeoJSON 檔案路徑（含 fragility_curve）
+    statistical_area_geojson_path : str
+        最小統計區 GeoJSON 檔案路徑
+    
+    Returns:
+    --------
+    dict : 以 CODEBASE 為 key，fragility curve 平均值為 value 的字典
+    """
+    print(f"\n🏢 正在計算 fragility curve 平均值...")
+    print(f"   讀取建築物資料: {building_geojson_path}")
+    
+    # 讀取建築物 GeoJSON（使用 geopandas 搭配特殊處理保持 fragility_curve 格式）
+    buildings_gdf = gpd.read_file(building_geojson_path)
+    
+    # 測試模式：限制建築物數量
+    if TEST_MODE:
+        original_count = len(buildings_gdf)
+        buildings_gdf = buildings_gdf.head(TEST_BUILDING_LIMIT)
+        print(f"   🧪 測試模式：使用前 {len(buildings_gdf):,} 棟建築物（共 {original_count:,} 棟）")
+    else:
+        print(f"   ✅ 已讀取 {len(buildings_gdf):,} 棟建築物")
+    
+    # 讀取原始 JSON 來獲取正確的 fragility_curve 資料
+    print(f"   讀取原始 JSON 以保持 fragility_curve 格式...")
+    with open(building_geojson_path, 'r', encoding='utf-8') as f:
+        buildings_json = json.load(f)
+    
+    # 建立 fragility_curve 對應字典（以索引為 key）
+    # 測試模式下只處理對應的建築物
+    fragility_curves = {}
+    limit = TEST_BUILDING_LIMIT if TEST_MODE else len(buildings_json['features'])
+    for i, feature in enumerate(buildings_json['features'][:limit]):
+        fragility_curves[i] = feature['properties'].get('fragility_curve')
+    
+    # 將 fragility_curve 加入 GeoDataFrame
+    buildings_gdf['fragility_curve'] = buildings_gdf.index.map(fragility_curves)
+    
+    # 讀取最小統計區 GeoJSON
+    print(f"   讀取統計區資料: {statistical_area_geojson_path}")
+    areas_gdf = gpd.read_file(statistical_area_geojson_path)
+    
+    # 測試模式：限制統計區數量
+    if TEST_MODE:
+        original_area_count = len(areas_gdf)
+        areas_gdf = areas_gdf.head(TEST_AREA_LIMIT)
+        print(f"   🧪 測試模式：使用前 {len(areas_gdf):,} 個統計區（共 {original_area_count:,} 個）")
+    else:
+        print(f"   ✅ 已讀取 {len(areas_gdf):,} 個統計區")
+    
+    # 確保兩個 GeoDataFrame 使用相同的座標系統
+    if buildings_gdf.crs != areas_gdf.crs:
+        print(f"   🔄 轉換建築物座標系統從 {buildings_gdf.crs} 至 {areas_gdf.crs}")
+        buildings_gdf = buildings_gdf.to_crs(areas_gdf.crs)
+    
+    # 計算建築物的中心點（用於空間查詢）
+    print(f"   計算建築物中心點...")
+    buildings_gdf['centroid'] = buildings_gdf.geometry.centroid
+    
+    # 進行空間連接（找出每棟建築物所在的統計區）
+    print(f"   執行空間連接...")
+    buildings_with_area = gpd.sjoin(
+        buildings_gdf[['fragility_curve', 'centroid']].set_geometry('centroid'),
+        areas_gdf[['CODEBASE', 'geometry']],
+        how='left',
+        predicate='within'
+    )
+    
+    print(f"   ✅ 完成空間連接")
+    
+    # 計算每個統計區的 fragility curve 平均值
+    print(f"   計算 fragility curve 平均值...")
+    area_avg_fragility = {}
+    
+    # 定義震度級別
+    magnitude_levels = ['3', '4', '5弱', '5強', '6弱', '6強', '7']
+    
+    for codebase in areas_gdf['CODEBASE'].unique():
+        # 取得該統計區內的所有建築物
+        buildings_in_area = buildings_with_area[buildings_with_area['CODEBASE'] == codebase]
+        
+        # 收集所有有效的 fragility curve
+        valid_curves = []
+        for _, building in buildings_in_area.iterrows():
+            fragility_data = building['fragility_curve']
+            
+            if fragility_data is not None and isinstance(fragility_data, dict):
+                valid_curves.append(fragility_data)
+        
+        if valid_curves:
+            # 計算每個震度級別的平均機率
+            avg_curve = {}
+            for magnitude in magnitude_levels:
+                # 收集該震度下所有建築物的機率值
+                probabilities = []
+                for curve in valid_curves:
+                    if magnitude in curve and curve[magnitude] is not None:
+                        probabilities.append(curve[magnitude])
+                
+                # 計算平均值
+                if probabilities:
+                    avg_value = sum(probabilities) / len(probabilities)
+                    avg_curve[magnitude] = round(avg_value, 6)  # 保留更多精度
+                else:
+                    print(f"   ⚠️  統計區 {codebase} 沒有 fragility curve 資料")
+                    avg_curve[magnitude] = 0.0000
+            
+            area_avg_fragility[codebase] = avg_curve
+        else:
+            # 沒有建築物或沒有 fragility curve 資料，設為預設值
+            print(f"   ⚠️  統計區 {codebase} 沒有 fragility curve 資料")
+            area_avg_fragility[codebase] = {
+                '3': 0.0000,
+                '4': 0.0000,
+                '5弱': 0.0000,
+                '5強': 0.0000,
+                '6弱': 0.0000,
+                '6強': 0.0000,
+                '7': 0.0000
+            }
+    
+    # 統計資訊
+    areas_with_fragility = sum(1 for curve in area_avg_fragility.values() 
+                               if any(v > 0 for v in curve.values()))
+    areas_without_fragility = len(area_avg_fragility) - areas_with_fragility
+    
+    print(f"\n   📊 統計結果:")
+    print(f"      總統計區數: {len(area_avg_fragility):,}")
+    print(f"      有 fragility curve 的統計區: {areas_with_fragility:,}")
+    print(f"      無 fragility curve 的統計區: {areas_without_fragility:,}")
+    
+    return area_avg_fragility
+
+
 # 需要進行標準化的屬性列表
 PROPERTIES_TO_NORMALIZE = [
     'population_density',
     'pop_elderly_percentage',
     'elderly_alone_percentage',
     'low_income_percentage',
-    'avg_building_age'
+    'avg_building_age',
+    'lst_p90',           # 地表溫度 p90 值
 ]
 
 
@@ -203,10 +421,13 @@ def add_social_vulnerability_to_geojson(
     population_data,
     low_income_data,
     elderly_alone_data,
-    building_age_data=None
+    building_age_data=None,
+    fragility_curve_data=None,
+    lst_data=None,
+    ndvi_data=None
 ):
     """
-    為 GeoJSON 的每個最小統計區加入社會脆弱性資料和建築物年齡資料
+    為 GeoJSON 的每個最小統計區加入社會脆弱性資料、建築物年齡資料、fragility curve 和環境資料
 
     Parameters:
     -----------
@@ -222,6 +443,12 @@ def add_social_vulnerability_to_geojson(
         獨居老人資料（以行政區為 key）
     building_age_data : dict, optional
         建築物平均年齡資料（以 CODEBASE 為 key）
+    fragility_curve_data : dict, optional
+        fragility curve 平均值資料（以 CODEBASE 為 key）
+    lst_data : dict, optional
+        LST p90 資料（以 CODEBASE 為 key）
+    ndvi_data : dict, optional
+        NDVI mean 資料（以 CODEBASE 為 key）
     """
 
     print(f"正在讀取 GeoJSON: {geojson_path}")
@@ -285,6 +512,36 @@ def add_social_vulnerability_to_geojson(
                 vulnerability_data['avg_building_age'] = building_age_data[codebase]
             else:
                 vulnerability_data['avg_building_age'] = 0
+        
+        # 加入 fragility curve 平均值資料（不需標準化）
+        if fragility_curve_data and codebase:
+            if codebase in fragility_curve_data:
+                vulnerability_data['avg_fragility_curve'] = fragility_curve_data[codebase]  # 保持屬性名稱以維持相容性
+            else:
+                # 如果沒有建築物，設定預設值
+                vulnerability_data['avg_fragility_curve'] = {
+                    '3': 0.0000,
+                    '4': 0.0000,
+                    '5弱': 0.0000,
+                    '5強': 0.0000,
+                    '6弱': 0.0000,
+                    '6強': 0.0000,
+                    '7': 0.0000
+                }
+        
+        # 加入 LST p90 資料
+        if lst_data and codebase:
+            if codebase in lst_data:
+                vulnerability_data['lst_p90'] = lst_data[codebase]
+            else:
+                vulnerability_data['lst_p90'] = None
+        
+        # 加入 NDVI mean 資料
+        if ndvi_data and codebase:
+            if codebase in ndvi_data:
+                vulnerability_data['ndvi_mean'] = ndvi_data[codebase]
+            else:
+                vulnerability_data['ndvi_mean'] = None
 
         # 將資料加入 properties
         if vulnerability_data:
@@ -353,11 +610,22 @@ def add_social_vulnerability_to_geojson(
             norm_prop = f"norm_{prop}"
             if norm_prop in example_props:
                 print(f"    {norm_prop}: {example_props[norm_prop]}")
+        
+        # 顯示 fragility curve（如果存在）
+        if 'avg_fragility_curve' in example_props:
+            print(f"\n  Fragility Curve 平均值 (不標準化):")
+            for magnitude, probability in example_props['avg_fragility_curve'].items():
+                print(f"    震度 {magnitude}: {probability}")
 
 
 def main():
     print("=" * 60)
-    print("🗺️  為最小統計區 GeoJSON 加入社會脆弱性資料與建築物年齡")
+    if TEST_MODE:
+        print("🧪 測試模式：為最小統計區 GeoJSON 加入社會脆弱性、建築物年齡、LST 和 NDVI 資料")
+        print(f"   - 建築物限制：{TEST_BUILDING_LIMIT:,} 棟")
+        print(f"   - 統計區限制：{TEST_AREA_LIMIT:,} 個")
+    else:
+        print("🗺️  為最小統計區 GeoJSON 加入社會脆弱性、建築物年齡、LST 和 NDVI 資料")
     print("=" * 60)
 
     # 檢查所有輸入檔案是否存在
@@ -367,6 +635,8 @@ def main():
         '低收入戶資料': low_income_json_path,
         '獨居老人資料': elderly_alone_json_path,
         '建築物資料': building_geojson_path,
+        'LST 資料': lst_geojson_path,
+        'NDVI 資料': ndvi_geojson_path,
     }
 
     print(f"\n📂 檢查輸入檔案:")
@@ -389,9 +659,21 @@ def main():
     elderly_alone_data = load_json(elderly_alone_json_path)
     print(f"  ✓ 獨居老人資料: {len(elderly_alone_data)} 個行政區")
 
+    # 載入環境資料
+    print(f"\n📥 載入環境資料:")
+    lst_data = load_environmental_data(lst_geojson_path, 'p90', 'LST')
+    ndvi_data = load_environmental_data(ndvi_geojson_path, 'mean', 'NDVI')
+
     # 計算建築物平均年齡
     print(f"\n" + "=" * 60)
     building_age_data = calculate_building_age_by_district(
+        building_geojson_path=building_geojson_path,
+        statistical_area_geojson_path=input_geojson_path
+    )
+    
+    # 計算 fragility curve 平均值
+    print(f"\n" + "=" * 60)
+    fragility_curve_data = calculate_fragility_curve_by_district(
         building_geojson_path=building_geojson_path,
         statistical_area_geojson_path=input_geojson_path
     )
@@ -406,11 +688,20 @@ def main():
             population_data=population_data,
             low_income_data=low_income_data,
             elderly_alone_data=elderly_alone_data,
-            building_age_data=building_age_data
+            building_age_data=building_age_data,
+            fragility_curve_data=fragility_curve_data,
+            lst_data=lst_data,
+            ndvi_data=ndvi_data
         )
 
         print(f"\n" + "=" * 60)
-        print("🎉 處理完成！")
+        if TEST_MODE:
+            print("🧪 測試完成！")
+            print(f"   - 處理了 {TEST_BUILDING_LIMIT:,} 棟建築物")
+            print(f"   - 處理了 {TEST_AREA_LIMIT:,} 個統計區")
+            print("   - 如需處理全部資料，請將 TEST_MODE 設為 False")
+        else:
+            print("🎉 處理完成！")
         print("=" * 60)
         print(f"\n輸出檔案: {output_geojson_path}")
 

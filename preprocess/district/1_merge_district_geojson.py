@@ -17,8 +17,13 @@ def merge_district_geojson():
     population_json_path = "data/social_vulnerability/processed/population_by_age_district.json"
     low_income_json_path = "data/social_vulnerability/processed/low_income_district.json"
     elderly_alone_json_path = "data/social_vulnerability/processed/live_alone_elderly_district.json"
-    building_geojson_path = "data/building/geojson/building_4326_age.geojson"
-    output_path = "data/district/district_with_features.geojson"
+    building_geojson_path = "data/building/geojson_w_fragility/building_extracted_with_fragility.geojson"
+    
+    # Environmental data paths
+    lst_geojson_path = "data/ndvi_lst/result_lst_admin.geojson"
+    ndvi_geojson_path = "data/ndvi_lst/result_ndvi_admin.geojson"
+    
+    output_path = "data/district/district_with_features_test.geojson"
 
     print("=== Taipei District Vulnerability GeoJSON Generator ===")
 
@@ -51,10 +56,54 @@ def merge_district_geojson():
             elderly_alone_data = json.load(f)
         print(f"   Elderly alone data: {len(elderly_alone_data)} districts")
 
+        # 2.1. Read environmental data (LST and NDVI GeoJSON)
+        print(f"\n2.1. Reading environmental data...")
+        
+        def load_environmental_geojson(geojson_path, value_key, data_name):
+            """Load environmental GeoJSON and extract values by district name"""
+            try:
+                with open(geojson_path, 'r', encoding='utf-8') as f:
+                    geojson_data = json.load(f)
+                
+                environmental_data = {}
+                for feature in geojson_data.get('features', []):
+                    properties = feature.get('properties', {})
+                    district_name = properties.get('TNAME')  # or 'TOWN' depending on the field name
+                    value = properties.get(value_key)
+                    
+                    if district_name and value is not None:
+                        environmental_data[district_name] = value
+                
+                print(f"   {data_name} data: {len(environmental_data)} districts")
+                return environmental_data
+            except Exception as e:
+                print(f"   ⚠️ Failed to load {data_name}: {e}")
+                return {}
+
+        # Load LST p90 data
+        lst_data = load_environmental_geojson(lst_geojson_path, 'p90', 'LST')
+        
+        # Load NDVI mean data  
+        ndvi_data = load_environmental_geojson(ndvi_geojson_path, 'mean', 'NDVI')
+
         # 3. Read building GeoJSON
         print(f"\n3. Reading building GeoJSON...")
         buildings_gdf = gpd.read_file(building_geojson_path)
         print(f"   Successfully loaded {len(buildings_gdf):,} buildings")
+
+        # Read original JSON to preserve fragility_curve format (fix GeoPandas data corruption)
+        print(f"   Reading original JSON to preserve fragility_curve format...")
+        with open(building_geojson_path, 'r', encoding='utf-8') as f:
+            buildings_json = json.load(f)
+        
+        # Build fragility_curve mapping dictionary (by index)
+        fragility_curves = {}
+        for i, feature in enumerate(buildings_json['features']):
+            fragility_curves[i] = feature['properties'].get('fragility_curve')
+        
+        # Re-assign correct fragility_curve data to GeoDataFrame
+        buildings_gdf['fragility_curve'] = buildings_gdf.index.map(fragility_curves)
+        print(f"   Re-assigned fragility_curve data to {len(fragility_curves):,} buildings")
 
         # Ensure same CRS
         if buildings_gdf.crs != gdf.crs:
@@ -68,17 +117,24 @@ def merge_district_geojson():
         buildings_gdf['centroid'] = buildings_gdf.geometry.centroid
 
         # Perform spatial join to determine which district each building belongs to
+        # Note: We exclude 'fragility_curve' from sjoin to avoid data corruption
         buildings_with_district = gpd.sjoin(
             buildings_gdf[['age', 'centroid']].set_geometry('centroid'),
             gdf[['TNAME', 'geometry']],
             how='left',
             predicate='within'
         )
+        
+        # Re-assign fragility_curve data after spatial join to prevent corruption
+        buildings_with_district['fragility_curve'] = buildings_with_district.index.map(fragility_curves)
 
         print(f"   Completed spatial join")
 
-        # Calculate average building age for each district
+        # Calculate average building age and fragility curve for each district
         building_stats_by_district = {}
+
+        # Define expected fragility curve intensities
+        fragility_intensities = ["3", "4", "5弱", "5強", "6弱", "6強", "7"]
 
         for district in gdf['TNAME'].unique():
             # Get all buildings in this district
@@ -87,23 +143,59 @@ def merge_district_geojson():
             # Filter out buildings with no age data
             valid_ages = district_buildings['age'].dropna()
 
+            # Calculate average age
             if len(valid_ages) > 0:
                 avg_age = valid_ages.mean()
-                building_stats_by_district[district] = {
-                    'avg_building_age': round(avg_age, 2),
-                    'building_count': len(valid_ages)
-                }
+                age_count = len(valid_ages)
             else:
-                building_stats_by_district[district] = {
-                    'avg_building_age': 0,
-                    'building_count': 0
-                }
+                avg_age = 0
+                age_count = 0
+
+            # Calculate average fragility curve
+            # Filter buildings with valid fragility curve data
+            buildings_with_fragility = district_buildings[
+                district_buildings['fragility_curve'].notna()
+            ]
+            
+            fragility_sums = {intensity: 0.0 for intensity in fragility_intensities}
+            fragility_counts = {intensity: 0 for intensity in fragility_intensities}
+            
+            for _, building in buildings_with_fragility.iterrows():
+                fragility_data = building['fragility_curve']
+                if isinstance(fragility_data, dict):
+                    for intensity in fragility_intensities:
+                        if intensity in fragility_data and fragility_data[intensity] is not None:
+                            try:
+                                fragility_sums[intensity] += float(fragility_data[intensity])
+                                fragility_counts[intensity] += 1
+                            except (ValueError, TypeError):
+                                continue
+            
+            # Calculate averages for each intensity
+            avg_fragility_curve = {}
+            for intensity in fragility_intensities:
+                if fragility_counts[intensity] > 0:
+                    avg_fragility_curve[intensity] = round(
+                        fragility_sums[intensity] / fragility_counts[intensity], 4
+                    )
+                else:
+                    avg_fragility_curve[intensity] = 0.0
+
+            building_stats_by_district[district] = {
+                'avg_building_age': round(avg_age, 2),
+                'building_count': age_count,
+                'avg_fragility_curve': avg_fragility_curve,
+                'fragility_building_count': len(buildings_with_fragility)
+            }
 
         # Show statistics
         print(f"   Building statistics by district:")
         for district in sorted(building_stats_by_district.keys()):
             stats = building_stats_by_district[district]
             print(f"      {district}: {stats['building_count']:,} buildings, avg age: {stats['avg_building_age']:.2f} years")
+            print(f"        Fragility curve: {stats['fragility_building_count']:,} buildings with data")
+            fragility = stats['avg_fragility_curve']
+            print(f"        Avg fragility: 3({fragility['3']:.3f}) 4({fragility['4']:.3f}) 5弱({fragility['5弱']:.3f}) 5強({fragility['5強']:.3f}) 6弱({fragility['6弱']:.3f}) 6強({fragility['6強']:.3f}) 7({fragility['7']:.3f})")
 
         # 5. Check data consistency
         print(f"\n5. Checking data consistency...")
@@ -132,7 +224,9 @@ def merge_district_geojson():
             'pop_elderly_percentage': [],
             'low_income_percentage': [],
             'elderly_alone_percentage': [],
-            'avg_building_age': []
+            'avg_building_age': [],
+            'lst_p90': [],
+            'ndvi_mean': []
         }
 
         for district in json_districts:
@@ -149,6 +243,14 @@ def merge_district_geojson():
                 avg_age = building_stats_by_district[district]['avg_building_age']
                 if avg_age > 0:
                     all_values['avg_building_age'].append(avg_age)
+            
+            # Collect LST p90 values
+            if district in lst_data:
+                all_values['lst_p90'].append(lst_data[district])
+            
+            # Collect NDVI mean values  
+            if district in ndvi_data:
+                all_values['ndvi_mean'].append(ndvi_data[district])
 
         # Calculate min-max for normalization
         normalization_ranges = {}
@@ -164,6 +266,9 @@ def merge_district_geojson():
 
         # 7. Merge all data into GeoJSON
         print(f"\n7. Merging data into GeoJSON...")
+
+        # Initialize avg_fragility_curve column in gdf
+        gdf['avg_fragility_curve'] = None
 
         # Helper function for normalization
         def normalize_value(value, key):
@@ -207,10 +312,28 @@ def merge_district_geojson():
                 # Building statistics
                 if district in building_stats_by_district:
                     avg_age = building_stats_by_district[district]['avg_building_age']
+                    avg_fragility = building_stats_by_district[district]['avg_fragility_curve']
                     gdf.at[idx, 'avg_building_age'] = avg_age
+                    gdf.at[idx, 'avg_fragility_curve'] = avg_fragility
                 else:
                     gdf.at[idx, 'avg_building_age'] = 0
+                    # Set default fragility curve with all zeros
+                    default_fragility = {intensity: 0.0 for intensity in ["3", "4", "5弱", "5強", "6弱", "6強", "7"]}
+                    gdf.at[idx, 'avg_fragility_curve'] = default_fragility
                     avg_age = 0
+
+                # Environmental data (LST and NDVI)
+                # LST p90 data
+                if district in lst_data:
+                    gdf.at[idx, 'lst_p90'] = lst_data[district]
+                else:
+                    gdf.at[idx, 'lst_p90'] = None
+                
+                # NDVI mean data
+                if district in ndvi_data:
+                    gdf.at[idx, 'ndvi_mean'] = ndvi_data[district]  
+                else:
+                    gdf.at[idx, 'ndvi_mean'] = None
 
         # 8. Clean up and optimize GeoJSON
         print(f"\n8. Preparing final GeoJSON...")
@@ -226,6 +349,9 @@ def merge_district_geojson():
             'low_income_households',
             'living_alone_count',
             'avg_building_age',
+            'avg_fragility_curve',
+            'lst_p90',
+            'ndvi_mean',
             'geometry'
         ]
 
@@ -255,6 +381,18 @@ def merge_district_geojson():
             print(f"  Low income households: {row['low_income_households']:,}")
             print(f"  Living alone count: {row['living_alone_count']:,}")
             print(f"  Avg building age: {row['avg_building_age']:.2f} years")
+            
+            # Environmental data
+            lst_val = row['lst_p90']
+            ndvi_val = row['ndvi_mean']
+            print(f"  LST p90: {lst_val:.4f}" if lst_val is not None else "  LST p90: None")
+            print(f"  NDVI mean: {ndvi_val:.4f}" if ndvi_val is not None else "  NDVI mean: None")
+            
+            fragility = row['avg_fragility_curve']
+            print(f"  Avg fragility curve:")
+            print(f"    3: {fragility['3']:.4f}, 4: {fragility['4']:.4f}")
+            print(f"    5弱: {fragility['5弱']:.4f}, 5強: {fragility['5強']:.4f}")
+            print(f"    6弱: {fragility['6弱']:.4f}, 6強: {fragility['6強']:.4f}, 7: {fragility['7']:.4f}")
             print()
 
         return final_gdf
