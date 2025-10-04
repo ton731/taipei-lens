@@ -25,7 +25,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   // Opening animation state
   const [isOpeningAnimationComplete, setIsOpeningAnimationComplete] = useState(false);
   const [maxBounds, setMaxBounds] = useState(undefined);
-  const [mapProjection, setMapProjection] = useState('globe');
 
   // Layer selection state
   const [selectedDataLayer, setSelectedDataLayer] = useState(null);
@@ -138,11 +137,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }));
   }, []);
 
-  // Handle projection switch during animation
-  const handleProjectionSwitch = useCallback(() => {
-    setMapProjection('mercator');
-  }, []);
-
   // Handle animation completion
   const handleAnimationComplete = useCallback(() => {
     setIsOpeningAnimationComplete(true);
@@ -221,7 +215,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
         mapStyle={styleUrl}
-        projection={mapProjection}
+        projection='mercator'
         maxBounds={maxBounds}
         mapConfig={{
           basemap: {
@@ -260,7 +254,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           <OpeningAnimation
             mapInstance={mapInstance}
             onAnimationComplete={handleAnimationComplete}
-            onProjectionSwitch={handleProjectionSwitch}
           />
         )}
 

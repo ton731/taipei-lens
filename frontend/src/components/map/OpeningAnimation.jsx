@@ -47,7 +47,7 @@ const GLOBAL_HOTSPOTS = [
   { id: 31, coordinates: [3.3792, 6.5244], name: 'Lagos' },           // 拉哥斯
 ];
 
-const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch }) => {
+const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
   const [opacity, setOpacity] = useState(0);
   const animationFrameRef = useRef(null);
   const hasStartedRef = useRef(false); // 防止重複執行
@@ -56,62 +56,27 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch
     if (!mapInstance || hasStartedRef.current) return;
 
     hasStartedRef.current = true;
-    console.log('開場動畫開始');
+    console.log('開場動畫開始（使用 Mercator 投影）');
 
-    // 設定為地球投影
-    mapInstance.setProjection('globe');
-
-    // 階段1：地球旋轉到亞洲上空
-    const startRotation = () => {
-      console.log('開始地球旋轉');
+    // 階段1：從全球視角移動到亞洲上空
+    const startPanToAsia = () => {
+      console.log('開始移動到亞洲上空');
       mapInstance.easeTo({
         center: [121.5654, 25.0330],
-        zoom: 2,
+        zoom: 3,
         pitch: 0,
         bearing: 0,
         duration: 4000,
         easing: (t) => t
       });
 
-      // 使用事件驅動：等待旋轉完成後停留1秒
-      mapInstance.once('moveend', () => {
-        setTimeout(startFirstZoom, 1000);
-      });
+      // 使用事件驅動：移動完成後直接 zoom in 到台北
+      mapInstance.once('moveend', startZoomToTaipei);
     };
 
-    // 階段2：第一階段 zoom in 到台灣視角（降低 zoom 到 5，更穩定）
-    const startFirstZoom = () => {
-      console.log('執行第一階段 zoom in 到台灣視角');
-      mapInstance.flyTo({
-        center: [121.5654, 25.0330],
-        zoom: 5,
-        pitch: 0,
-        bearing: 0,
-        duration: 3000,
-        essential: true
-      });
-
-      // 使用事件驅動：等待 zoom 完成後切換投影
-      mapInstance.once('moveend', switchProjection);
-    };
-
-    // 階段3：切換投影到 mercator
-    const switchProjection = () => {
-      console.log('切換投影到 mercator');
-      mapInstance.setProjection('mercator');
-
-      // 通知 React 狀態更新
-      if (onProjectionSwitch) {
-        onProjectionSwitch();
-      }
-
-      // 縮短等待時間到 500ms（投影切換完成）
-      setTimeout(startFinalZoom, 500);
-    };
-
-    // 階段4：第二階段 zoom in 到台北市最終視角
-    const startFinalZoom = () => {
-      console.log('繼續 zoom in 到台北市');
+    // 階段2：直接 zoom in 到台北市
+    const startZoomToTaipei = () => {
+      console.log('直接 zoom in 到台北市');
       mapInstance.flyTo({
         center: [121.5654, 25.0330],
         zoom: 14,
@@ -131,7 +96,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch
     };
 
     // 延遲 500ms 開始動畫
-    setTimeout(startRotation, 500);
+    setTimeout(startPanToAsia, 500);
 
     // 清理函數
     return () => {
@@ -139,7 +104,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [mapInstance, onAnimationComplete, onProjectionSwitch]);
+  }, [mapInstance, onAnimationComplete]);
 
   // 閃爍效果動畫 - 在 zoom in 時逐漸淡出
   useEffect(() => {
@@ -147,7 +112,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch
       setOpacity(prev => (prev === 0 ? 1 : 0));
     }, 800); // 每0.8秒閃爍一次
 
-    // 5.5秒後開始淡出熱點（配合切換投影的時間）
+    // 4.5秒後開始淡出熱點（配合 zoom in 到台北的時間）
     const fadeOutTimeout = setTimeout(() => {
       clearInterval(interval);
       // 逐漸淡出
@@ -160,7 +125,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete, onProjectionSwitch
         }
         setOpacity(fadeOpacity);
       }, 200);
-    }, 5500);
+    }, 4500);
 
     return () => {
       clearInterval(interval);
