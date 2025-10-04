@@ -1,7 +1,7 @@
-// 統一的圖層配置 - 包含顏色、範圍、圖例等所有相關設定
+// Unified layer configuration - Contains all related settings such as colors, ranges, legends, etc.
 export const LAYER_CONFIGS = {
   building_age: {
-    title: '建築屋齡',
+    title: 'Building Age',
     property: 'avg_building_age',
     colorStops: [
       { value: 0, color: '#fff7e6' },
@@ -13,13 +13,13 @@ export const LAYER_CONFIGS = {
     ],
     minValue: 0,
     maxValue: 70,
-    unit: '年',
+    unit: 'years',
     outlineColor: '#d67e4b'
   },
   population_density: {
-    title: '人口密度',
+    title: 'Population Density',
     property: 'population_density',
-    // 使用分位數斷點，讓顏色分布更均勻
+    // Using quantile breakpoints for more even color distribution
     colorStops: [
       { value: 0, color: '#fff5eb' },       // 0th percentile
       { value: 16445, color: '#fee6ce' },   // 20th percentile
@@ -30,11 +30,11 @@ export const LAYER_CONFIGS = {
     ],
     minValue: 0,
     maxValue: 447953,
-    unit: '人/km²',
+    unit: 'people/km²',
     outlineColor: '#d67e4b'
   },
   elderly_ratio: {
-    title: '高齡比例',
+    title: 'Elderly Ratio',
     property: 'pop_elderly_percentage',
     colorStops: [
       { value: 19.38, color: '#fff0e6' },
@@ -50,7 +50,7 @@ export const LAYER_CONFIGS = {
     outlineColor: '#d67e4b'
   },
   elderly_alone_ratio: {
-    title: '高齡中獨居比例',
+    title: 'Elderly Living Alone Ratio',
     property: 'elderly_alone_percentage',
     colorStops: [
       { value: 0.9, color: '#fffaf0' },
@@ -66,7 +66,7 @@ export const LAYER_CONFIGS = {
     outlineColor: '#d67e4b'
   },
   low_income_ratio: {
-    title: '低收入戶比例',
+    title: 'Low Income Ratio',
     property: 'low_income_percentage',
     colorStops: [
       { value: 0.36, color: '#fef8f0' },
@@ -84,8 +84,8 @@ export const LAYER_CONFIGS = {
 };
 
 /**
- * 根據配置生成 Mapbox 的 fill-color 表達式
- * @param {Object} layerConfig - 圖層配置對象
+ * Generate Mapbox fill-color expression based on configuration
+ * @param {Object} layerConfig - Layer configuration object
  * @returns {Array} Mapbox expression
  */
 export const generateFillColorExpression = (layerConfig) => {
@@ -97,8 +97,8 @@ export const generateFillColorExpression = (layerConfig) => {
 };
 
 /**
- * 根據配置生成圖例的 gradient CSS
- * @param {Object} layerConfig - 圖層配置對象
+ * Generate legend gradient CSS based on configuration
+ * @param {Object} layerConfig - Layer configuration object
  * @returns {string} CSS gradient string
  */
 export const generateLegendGradient = (layerConfig) => {

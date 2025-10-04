@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 
 /**
- * 地圖初始化 Hook
- * @returns {Object} 地圖實例、樣式載入狀態、初始視圖狀態和載入回調
+ * Map Initialization Hook
+ * @returns {Object} Map instance, style load status, initial view state, and load callback
  */
 export const useMapInitialization = () => {
   const [mapInstance, setMapInstance] = useState(null);
@@ -27,7 +27,7 @@ export const useMapInitialization = () => {
     if (map.isStyleLoaded && map.isStyleLoaded()) {
       setIsStyleLoaded(true);
 
-      // 隱藏 Mapbox Standard Style 的預設建築物
+      // Hide default buildings from Mapbox Standard Style
       setTimeout(() => {
         if (map.getConfigProperty) {
           map.setConfigProperty('basemap', 'showBuildings', false);
@@ -39,7 +39,7 @@ export const useMapInitialization = () => {
         if (map.isStyleLoaded && map.isStyleLoaded()) {
           setIsStyleLoaded(true);
 
-          // 隱藏 Mapbox Standard Style 的預設建築物
+          // Hide default buildings from Mapbox Standard Style
           if (map.getConfigProperty) {
             map.setConfigProperty('basemap', 'showBuildings', false);
           }

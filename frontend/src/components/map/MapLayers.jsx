@@ -4,16 +4,16 @@ import { LAYER_CONFIGS, generateFillColorExpression } from '../../config/layerCo
 import { ANALYSIS_MODULES } from '../../config/analysisModuleConfig';
 
 /**
- * 地圖圖層組件 - 包含建築物、行政區和統計區圖層
- * @param {Object} props.buildingData - 建築物資料來源
- * @param {string} props.sourceLayerName - 建築物 source layer 名稱
- * @param {string} props.districtSourceLayer - 行政區 source layer 名稱
- * @param {string} props.districtMapboxUrl - 行政區 Mapbox URL
- * @param {string} props.statisticalAreaSourceLayer - 統計區域 source layer 名稱
- * @param {string} props.statisticalAreaMapboxUrl - 統計區域 Mapbox URL
- * @param {string} props.selectedDataLayer - 當前選擇的資料圖層
- * @param {Object} props.highlightedBuilding - 高亮的建築物 GeoJSON
- * @param {Object} props.analysisResults - 所有模組的分析結果
+ * Map Layers Component - Contains building, district, and statistical area layers
+ * @param {Object} props.buildingData - Building data source
+ * @param {string} props.sourceLayerName - Building source layer name
+ * @param {string} props.districtSourceLayer - District source layer name
+ * @param {string} props.districtMapboxUrl - District Mapbox URL
+ * @param {string} props.statisticalAreaSourceLayer - Statistical area source layer name
+ * @param {string} props.statisticalAreaMapboxUrl - Statistical area Mapbox URL
+ * @param {string} props.selectedDataLayer - Currently selected data layer
+ * @param {Object} props.highlightedBuilding - Highlighted building GeoJSON
+ * @param {Object} props.analysisResults - Analysis results from all modules
  */
 const MapLayers = ({
   buildingData,
@@ -53,7 +53,7 @@ const MapLayers = ({
     }
   };
 
-  // 通用的 outline paint 配置
+  // Universal outline paint configuration
   const getOutlinePaint = (outlineColor) => ({
     'line-color': outlineColor,
     'line-width': [
@@ -70,11 +70,11 @@ const MapLayers = ({
     ]
   });
 
-  // 渲染統計區基礎圖層（透明填充 + 邊框，使整個區域都可互動）
+  // Render base statistical area layer (transparent fill + border, making the entire area interactive)
   const renderBaseStatisticalAreaLayer = () => {
     return (
       <>
-        {/* 透明填充層 - 使整個統計區可點擊 */}
+        {/* Transparent fill layer - makes the entire statistical area clickable */}
         <Layer
           id="statistical-area-base-fill"
           source="statistical-areas"
@@ -87,13 +87,13 @@ const MapLayers = ({
             'fill-opacity': [
               'case',
               ['boolean', ['feature-state', 'hover'], false],
-              0.1,    // hover 時略微可見
-              0       // 平常時完全透明
+              0.1,    // Slightly visible on hover
+              0       // Completely transparent normally
             ]
           }}
           beforeId="custom-3d-buildings"
         />
-        {/* 邊框層 - 顯示統計區邊界 */}
+        {/* Border layer - displays statistical area boundaries */}
         <Layer
           id="statistical-area-base-outline"
           source="statistical-areas"
@@ -106,14 +106,14 @@ const MapLayers = ({
             'line-width': [
               'case',
               ['boolean', ['feature-state', 'hover'], false],
-              3,      // hover 時粗邊框
-              0.5     // 平常時細邊框（讓用戶知道可以互動）
+              3,      // Thick border on hover
+              0.5     // Thin border normally (lets users know it's interactive)
             ],
             'line-opacity': [
               'case',
               ['boolean', ['feature-state', 'hover'], false],
-              1,      // hover 時完全不透明
-              0.3     // 平常時半透明
+              1,      // Fully opaque on hover
+              0.3     // Semi-transparent normally
             ]
           }}
           beforeId="custom-3d-buildings"
@@ -122,7 +122,7 @@ const MapLayers = ({
     );
   };
 
-  // 動態渲染資料圖層（帶顏色填充）- 使用統計區域資料
+  // Dynamically render data layer (with color fill) - using statistical area data
   const renderDataLayer = (layerKey) => {
     const config = LAYER_CONFIGS[layerKey];
     if (!config) return null;
@@ -156,31 +156,31 @@ const MapLayers = ({
     );
   };
 
-  // 渲染分析結果的 highlight 圖層（通用於所有模組）
+  // Render analysis result highlight layers (universal for all modules)
   const renderAnalysisHighlightLayers = () => {
     if (!analysisResults) return null;
 
     return Object.entries(analysisResults).map(([moduleId, highlightData]) => {
-      // 如果該模組沒有分析結果，跳過
+      // Skip if this module has no analysis results
       if (!highlightData) return null;
 
       const moduleConfig = ANALYSIS_MODULES[moduleId];
       if (!moduleConfig) return null;
 
-      // 處理 LLM highlight（有 type 和 ids）
+      // Handle LLM highlight (with type and ids)
       if (moduleId === 'llm' && highlightData.type && highlightData.ids) {
         const { type, ids, statistical_details, min_value, max_value } = highlightData;
 
-        // 如果有統計區詳細資料，使用漸變色渲染
+        // If statistical area details exist, render with gradient colors
         if (statistical_details && statistical_details.length > 0 && min_value !== undefined && max_value !== undefined) {
-          // 使用百分位數（percentile）方式來分配顏色，避免極端值影響
-          // 1. 先將統計區按照 value 排序
+          // Use percentile approach to assign colors, avoiding impact from extreme values
+          // 1. Sort statistical areas by value
           const sortedDetails = [...statistical_details].sort((a, b) => a.value - b.value);
 
-          // 2. 建立 CODEBASE 到百分位數的映射
+          // 2. Create CODEBASE to percentile mapping
           const percentileMap = {};
           sortedDetails.forEach((detail, index) => {
-            // 計算百分位數：排名位置 / 總數量
+            // Calculate percentile: rank position / total count
             const percentile = sortedDetails.length > 1
               ? index / (sortedDetails.length - 1)
               : 0.5;
@@ -189,16 +189,16 @@ const MapLayers = ({
 
           const codebaseList = statistical_details.map(d => d.CODEBASE);
 
-          // 3. 根據百分位數來決定顏色（基於排名而非數值）
+          // 3. Determine color based on percentile (based on rank rather than value)
           const colorExpression = [
             'case',
             ...statistical_details.flatMap(detail => {
               const percentile = percentileMap[detail.CODEBASE];
 
-              // 根據百分位數來選擇顏色
-              // 前 33.33% (最低值) → 淺橘色
-              // 中間 33.33% → 中橘色
-              // 後 33.33% (最高值) → 深橘色
+              // Choose color based on percentile
+              // First 33.33% (lowest value) → Light orange
+              // Middle 33.33% → Medium orange
+              // Last 33.33% (highest value) → Dark orange
               let color;
               if (percentile < 0.3333) {
                 color = moduleConfig.gradientColors.light;
@@ -213,12 +213,12 @@ const MapLayers = ({
                 color
               ];
             }),
-            moduleConfig.highlightColor  // 預設顏色（fallback）
+            moduleConfig.highlightColor  // Default color (fallback)
           ];
 
           return (
             <React.Fragment key={`analysis-${moduleId}`}>
-              {/* 填充圖層 - 使用漸變色 */}
+              {/* Fill layer - using gradient colors */}
               <Layer
                 id={`analysis-highlight-${moduleId}`}
                 source="statistical-areas"
@@ -233,7 +233,7 @@ const MapLayers = ({
                 filter={['in', ['get', 'CODEBASE'], ['literal', codebaseList]]}
                 beforeId="custom-3d-buildings"
               />
-              {/* 邊框圖層 */}
+              {/* Border layer */}
               <Layer
                 id={`analysis-highlight-${moduleId}-outline`}
                 source="statistical-areas"
@@ -253,14 +253,14 @@ const MapLayers = ({
           );
         }
 
-        // 如果沒有統計區詳細資料，使用原來的方式（單一顏色）
+        // If no statistical area details, use original method (single color)
         const sourceId = type === 'district' ? 'districts' : 'statistical-areas';
         const sourceLayer = type === 'district' ? districtSourceLayer : statisticalAreaSourceLayer;
         const fieldName = type === 'district' ? 'district' : 'CODEBASE';
 
         return (
           <React.Fragment key={`analysis-${moduleId}`}>
-            {/* 填充圖層 */}
+            {/* Fill layer */}
             <Layer
               id={`analysis-highlight-${moduleId}`}
               source={sourceId}
@@ -275,7 +275,7 @@ const MapLayers = ({
               filter={['in', ['get', fieldName], ['literal', ids]]}
               beforeId="custom-3d-buildings"
             />
-            {/* 邊框圖層 */}
+            {/* Border layer */}
             <Layer
               id={`analysis-highlight-${moduleId}-outline`}
               source={sourceId}
@@ -295,13 +295,13 @@ const MapLayers = ({
         );
       }
 
-      // 處理其他分析模組（只有 ids 陣列）
+      // Handle other analysis modules (only ids array)
       const highlightedCodes = Array.isArray(highlightData) ? highlightData : [];
       if (highlightedCodes.length === 0) return null;
 
       return (
         <React.Fragment key={`analysis-${moduleId}`}>
-          {/* 填充圖層 */}
+          {/* Fill layer */}
           <Layer
             id={`analysis-highlight-${moduleId}`}
             source="statistical-areas"
@@ -316,7 +316,7 @@ const MapLayers = ({
             filter={['in', ['get', 'CODEBASE'], ['literal', highlightedCodes]]}
             beforeId="custom-3d-buildings"
           />
-          {/* 邊框圖層 */}
+          {/* Border layer */}
           <Layer
             id={`analysis-highlight-${moduleId}-outline`}
             source="statistical-areas"
@@ -339,43 +339,43 @@ const MapLayers = ({
 
   return (
     <>
-      {/* 建築物 3D 圖層 */}
+      {/* Building 3D Layer */}
       {sourceLayerName && buildingData && (
         <Source id="buildings" {...buildingData}>
           <Layer {...customBuildingsLayer} />
         </Source>
       )}
 
-      {/* 行政區圖層 - 保留但不使用（未來可能需要） */}
+      {/* District Layer - Reserved but unused (may be needed in the future) */}
       {districtSourceLayer && districtMapboxUrl && (
         <Source
           id="districts"
           type="vector"
           url={districtMapboxUrl}
         >
-          {/* 行政區目前不顯示任何圖層 */}
+          {/* Districts currently do not display any layers */}
         </Source>
       )}
 
-      {/* 統計區域圖層 */}
+      {/* Statistical Area Layer */}
       {statisticalAreaSourceLayer && statisticalAreaMapboxUrl && (
         <Source
           id="statistical-areas"
           type="vector"
           url={statisticalAreaMapboxUrl}
         >
-          {/* 基礎圖層：沒有選擇資料圖層時顯示，只有 hover 邊框 */}
+          {/* Base layer: displayed when no data layer is selected, only has hover border */}
           {!selectedDataLayer && renderBaseStatisticalAreaLayer()}
 
-          {/* 資料圖層：選擇資料圖層時顯示，包含顏色填充 */}
+          {/* Data layer: displayed when data layer is selected, includes color fill */}
           {selectedDataLayer && renderDataLayer(selectedDataLayer)}
 
-          {/* 分析結果 highlight 圖層：顯示所有模組的分析結果 */}
+          {/* Analysis result highlight layer: displays analysis results from all modules */}
           {renderAnalysisHighlightLayers()}
         </Source>
       )}
 
-      {/* 建築物高亮圖層 */}
+      {/* Building Highlight Layer */}
       {highlightedBuilding && (
         <Source id="building-highlight" type="geojson" data={highlightedBuilding}>
           <Layer

@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { getBuildingTilesetInfo, getBuildingMapboxUrl } from '../services/api';
 
 /**
- * 建築物資料 Hook
- * @param {Object} mapInstance - 地圖實例
- * @param {boolean} isStyleLoaded - 樣式是否載入完成
- * @returns {Object} 建築物資料、source layer 資訊等
+ * Building Data Hook
+ * @param {Object} mapInstance - Map instance
+ * @param {boolean} isStyleLoaded - Whether style is loaded
+ * @returns {Object} Building data, source layer information, etc.
  */
 export const useBuildingData = (mapInstance, isStyleLoaded) => {
   const [sourceLayerInfo, setSourceLayerInfo] = useState(null);
@@ -52,16 +52,16 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
           }
         });
 
-        // 即使沒有載入任何記錄，也要更新 state 來觸發 useMapInteractions
+        // Update state even if no records loaded, to trigger useMapInteractions
         setCustomBuildingData(buildingDataMap);
       } else {
         console.warn('Source cache not available for buildings source');
-        // 設置一個空的 Map 來觸發後續流程
+        // Set empty Map to trigger subsequent processes
         setCustomBuildingData(new Map());
       }
     } catch (error) {
       console.error('Error loading custom building data:', error);
-      // 即使有錯誤也要設置空 Map
+      // Set empty Map even if there's an error
       setCustomBuildingData(new Map());
     }
   }, []);

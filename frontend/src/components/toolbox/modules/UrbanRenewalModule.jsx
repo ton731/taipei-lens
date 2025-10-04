@@ -18,7 +18,7 @@ const UrbanRenewalModule = () => {
     const updatedWeights = { ...weights };
     updatedWeights[weightKeys[index]] = newWeight;
 
-    // 如果不是最後一個因子，自動調整最後一個因子的權重
+    // If not the last factor, automatically adjust the last factor's weight
     if (index < weightKeys.length - 1) {
       const sumExceptLast = weightKeys
         .slice(0, -1)
@@ -27,7 +27,7 @@ const UrbanRenewalModule = () => {
       const lastKey = weightKeys[weightKeys.length - 1];
       updatedWeights[lastKey] = Math.max(0, Math.min(1, 1 - sumExceptLast));
     } else {
-      // 如果調整的是最後一個因子，需要按比例調整其他因子
+      // If adjusting the last factor, need to proportionally adjust other factors
       const otherKeys = weightKeys.slice(0, -1);
       const otherSum = otherKeys.reduce((sum, key) => sum + updatedWeights[key], 0);
       const remainingWeight = 1 - newWeight;
@@ -37,7 +37,7 @@ const UrbanRenewalModule = () => {
           updatedWeights[key] = (updatedWeights[key] / otherSum) * remainingWeight;
         });
       } else {
-        // 如果前面的因子總和為0，平均分配
+        // If the sum of previous factors is 0, distribute evenly
         const avgWeight = remainingWeight / otherKeys.length;
         otherKeys.forEach(key => {
           updatedWeights[key] = avgWeight;
@@ -53,7 +53,7 @@ const UrbanRenewalModule = () => {
 
   const handleExecute = () => {
     if (!isWeightValid) {
-      alert('權重總和必須等於 1，目前總和為 ' + totalWeight.toFixed(2));
+      alert('Weight sum must equal 1, current sum is ' + totalWeight.toFixed(2));
       return;
     }
     setHasResults(true);
@@ -64,15 +64,15 @@ const UrbanRenewalModule = () => {
   };
 
   const factors = [
-    { name: '地震綜合風險', weight: weights.seismic_risk },
-    { name: '都市熱島衝擊', weight: weights.heat_island },
-    { name: '(1-土地利用效率)', weight: weights.land_efficiency_deficit }
+    { name: 'Comprehensive Seismic Risk', weight: weights.seismic_risk },
+    { name: 'Urban Heat Island Impact', weight: weights.heat_island },
+    { name: '(1-Land Use Efficiency)', weight: weights.land_efficiency_deficit }
   ];
 
   const methodologyContent = `
-    • <strong>地震綜合風險</strong>：參考建築耐震補強模組<br/>
-    • <strong>都市熱島衝擊</strong>：極端高溫對市民健康威脅<br/>
-    • <strong>土地利用效率</strong>：如平均容積率
+    • <strong>Comprehensive Seismic Risk</strong>: Reference from Seismic Strengthening Module<br/>
+    • <strong>Urban Heat Island Impact</strong>: Extreme heat threat to public health<br/>
+    • <strong>Land Use Efficiency</strong>: Such as average floor area ratio
   `;
 
   return (
@@ -94,7 +94,7 @@ const UrbanRenewalModule = () => {
           lineHeight: '1.4',
           flex: 1
         }}>
-          綜合評估多重風險，識別最需進行大規模重建的核心區域
+          Comprehensive assessment of multiple risks to identify core areas requiring large-scale reconstruction
         </div>
         <MethodologyTooltip content={methodologyContent} />
       </div>
@@ -134,7 +134,7 @@ const UrbanRenewalModule = () => {
             <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
-          權重總和必須等於 1.00
+          Weight sum must equal 1.00
         </div>
       )}
     </div>

@@ -42,8 +42,8 @@ const RadioLayerToggle = ({
         type="radio"
         id={id}
         checked={checked}
-        onChange={() => {}} // 空函數，實際處理在 onClick
-        onClick={onChange}  // 使用 onClick 來處理點擊，這樣可以在已選中時也觸發
+        onChange={() => {}} // Empty function, actual handling in onClick
+        onClick={onChange}  // Use onClick to handle clicks, so it can trigger even when already selected
         disabled={disabled}
         style={{
           width: '16px',

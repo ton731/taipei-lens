@@ -2,24 +2,24 @@ import React, { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import './ChatBot.css'
 
-// 預設問題列表
+// Sample questions list
 const SAMPLE_QUESTIONS = [
-  '台北市人口數量最高的前三個行政區在哪裡？',
-  '高齡人口比例超過 20% 且平均建築屋齡超過 40 年的行政區在哪裡？',
-  '哪一個行政區的高齡獨居人口數最多？',
-  '低收入戶比例最高的行政區有哪些？',
-  '高齡人口比例最高的行政區在哪裡？',
-  '哪個行政區的總人口最多？',
-  '平均建築屋齡最年輕的前三個行政區有哪些？',
-  '總人口超過 20 萬的行政區有哪些？',
-  '高齡人口比例超過 25% 的行政區在哪裡？',
-  '台北市都市更新的主要目標是什麼？',
-  '什麼是容積獎勵制度？',
-  '台北市有哪些著名的都市更新案例？',
-  '整建維護和重建有什麼不同？',
-  '什麼是危老重建條例？',
-  '都市更新可以獲得哪些容積獎勵？',
-  '台北市推動都市韌性規劃的原因是什麼？'
+  'Which are the top three districts in Taipei with the highest population?',
+  'Which districts have an elderly population ratio exceeding 20% and average building age over 40 years?',
+  'Which district has the highest number of elderly people living alone?',
+  'Which districts have the highest proportion of low-income households?',
+  'Which district has the highest elderly population ratio?',
+  'Which district has the largest total population?',
+  'What are the top three districts with the youngest average building age?',
+  'Which districts have a total population exceeding 200,000?',
+  'Which districts have an elderly population ratio exceeding 25%?',
+  'What are the main objectives of urban renewal in Taipei City?',
+  'What is the floor area ratio incentive system?',
+  'What are some notable urban renewal cases in Taipei City?',
+  'What is the difference between renovation and reconstruction?',
+  'What is the Dangerous and Old Buildings Reconstruction Ordinance?',
+  'What floor area ratio incentives can be obtained through urban renewal?',
+  'Why is Taipei City promoting urban resilience planning?'
 ]
 
 function ChatBot({ onMouseEnter, onHighlightAreas }) {
@@ -33,11 +33,11 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
 
   const hasContent = inputValue.trim().length > 0
 
-  // 隨機選擇問題的函數
+  // Function to select random question
   const handleRandomQuestion = () => {
     const randomIndex = Math.floor(Math.random() * SAMPLE_QUESTIONS.length)
     setInputValue(SAMPLE_QUESTIONS[randomIndex])
-    // 點擊骰子後自動 focus input，觸發 focused 狀態
+    // Auto focus input after clicking dice button to trigger focused state
     if (inputRef.current) {
       inputRef.current.focus()
     }
@@ -47,12 +47,12 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
     if (hasContent && !isLoading) {
       const question = inputValue
 
-      // 保存用戶問題並開始 Loading（不清空輸入框）
+      // Save user question and start loading (don't clear input)
       setUserQuestion(question)
       setIsLoading(true)
 
       try {
-        // 調用後端 API
+        // Call backend API
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
         const response = await fetch(`${apiBaseUrl}/llm/chat`, {
           method: 'POST',
@@ -73,22 +73,22 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
         setAiResponse(data.answer)
         setShowResponse(true)
 
-        // 處理 highlight areas（如果有的話）
+        // Handle highlight areas (if available)
         if (data.highlight_areas && onHighlightAreas) {
           console.log('Received highlight areas from LLM:', data.highlight_areas)
           onHighlightAreas(data.highlight_areas)
         } else if (onHighlightAreas) {
-          // 如果沒有 highlight areas，清除之前的 highlight
+          // Clear previous highlights if no highlight areas
           onHighlightAreas(null)
         }
 
-        // 收到回應後才清空輸入框
+        // Clear input after receiving response
         setInputValue('')
       } catch (error) {
         console.error('Error calling LLM API:', error)
-        setAiResponse(`抱歉，發生錯誤：${error.message}\n\n請確認後端服務正在運行，且 OPENAI_API_KEY 已正確設定。`)
+        setAiResponse(`Sorry, an error occurred: ${error.message}\n\nPlease confirm that the backend service is running and OPENAI_API_KEY is properly configured.`)
         setShowResponse(true)
-        // 即使出錯也清空輸入框
+        // Clear input even if error occurs
         setInputValue('')
       } finally {
         setIsLoading(false)
@@ -104,7 +104,7 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
 
   const handleCloseResponse = () => {
     setShowResponse(false)
-    // 清除地圖上的 AI highlight
+    // Clear AI highlights on map
     if (onHighlightAreas) {
       onHighlightAreas(null)
     }
@@ -120,7 +120,7 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
           <div className="chatbot-response-content">
             {userQuestion && (
               <div className="chatbot-user-question">
-                <strong>問題：</strong>{userQuestion}
+                <strong>Question: </strong>{userQuestion}
               </div>
             )}
             <ReactMarkdown>{aiResponse}</ReactMarkdown>
@@ -143,7 +143,7 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
           className="chatbot-dice-button"
           onClick={handleRandomQuestion}
           onMouseDown={(e) => e.preventDefault()}
-          title="隨機選擇一個問題"
+          title="Choose a random question"
           disabled={isLoading}
         >
           🎲

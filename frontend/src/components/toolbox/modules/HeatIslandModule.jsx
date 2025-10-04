@@ -11,7 +11,7 @@ const HeatIslandModule = ({ isOpen, onToggleOpen }) => {
     const enabled = e.target.checked;
     setIsEnabled(enabled);
 
-    // 如果關閉主開關，也關閉所有子選項
+    // If main switch is turned off, also turn off all sub-options
     if (!enabled) {
       setShowHeatMap(false);
       setShowGreenery(false);
@@ -37,7 +37,7 @@ const HeatIslandModule = ({ isOpen, onToggleOpen }) => {
           <circle cx="11" cy="17" r="2" stroke="currentColor" strokeWidth="2" fill="currentColor"/>
         </svg>
       }
-      title="都市熱島與綠化分析"
+      title="Urban Heat Island & Greening Analysis"
       isOpen={isOpen}
       onToggleOpen={onToggleOpen}
       onToggleEnabled={handleToggleEnabled}
@@ -54,7 +54,7 @@ const HeatIslandModule = ({ isOpen, onToggleOpen }) => {
           lineHeight: '1.4',
           marginBottom: '8px'
         }}>
-          疊加顯示都市熱島效應與綠化分布，識別需要綠化降溫的區域。
+          Overlay display of urban heat island effect and greening distribution to identify areas requiring cooling through greening.
         </div>
 
         <div style={{
@@ -70,7 +70,7 @@ const HeatIslandModule = ({ isOpen, onToggleOpen }) => {
           }}>
             <ToggleSwitch
               id="heat-map-toggle"
-              label="都市熱島效應"
+              label="Urban Heat Island Effect"
               checked={showHeatMap}
               onChange={handleHeatMapToggle}
               disabled={!isEnabled}
@@ -81,7 +81,7 @@ const HeatIslandModule = ({ isOpen, onToggleOpen }) => {
               marginTop: '4px',
               marginLeft: '52px'
             }}>
-              顯示 NASA 地表溫度熱力圖
+              Display NASA land surface temperature heatmap
             </div>
           </div>
 
@@ -93,7 +93,7 @@ const HeatIslandModule = ({ isOpen, onToggleOpen }) => {
           }}>
             <ToggleSwitch
               id="greenery-toggle"
-              label="都市綠化"
+              label="Urban Greening"
               checked={showGreenery}
               onChange={handleGreeneryToggle}
               disabled={!isEnabled}
@@ -104,7 +104,7 @@ const HeatIslandModule = ({ isOpen, onToggleOpen }) => {
               marginTop: '4px',
               marginLeft: '52px'
             }}>
-              顯示路樹與公園綠地分布
+              Display street trees and park green space distribution
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@ const HeatIslandModule = ({ isOpen, onToggleOpen }) => {
               background: 'linear-gradient(to right, #3b82f6, #ef4444)',
               borderRadius: '2px'
             }}></div>
-            溫度分布
+            Temperature Distribution
           </div>
           <div style={{
             display: 'flex',
@@ -141,7 +141,7 @@ const HeatIslandModule = ({ isOpen, onToggleOpen }) => {
               backgroundColor: '#22c55e',
               borderRadius: '50%'
             }}></div>
-            綠化區域
+            Green Areas
           </div>
         </div>
       </div>

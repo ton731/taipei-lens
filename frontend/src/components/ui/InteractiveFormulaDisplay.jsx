@@ -1,8 +1,8 @@
 import React from 'react';
 
 const InteractiveFormulaDisplay = ({ factors, onWeightChange }) => {
-  // factors 格式: [{ name: '因子A', weight: 0.4 }, { name: '因子B', weight: 0.3 }, ...]
-  // onWeightChange(index, newWeight) - 當權重改變時的回調函數
+  // factors format: [{ name: 'Factor A', weight: 0.4 }, { name: 'Factor B', weight: 0.3 }, ...]
+  // onWeightChange(index, newWeight) - Callback function when weight changes
 
   const handleWeightChange = (index, value) => {
     const newWeight = parseFloat(value) || 0;
@@ -29,7 +29,7 @@ const InteractiveFormulaDisplay = ({ factors, onWeightChange }) => {
         textTransform: 'uppercase',
         letterSpacing: '0.5px'
       }}>
-        計算公式
+        Calculation Formula
       </div>
 
       <div style={{
@@ -46,7 +46,7 @@ const InteractiveFormulaDisplay = ({ factors, onWeightChange }) => {
           gap: '4px',
           flexWrap: 'wrap'
         }}>
-          <span style={{ fontWeight: '600', color: '#4264fb' }}>風險分數 =</span>
+          <span style={{ fontWeight: '600', color: '#4264fb' }}>Risk Score =</span>
         </div>
 
         {factors.map((factor, index) => (
@@ -62,7 +62,7 @@ const InteractiveFormulaDisplay = ({ factors, onWeightChange }) => {
             </span>
             <span style={{ color: '#6b7280' }}>(</span>
 
-            {/* 可編輯的權重輸入框 - 放在前面 */}
+            {/* Editable weight input box - placed in front */}
             <input
               type="number"
               value={factor.weight.toFixed(2)}

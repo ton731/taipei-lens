@@ -18,7 +18,7 @@ const SeismicStrengtheningModule = () => {
     const updatedWeights = { ...weights };
     updatedWeights[weightKeys[index]] = newWeight;
 
-    // 如果不是最後一個因子，自動調整最後一個因子的權重
+    // If not the last factor, automatically adjust the last factor's weight
     if (index < weightKeys.length - 1) {
       const sumExceptLast = weightKeys
         .slice(0, -1)
@@ -27,7 +27,7 @@ const SeismicStrengtheningModule = () => {
       const lastKey = weightKeys[weightKeys.length - 1];
       updatedWeights[lastKey] = Math.max(0, Math.min(1, 1 - sumExceptLast));
     } else {
-      // 如果調整的是最後一個因子，需要按比例調整其他因子
+      // If adjusting the last factor, need to proportionally adjust other factors
       const otherKeys = weightKeys.slice(0, -1);
       const otherSum = otherKeys.reduce((sum, key) => sum + updatedWeights[key], 0);
       const remainingWeight = 1 - newWeight;
@@ -37,7 +37,7 @@ const SeismicStrengtheningModule = () => {
           updatedWeights[key] = (updatedWeights[key] / otherSum) * remainingWeight;
         });
       } else {
-        // 如果前面的因子總和為0，平均分配
+        // If the sum of previous factors is 0, distribute evenly
         const avgWeight = remainingWeight / otherKeys.length;
         otherKeys.forEach(key => {
           updatedWeights[key] = avgWeight;
@@ -53,7 +53,7 @@ const SeismicStrengtheningModule = () => {
 
   const handleExecute = () => {
     if (!isWeightValid) {
-      alert('權重總和必須等於 1，目前總和為 ' + totalWeight.toFixed(2));
+      alert('Weight sum must equal 1, current sum is ' + totalWeight.toFixed(2));
       return;
     }
     setHasResults(true);
@@ -64,15 +64,15 @@ const SeismicStrengtheningModule = () => {
   };
 
   const factors = [
-    { name: '建築平均屋齡', weight: weights.building_age },
-    { name: '結構脆弱度', weight: weights.structural_fragility },
-    { name: '土壤液化潛勢', weight: weights.liquefaction }
+    { name: 'Average Building Age', weight: weights.building_age },
+    { name: 'Structural Fragility', weight: weights.structural_fragility },
+    { name: 'Soil Liquefaction Potential', weight: weights.liquefaction }
   ];
 
   const methodologyContent = `
-    • <strong>建築屋齡</strong>：老舊建築抗震能力較弱<br/>
-    • <strong>結構脆弱度</strong>：基於建築類型評估<br/>
-    • <strong>土壤液化潛勢</strong>：國家災防中心數據
+    • <strong>Building Age</strong>: Older buildings have weaker seismic resistance<br/>
+    • <strong>Structural Fragility</strong>: Assessment based on building type<br/>
+    • <strong>Soil Liquefaction Potential</strong>: Data from National Disaster Prevention and Response Center
   `;
 
   return (
@@ -94,7 +94,7 @@ const SeismicStrengtheningModule = () => {
           lineHeight: '1.4',
           flex: 1
         }}>
-          識別地震損壞風險最高，最需優先進行結構補強的區域
+          Identify areas with the highest seismic damage risk that need priority structural reinforcement
         </div>
         <MethodologyTooltip content={methodologyContent} />
       </div>
@@ -134,7 +134,7 @@ const SeismicStrengtheningModule = () => {
             <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
-          權重總和必須等於 1.00
+          Weight sum must equal 1.00
         </div>
       )}
     </div>

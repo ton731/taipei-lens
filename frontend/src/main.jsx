@@ -3,25 +3,25 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
-// 過濾掉特定的 console 錯誤訊息
+// Filter out specific console error messages
 const originalError = console.error;
 console.error = (...args) => {
   const errorMessage = args[0];
 
-  // 過濾掉 React.Fragment 的警告
+  // Filter out React.Fragment warnings
   if (typeof errorMessage === 'string' &&
       errorMessage.includes('Invalid prop') &&
       errorMessage.includes('React.Fragment')) {
     return;
   }
 
-  // 過濾掉 Mapbox 的空錯誤
+  // Filter out empty Mapbox errors
   if (args[0] === 'Mapbox detailed error:' &&
       args[1]?.message === undefined) {
     return;
   }
 
-  // 其他錯誤正常顯示
+  // Display other errors normally
   originalError.apply(console, args);
 };
 

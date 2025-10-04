@@ -70,7 +70,7 @@ const MethodologyTooltip = ({ content }) => {
             marginBottom: '6px',
             color: '#fbbf24'
           }}>
-            科學方法說明
+            Scientific Methodology
           </div>
           <div dangerouslySetInnerHTML={{ __html: content }} />
         </div>,
