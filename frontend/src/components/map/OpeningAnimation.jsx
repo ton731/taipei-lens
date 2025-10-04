@@ -65,7 +65,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
     setTimeout(() => {
       console.log('開始地球旋轉');
       mapInstance.easeTo({
-        center: [120, 25], // 旋轉到亞洲上空
+        center: [121.5654, 25.0330], // 旋轉到亞洲上空
         zoom: 1,
         pitch: 0,
         bearing: 0,
