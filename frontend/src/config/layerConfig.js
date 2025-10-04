@@ -85,17 +85,17 @@ export const LAYER_CONFIGS = {
     title: '結構脆弱度',
     property: 'fragility_curve',
     colorStops: [
-      { value: 0, color: '#fef2f2' },      // 極淺紅 - 低風險
-      { value: 0.2, color: '#fecaca' },    // 淺紅
-      { value: 0.4, color: '#fca5a5' },    // 中紅  
-      { value: 0.6, color: '#f87171' },    // 紅色
-      { value: 0.8, color: '#ef4444' },    // 深紅
-      { value: 1, color: '#b91c1c' }       // 極深紅 - 高風險
+      { value: 0, color: '#fff7e6' },      // 與建築屋齡相同的配色
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
     ],
     minValue: 0,
     maxValue: 1,
     unit: '',
-    outlineColor: '#ef4444',
+    outlineColor: '#d67e4b',
     isDynamic: true
   }
 };

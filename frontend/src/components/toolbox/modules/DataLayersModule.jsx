@@ -1,8 +1,23 @@
 import React from 'react';
 import RadioLayerToggle from '../../ui/RadioLayerToggle';
+import StructuralVulnerabilityControl from '../../ui/StructuralVulnerabilityControl';
+import { LAYER_CONFIGS, generateLegendGradient } from '../../../config/layerConfig';
 
-const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = null }) => {
-  const layers = [
+const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = null, earthquakeIntensity, onEarthquakeIntensityChange }) => {
+  // 將結構脆弱度圖層分開，方便單獨處理
+  const structuralVulnerabilityLayer = {
+    id: 'structural_vulnerability',
+    label: '結構脆弱度',
+    description: '結構倒塌機率',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2l3.5 7h7l-5.5 4 2 7-7-5-7 5 2-7-5.5-4h7z" stroke="currentColor" strokeWidth="2" fill="none"/>
+        <path d="M8 16l4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    )
+  };
+
+  const otherLayers = [
     {
       id: 'building_age',
       label: '建築屋齡',
@@ -62,17 +77,6 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
           <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
         </svg>
       )
-    },
-    {
-      id: 'structural_vulnerability',
-      label: '結構脆弱度',
-      description: '結構倒塌機率',
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2l3.5 7h7l-5.5 4 2 7-7-5-7 5 2-7-5.5-4h7z" stroke="currentColor" strokeWidth="2" fill="none"/>
-          <path d="M8 16l4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      )
     }
   ];
 
@@ -109,52 +113,112 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
       </div>
 
       <div>
-        {layers.map((layer) => (
-          <RadioLayerToggle
-            key={layer.id}
-            id={layer.id}
-            label={layer.label}
-            description={layer.description}
-            icon={layer.icon}
-            checked={selectedLayer === layer.id}
-            onChange={() => handleLayerChange(layer.id)}
-          />
+        {/* 結構脆弱度圖層 - 放在最前面 */}
+        <RadioLayerToggle
+          key={structuralVulnerabilityLayer.id}
+          id={structuralVulnerabilityLayer.id}
+          label={structuralVulnerabilityLayer.label}
+          description={structuralVulnerabilityLayer.description}
+          icon={structuralVulnerabilityLayer.icon}
+          checked={selectedLayer === structuralVulnerabilityLayer.id}
+          onChange={() => handleLayerChange(structuralVulnerabilityLayer.id)}
+        />
+
+        {/* 地震強度控制 - 緊接在結構脆弱度後面 */}
+        {selectedLayer === 'structural_vulnerability' && earthquakeIntensity && onEarthquakeIntensityChange && (
+          <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+            <StructuralVulnerabilityControl
+              earthquakeIntensity={earthquakeIntensity}
+              onIntensityChange={onEarthquakeIntensityChange}
+            />
+          </div>
+        )}
+
+        {/* 結構脆弱度的 colorbar */}
+        {selectedLayer === 'structural_vulnerability' && (
+          <div style={{
+            marginTop: '8px',
+            marginBottom: '16px',
+            marginLeft: '12px',
+            marginRight: '12px'
+          }}>
+            {(() => {
+              const config = LAYER_CONFIGS.structural_vulnerability;
+              if (config) {
+                const gradient = generateLegendGradient(config);
+                return (
+                  <div>
+                    <div style={{
+                      height: '8px',
+                      background: gradient,
+                      borderRadius: '3px',
+                      marginBottom: '4px'
+                    }}></div>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '10px',
+                      color: '#888'
+                    }}>
+                      <span>0% (無風險)</span>
+                      <span>100% (極高風險)</span>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+          </div>
+        )}
+
+        {/* 其他圖層 - 每個圖層選項後面跟著自己的 colorbar */}
+        {otherLayers.map((layer) => (
+          <div key={layer.id}>
+            <RadioLayerToggle
+              id={layer.id}
+              label={layer.label}
+              description={layer.description}
+              icon={layer.icon}
+              checked={selectedLayer === layer.id}
+              onChange={() => handleLayerChange(layer.id)}
+            />
+            
+            {/* 該圖層的 colorbar - 只在選中時顯示 */}
+            {selectedLayer === layer.id && (
+              <div style={{
+                marginTop: '8px',
+                marginBottom: '16px',
+                marginLeft: '12px',
+                marginRight: '12px'
+              }}>
+                {activeLegends.filter(legend => legend.layerType === layer.id || !legend.layerType).map((legend, index) => (
+                  <div key={index}>
+                    {legend.type === 'gradient' && (
+                      <div>
+                        <div style={{
+                          height: '8px',
+                          background: legend.gradient,
+                          borderRadius: '3px',
+                          marginBottom: '4px'
+                        }}></div>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: '10px',
+                          color: '#888'
+                        }}>
+                          <span>{legend.minLabel}</span>
+                          <span>{legend.maxLabel}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         ))}
       </div>
-
-      {/* 圖例顯示區域 - 緊湊整合設計 */}
-      {activeLegends.length > 0 && (
-        <div style={{
-          marginTop: '12px',
-          marginLeft: '12px',
-          marginRight: '12px'
-        }}>
-          {activeLegends.map((legend, index) => (
-            <div key={index}>
-              {/* 漸層色階顯示 */}
-              {legend.type === 'gradient' && (
-                <div>
-                  <div style={{
-                    height: '8px',
-                    background: legend.gradient,
-                    borderRadius: '3px',
-                    marginBottom: '4px'
-                  }}></div>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    fontSize: '10px',
-                    color: '#888'
-                  }}>
-                    <span>{legend.minLabel}</span>
-                    <span>{legend.maxLabel}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

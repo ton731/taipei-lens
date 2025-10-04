@@ -60,14 +60,14 @@ const MapLayers = ({
                 0.02
               ]
             ],
-            0, '#fef2f2',      // 極淺紅 - 低風險
-            0.2, '#fecaca',    // 淺紅
-            0.4, '#fca5a5',    // 中紅  
-            0.6, '#f87171',    // 紅色
-            0.8, '#ef4444',    // 深紅
-            1, '#b91c1c'       // 極深紅 - 高風險
+            0, '#fff7e6',      // 與建築屋齡相同的配色
+            0.2, '#fdd49e',
+            0.4, '#fdae6b',
+            0.6, '#fd8d3c',
+            0.8, '#e6550d',
+            1, '#8c3a00'
           ],
-          '#ffffff' // 沒有 age 資料的建築物用白色
+          '#f5f5f5' // 沒有 age 資料的建築物用淺灰色而非純白色
         ]
       ];
     } else {
@@ -75,7 +75,7 @@ const MapLayers = ({
         'case',
         ['boolean', ['feature-state', 'hover'], false],
         '#FF6B35',
-        '#ffffff'
+        '#f8f8f8' // 預設使用淺灰色而非純白色，避免與可能的黑色背景產生對比問題
       ];
     }
   };
@@ -98,7 +98,7 @@ const MapLayers = ({
         10
       ],
       'fill-extrusion-base': 0,
-      'fill-extrusion-opacity': 0.85
+      'fill-extrusion-opacity': selectedDataLayer === 'structural_vulnerability' ? 0.9 : 0.85
     }
   };
 
@@ -413,11 +413,11 @@ const MapLayers = ({
           type="vector"
           url={statisticalAreaMapboxUrl}
         >
-          {/* 基礎圖層：沒有選擇資料圖層時顯示，只有 hover 邊框 */}
-          {!selectedDataLayer && renderBaseStatisticalAreaLayer()}
+          {/* 基礎圖層：沒有選擇資料圖層時顯示，或選擇結構脆弱度時也顯示（因為結構脆弱度是在建築物上著色） */}
+          {(!selectedDataLayer || selectedDataLayer === 'structural_vulnerability') && renderBaseStatisticalAreaLayer()}
 
-          {/* 資料圖層：選擇資料圖層時顯示，包含顏色填充 */}
-          {selectedDataLayer && renderDataLayer(selectedDataLayer)}
+          {/* 資料圖層：選擇資料圖層時顯示，包含顏色填充（但排除結構脆弱度，因為它是在建築物上著色） */}
+          {selectedDataLayer && selectedDataLayer !== 'structural_vulnerability' && renderDataLayer(selectedDataLayer)}
 
           {/* 分析結果 highlight 圖層：顯示所有模組的分析結果 */}
           {renderAnalysisHighlightLayers()}
