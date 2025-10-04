@@ -9,6 +9,6 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 10000,
     strictPort: true,
-    allowedHosts: ['https://taipei-lens.onrender.com', 'localhost']
+    allowedHosts: ['taipei-lens.onrender.com', 'localhost']
   }
 })
