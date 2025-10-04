@@ -215,6 +215,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
         mapStyle={styleUrl}
+        projection='globe'
         maxBounds={maxBounds}
         mapConfig={{
           basemap: {

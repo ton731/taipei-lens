@@ -11,12 +11,13 @@ export const useMapInitialization = () => {
   const mapboxPublicToken = import.meta.env.VITE_MAPBOX_ACCESS_PUBLIC_TOKEN;
   const styleUrl = import.meta.env.VITE_MAPBOX_STYLE_URL || 'mapbox://styles/mapbox/standard';
 
+  // 初始視角設為全球視角，避免載入台北建築資料
   const initialViewState = {
-    longitude: parseFloat(import.meta.env.VITE_MAP_INITIAL_LONGITUDE) || 121.5654,
-    latitude: parseFloat(import.meta.env.VITE_MAP_INITIAL_LATITUDE) || 25.0330,
-    zoom: parseFloat(import.meta.env.VITE_MAP_INITIAL_ZOOM) || 16,
-    pitch: parseFloat(import.meta.env.VITE_MAP_INITIAL_PITCH) || 45,
-    bearing: parseFloat(import.meta.env.VITE_MAP_INITIAL_BEARING) || 0
+    longitude: 40,
+    latitude: 25,
+    zoom: 1,
+    pitch: 0,
+    bearing: 0
   };
 
   const onMapLoad = useCallback((event) => {

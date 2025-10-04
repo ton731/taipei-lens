@@ -61,59 +61,41 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
     // 設定為地球投影
     mapInstance.setProjection('globe');
 
-    // 階段1：設定初始地球視角（globe projection）
-    mapInstance.flyTo({
-      center: [40, 25], // 從大西洋開始
-      zoom: 1.5,
-      pitch: 0,
-      bearing: 0,
-      duration: 1000
-    });
-
-    // 階段1：1秒後開始地球旋轉
+    // 階段1：直接開始地球旋轉（已經在全球視角了）
     setTimeout(() => {
       console.log('開始地球旋轉');
       mapInstance.easeTo({
         center: [120, 25], // 旋轉到亞洲上空
-        zoom: 1.5,
+        zoom: 1,
         pitch: 0,
         bearing: 0,
         duration: 4000,
         easing: (t) => t // 線性緩動
       });
-    }, 1000);
+    }, 500);
 
-    // 階段2：5秒後（1秒初始化 + 4秒旋轉）跳到台北上空準備 zoom in
+    // 階段2：5.5秒後（0.5秒延遲 + 4秒旋轉 + 1秒停留）執行 zoom in
     setTimeout(() => {
-      console.log('跳到台北上空');
-      mapInstance.jumpTo({
+      console.log('停留1秒後執行 zoom in 動畫');
+
+      // 直接執行 zoom in，不切換投影
+      mapInstance.flyTo({
         center: [121.5654, 25.0330],
-        zoom: 1.5,
-        pitch: 0,
-        bearing: 0
+        zoom: 14,
+        pitch: 45,
+        bearing: 0,
+        duration: 5000,
+        essential: true
       });
 
-      // 短暫延遲後執行 zoom in 動畫
+      // 動畫完成後的回調
       setTimeout(() => {
-        console.log('執行 zoom in 動畫');
-        mapInstance.flyTo({
-          center: [121.5654, 25.0330],
-          zoom: 14,
-          pitch: 45,
-          bearing: 0,
-          duration: 5000,
-          essential: true
-        });
-
-        // 動畫完成後的回調
-        setTimeout(() => {
-          console.log('Zoom in 完成');
-          if (onAnimationComplete) {
-            onAnimationComplete();
-          }
-        }, 5500);
-      }, 500);
-    }, 5000);
+        console.log('Zoom in 完成');
+        if (onAnimationComplete) {
+          onAnimationComplete();
+        }
+      }, 5500);
+    }, 5500);
 
     // 清理函數
     return () => {
@@ -129,7 +111,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
       setOpacity(prev => (prev === 0 ? 1 : 0));
     }, 800); // 每0.8秒閃爍一次
 
-    // 5秒後開始淡出熱點（配合跳到台北的時間）
+    // 5.5秒後開始淡出熱點（配合切換投影的時間）
     const fadeOutTimeout = setTimeout(() => {
       clearInterval(interval);
       // 逐漸淡出
@@ -142,7 +124,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
         }
         setOpacity(fadeOpacity);
       }, 200);
-    }, 5000);
+    }, 5500);
 
     return () => {
       clearInterval(interval);
