@@ -20,6 +20,10 @@ import { useMapInteractions } from './hooks/useMapInteractions';
 // Config
 import { LAYER_CONFIGS, generateLegendGradient } from './config/layerConfig';
 
+// 視角配置常數
+const BUILDING_VIEW_ZOOM = 16.5; // 結構脆弱度圖層的視角高度 (數值越大越接近地面，範圍通常是 0-22)
+const ZOOM_ANIMATION_DURATION = 1500; // 視角變化動畫持續時間（毫秒）
+
 const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetHoverInfo, llmHighlightAreas, clearLlmHighlight }) => {
   // 圖層選擇狀態
   const [selectedDataLayer, setSelectedDataLayer] = useState(null);
@@ -105,8 +109,24 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     
     if (layerId === 'structural_vulnerability') {
       console.log('MapComponent: 選擇了結構脆弱度圖層，當前地震強度:', earthquakeIntensity);
+      
+      // 自動調整地圖視角到較低的高度以顯示建築物細節
+      if (mapInstance) {
+        const currentCenter = mapInstance.getCenter();
+        const currentBearing = mapInstance.getBearing();
+        const currentPitch = mapInstance.getPitch();
+        
+        mapInstance.flyTo({
+          center: currentCenter,
+          zoom: BUILDING_VIEW_ZOOM,
+          bearing: currentBearing,
+          pitch: currentPitch,
+          duration: ZOOM_ANIMATION_DURATION,
+          essential: true
+        });
+      }
     }
-  }, [clearLlmHighlight, selectedDataLayer, earthquakeIntensity]);
+  }, [clearLlmHighlight, selectedDataLayer, earthquakeIntensity, mapInstance]);
 
   // 處理地震強度變化
   const handleEarthquakeIntensityChange = useCallback((intensity) => {
