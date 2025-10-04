@@ -3,20 +3,37 @@ import React from 'react';
 /**
  * FragilityCurve - 易損性曲線圖表組件
  * 使用純 SVG 繪製，顯示建築物在不同地震強度下的損壞機率
+ * @param {Object} fragilityCurveData - fragility curve 資料 {地震強度: 機率}
  */
-const FragilityCurve = () => {
-  // 假資料：地震規模 vs 損壞機率
-  // X軸：地震規模 3-9 級
-  // Y軸：損壞機率 0-100%
-  const mockData = [
-    { magnitude: 3, damageProb: 2 },
-    { magnitude: 4, damageProb: 8 },
-    { magnitude: 5, damageProb: 25 },
-    { magnitude: 6, damageProb: 55 },
-    { magnitude: 7, damageProb: 85 },
-    { magnitude: 8, damageProb: 95 },
-    { magnitude: 9, damageProb: 99 }
-  ];
+const FragilityCurve = ({ fragilityCurveData }) => {
+  // 處理真實資料，如果沒有資料則使用假資料
+  const processData = () => {
+    if (!fragilityCurveData || typeof fragilityCurveData !== 'object') {
+      // 假資料：地震規模 vs 損壞機率
+      return [
+        { magnitude: 3, damageProb: 2 },
+        { magnitude: 4, damageProb: 8 },
+        { magnitude: 5, damageProb: 25 },
+        { magnitude: 6, damageProb: 55 },
+        { magnitude: 7, damageProb: 85 },
+        { magnitude: 8, damageProb: 95 },
+        { magnitude: 9, damageProb: 99 }
+      ];
+    }
+
+    // 將真實資料轉換為圖表格式
+    const intensities = Object.keys(fragilityCurveData)
+      .map(k => parseFloat(k))
+      .filter(k => !isNaN(k))
+      .sort((a, b) => a - b);
+
+    return intensities.map(intensity => ({
+      magnitude: intensity,
+      damageProb: (fragilityCurveData[intensity.toString()] || 0) * 100 // 轉換為百分比
+    }));
+  };
+
+  const data = processData();
 
   // SVG 尺寸設定
   const width = 200;
@@ -27,9 +44,14 @@ const FragilityCurve = () => {
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
-  // 數據範圍
-  const xMin = 3, xMax = 9;
-  const yMin = 0, yMax = 100;
+  // 動態計算數據範圍
+  const magnitudes = data.map(d => d.magnitude);
+  const probs = data.map(d => d.damageProb);
+  
+  const xMin = Math.min(...magnitudes, 3);
+  const xMax = Math.max(...magnitudes, 9);
+  const yMin = 0;
+  const yMax = 100;
 
   // 座標轉換函數
   const getX = (magnitude) => {
@@ -41,14 +63,14 @@ const FragilityCurve = () => {
   };
 
   // 生成 SVG 路徑
-  const pathData = mockData.map((point, index) => {
+  const pathData = data.map((point, index) => {
     const x = getX(point.magnitude);
     const y = getY(point.damageProb);
     return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
   }).join(' ');
 
   // 生成平滑曲線（使用二次貝茲曲線）
-  const smoothPathData = mockData.map((point, index, array) => {
+  const smoothPathData = data.map((point, index, array) => {
     const x = getX(point.magnitude);
     const y = getY(point.damageProb);
 
@@ -69,8 +91,20 @@ const FragilityCurve = () => {
   // Y軸刻度（0%, 25%, 50%, 75%, 100%）
   const yTicks = [0, 25, 50, 75, 100];
 
-  // X軸刻度（3, 5, 7, 9）
-  const xTicks = [3, 5, 7, 9];
+  // 動態生成 X 軸刻度
+  const generateXTicks = () => {
+    if (data.length <= 4) {
+      // 如果資料點少，直接用資料點作為刻度
+      return magnitudes;
+    } else {
+      // 如果資料點多，選擇均勻分布的刻度
+      const range = xMax - xMin;
+      const step = range / 3;
+      return [xMin, xMin + step, xMin + 2 * step, xMax].map(v => Math.round(v * 10) / 10);
+    }
+  };
+  
+  const xTicks = generateXTicks();
 
   return (
     <svg
@@ -155,7 +189,7 @@ const FragilityCurve = () => {
       </defs>
 
       {/* 數據點 */}
-      {mockData.map(point => {
+      {data.map(point => {
         const x = getX(point.magnitude);
         const y = getY(point.damageProb);
         return (

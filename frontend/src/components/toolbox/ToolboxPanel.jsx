@@ -5,6 +5,7 @@ import SeismicStrengtheningModule from './modules/SeismicStrengtheningModule';
 import ParkSitingModule from './modules/ParkSitingModule';
 import UrbanRenewalModule from './modules/UrbanRenewalModule';
 import TestModule from './modules/TestModule';
+import StructuralVulnerabilityControl from '../ui/StructuralVulnerabilityControl';
 
 const ToolboxPanel = ({
   onMouseEnter,
@@ -19,7 +20,9 @@ const ToolboxPanel = ({
   onClearDataLayer,
   moduleConfigs,
   onModuleConfigChange,
-  analysisResults
+  analysisResults,
+  earthquakeIntensity,
+  onEarthquakeIntensityChange
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openSection, setOpenSection] = useState(null); // 'data', 'renovation', 'reconstruction', 'test'
@@ -142,6 +145,14 @@ const ToolboxPanel = ({
                   activeLegends={activeLegends}
                   selectedLayer={selectedDataLayer}
                 />
+                
+                {/* 結構脆弱度圖層的地震強度控制 */}
+                {selectedDataLayer === 'structural_vulnerability' && (
+                  <StructuralVulnerabilityControl
+                    earthquakeIntensity={earthquakeIntensity}
+                    onIntensityChange={onEarthquakeIntensityChange}
+                  />
+                )}
               </AccordionSection>
 
               {/* 2. 整建分析模組 */}

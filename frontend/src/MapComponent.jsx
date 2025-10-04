@@ -24,6 +24,9 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   // 圖層選擇狀態
   const [selectedDataLayer, setSelectedDataLayer] = useState(null);
   const [activeLegends, setActiveLegends] = useState([]);
+  
+  // 結構脆弱度圖層的地震強度狀態 - 使用離散值
+  const [earthquakeIntensity, setEarthquakeIntensity] = useState('6弱');
 
   // 通用分析結果狀態 - 儲存所有模組的分析結果
   const [analysisResults, setAnalysisResults] = useState({
@@ -89,13 +92,27 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
   // 處理來自 DataLayersModule 的圖層變化
   const handleDataLayerChange = useCallback((layerId) => {
+    console.log('MapComponent: 接收到圖層變化', { 
+      newLayerId: layerId, 
+      currentLayer: selectedDataLayer 
+    });
     setSelectedDataLayer(layerId);
 
     // 當開啟圖層時，清除 AI highlight
     if (layerId && clearLlmHighlight) {
       clearLlmHighlight();
     }
-  }, [clearLlmHighlight]);
+    
+    if (layerId === 'structural_vulnerability') {
+      console.log('MapComponent: 選擇了結構脆弱度圖層，當前地震強度:', earthquakeIntensity);
+    }
+  }, [clearLlmHighlight, selectedDataLayer, earthquakeIntensity]);
+
+  // 處理地震強度變化
+  const handleEarthquakeIntensityChange = useCallback((intensity) => {
+    console.log('地震強度變化:', intensity);
+    setEarthquakeIntensity(intensity);
+  }, []);
 
   // 通用分析執行回調 - 所有模組共用
   const handleAnalysisExecute = useCallback((moduleId, highlightedCodes) => {
@@ -166,15 +183,26 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
     const config = LAYER_CONFIGS[selectedDataLayer];
     if (config) {
+      let title = config.title;
+      let minLabel = `${config.minValue}${config.unit}`;
+      let maxLabel = `${config.maxValue.toLocaleString()}${config.unit}`;
+      
+      // 如果是結構脆弱度圖層，添加地震強度信息
+      if (selectedDataLayer === 'structural_vulnerability') {
+        title = `${config.title} (地震強度: ${earthquakeIntensity})`;
+        minLabel = `0% (無風險)`;
+        maxLabel = `100% (極高風險)`;
+      }
+      
       setActiveLegends([{
-        title: config.title,
+        title: title,
         type: 'gradient',
         gradient: generateLegendGradient(config),
-        minLabel: `${config.minValue}${config.unit}`,
-        maxLabel: `${config.maxValue.toLocaleString()}${config.unit}`
+        minLabel: minLabel,
+        maxLabel: maxLabel
       }]);
     }
-  }, [selectedDataLayer]);
+  }, [selectedDataLayer, earthquakeIntensity]);
 
   if (!mapboxPublicToken) {
     return (
@@ -248,6 +276,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
             selectedDataLayer={selectedDataLayer}
             highlightedBuilding={highlightedBuilding}
             analysisResults={analysisResults}
+            earthquakeIntensity={earthquakeIntensity}
           />
         )}
 
@@ -269,6 +298,8 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           moduleConfigs={moduleConfigs}
           onModuleConfigChange={handleModuleConfigChange}
           analysisResults={analysisResults}
+          earthquakeIntensity={earthquakeIntensity}
+          onEarthquakeIntensityChange={handleEarthquakeIntensityChange}
         />
 
         {/* Hover Popup */}

@@ -62,17 +62,31 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
           <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
         </svg>
       )
+    },
+    {
+      id: 'structural_vulnerability',
+      label: '結構脆弱度',
+      description: '結構倒塌機率',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l3.5 7h7l-5.5 4 2 7-7-5-7 5 2-7-5.5-4h7z" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <path d="M8 16l4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      )
     }
   ];
 
   const handleLayerChange = (layerId) => {
+    console.log('DataLayersModule: 圖層變化', { layerId, selectedLayer });
     // 如果點擊已選中的圖層，則取消選擇
     if (selectedLayer === layerId) {
+      console.log('DataLayersModule: 取消選擇圖層', layerId);
       // 通知父組件取消選擇
       if (onLayerChange) {
         onLayerChange(null);
       }
     } else {
+      console.log('DataLayersModule: 選擇新圖層', layerId);
       // 通知父組件圖層變化
       if (onLayerChange) {
         onLayerChange(layerId);

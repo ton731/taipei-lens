@@ -116,11 +116,24 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
             }
           }
 
+          // 處理 properties，解析 fragility_curve JSON 字符串
+          const finalProperties = customData || feature.properties || {};
+          
+          // 如果 fragility_curve 是字符串，解析成物件
+          if (finalProperties.fragility_curve && typeof finalProperties.fragility_curve === 'string') {
+            try {
+              finalProperties.fragility_curve = JSON.parse(finalProperties.fragility_curve);
+              console.log('成功解析 fragility_curve:', finalProperties.fragility_curve);
+            } catch (error) {
+              console.error('解析 fragility_curve 失敗:', error);
+            }
+          }
+
           // 顯示建築物資訊
           setHoverInfo({
             longitude: e.lngLat.lng,
             latitude: e.lngLat.lat,
-            properties: customData || feature.properties || {},
+            properties: finalProperties,
             isCustomData: !!customData,
             layerInfo: {
               id: feature.layer?.id,

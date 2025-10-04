@@ -36,6 +36,27 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
               const feature = layer.feature(i);
               if (feature && feature.properties) {
                 const properties = feature.properties;
+                
+                // 如果 fragility_curve 是 JSON 字符串，解析並添加個別屬性
+                if (properties.fragility_curve && typeof properties.fragility_curve === 'string') {
+                  try {
+                    const fragilityCurve = JSON.parse(properties.fragility_curve);
+                    
+                    // 為每個地震強度添加獨立的屬性
+                    properties.fragility_3 = fragilityCurve['3'] || 0;
+                    properties.fragility_5weak = fragilityCurve['5弱'] || 0;
+                    properties.fragility_5strong = fragilityCurve['5強'] || 0;
+                    properties.fragility_6weak = fragilityCurve['6弱'] || 0;
+                    properties.fragility_6strong = fragilityCurve['6強'] || 0;
+                    properties.fragility_7 = fragilityCurve['7'] || 0;
+                    
+                    // 保留解析後的物件版本
+                    properties.fragility_curve_parsed = fragilityCurve;
+                  } catch (error) {
+                    console.error('Failed to parse fragility_curve:', error);
+                  }
+                }
+                
                 let key;
 
                 if (properties.longitude && properties.latitude) {

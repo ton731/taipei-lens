@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Source, Layer } from 'react-map-gl/mapbox';
-import { LAYER_CONFIGS, generateFillColorExpression } from '../../config/layerConfig';
+import { LAYER_CONFIGS, generateFillColorExpression, interpolateFragilityCurve } from '../../config/layerConfig';
 import { ANALYSIS_MODULES } from '../../config/analysisModuleConfig';
 
 /**
@@ -24,8 +24,62 @@ const MapLayers = ({
   statisticalAreaMapboxUrl,
   selectedDataLayer,
   highlightedBuilding,
-  analysisResults
+  analysisResults,
+  earthquakeIntensity
 }) => {
+  // 生成建築物顏色表達式 - 支援結構脆弱度圖層
+  const getBuildingColorExpression = () => {
+    if (selectedDataLayer === 'structural_vulnerability') {
+      console.log('MapLayers: 結構脆弱度圖層被選中，地震強度:', earthquakeIntensity);
+      const config = LAYER_CONFIGS.structural_vulnerability;
+      
+      // 暫時使用簡化的方案：根據建築物年齡來估計脆弱度
+      // 年齡越大，在高地震強度下越脆弱
+      return [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        '#FF6B35', // hover 顏色
+        [
+          'case',
+          ['has', 'age'],
+          [
+            'interpolate',
+            ['linear'],
+            // 使用建築物年齡作為代理指標
+            // 並根據地震強度調整顏色深淺
+            ['*', 
+              ['get', 'age'],
+              // 地震強度越大，乘數越大
+              ['case',
+                ['==', earthquakeIntensity, '3'], 0.01,
+                ['==', earthquakeIntensity, '5弱'], 0.015,
+                ['==', earthquakeIntensity, '5強'], 0.02,
+                ['==', earthquakeIntensity, '6弱'], 0.025,
+                ['==', earthquakeIntensity, '6強'], 0.03,
+                ['==', earthquakeIntensity, '7'], 0.035,
+                0.02
+              ]
+            ],
+            0, '#fef2f2',      // 極淺紅 - 低風險
+            0.2, '#fecaca',    // 淺紅
+            0.4, '#fca5a5',    // 中紅  
+            0.6, '#f87171',    // 紅色
+            0.8, '#ef4444',    // 深紅
+            1, '#b91c1c'       // 極深紅 - 高風險
+          ],
+          '#ffffff' // 沒有 age 資料的建築物用白色
+        ]
+      ];
+    } else {
+      return [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        '#FF6B35',
+        '#ffffff'
+      ];
+    }
+  };
+
   // Custom 3D buildings layer configuration
   const customBuildingsLayer = {
     id: 'custom-3d-buildings',
@@ -34,12 +88,7 @@ const MapLayers = ({
     type: 'fill-extrusion',
     minzoom: 10,
     paint: {
-      'fill-extrusion-color': [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false],
-        '#FF6B35',
-        '#F5F5F0'
-      ],
+      'fill-extrusion-color': getBuildingColorExpression(),
       'fill-extrusion-height': [
         'case',
         ['has', 'height'],
