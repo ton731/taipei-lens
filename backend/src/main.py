@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # 建立 FastAPI 應用
 app = FastAPI(
-    title="TURP Backend API",
+    title="Taipei Lens Backend API",
     description="台北都市韌性規劃平台後端 API",
     version="1.0.0"
 )
@@ -32,7 +32,7 @@ app.include_router(llm.router, prefix=settings.API_PREFIX)
 @app.get("/")
 async def root():
     """根路徑健康檢查"""
-    return {"message": "TURP Backend API is running", "status": "healthy"}
+    return {"message": "Taipei Lens Backend API is running", "status": "healthy"}
 
 @app.get("/health")
 async def health_check():
@@ -41,14 +41,14 @@ async def health_check():
         settings.validate_mapbox_tokens()
         return {
             "status": "healthy",
-            "service": "TURP Backend API",
+            "service": "Taipei Lens Backend API",
             "version": "1.0.0",
             "mapbox_configured": True
         }
     except ValueError as e:
         return {
             "status": "unhealthy",
-            "service": "TURP Backend API",
+            "service": "Taipei Lens Backend API",
             "version": "1.0.0",
             "error": str(e),
             "mapbox_configured": False

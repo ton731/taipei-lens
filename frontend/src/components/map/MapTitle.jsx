@@ -20,7 +20,7 @@ const MapTitle = () => {
       backdropFilter: 'blur(8px)',
       border: '1px solid rgba(255, 255, 255, 0.2)'
     }}>
-      TURP 建築物互動系統
+      Taipei Lens - 台北都市韌性規劃平台
     </div>
   );
 };
