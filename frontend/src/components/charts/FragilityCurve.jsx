@@ -87,14 +87,14 @@ const FragilityCurve = ({ fragilityCurveData }) => {
   };
 
   // Generate SVG path
-  const pathData = mockData.map((point, index) => {
+  const pathData = data.map((point, index) => {
     const x = getX(point.magnitude);
     const y = getY(point.damageProb);
     return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
   }).join(' ');
 
   // Generate smooth curve (using quadratic Bezier curve)
-  const smoothPathData = mockData.map((point, index, array) => {
+  const smoothPathData = data.map((point, index, array) => {
     const x = getX(point.magnitude);
     const y = getY(point.damageProb);
 

@@ -357,7 +357,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           analysisResults={analysisResults}
           earthquakeIntensity={earthquakeIntensity}
           onEarthquakeIntensityChange={handleEarthquakeIntensityChange}
-        />
+        />}
 
         {/* Hover Popup - only show after animation */}
         {isOpeningAnimationComplete && actualHoverInfo && (
