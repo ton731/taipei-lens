@@ -74,31 +74,50 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
       });
     }, 500);
 
-    // 階段2：5.5秒後（0.5秒延遲 + 4秒旋轉 + 1秒停留）執行 zoom in
+    // 階段2：5.5秒後（0.5秒延遲 + 4秒旋轉 + 1秒停留）執行第一階段 zoom in 到台灣
     setTimeout(() => {
-      console.log('停留1秒後執行 zoom in 動畫');
+      console.log('停留1秒後執行第一階段 zoom in 到台灣視角');
 
-      // 完整的 zoom in 動畫（在 globe projection 下）
+      // 第一階段：zoom in 到台灣視角（在 globe projection 下，zoom 7 是安全的）
       mapInstance.flyTo({
         center: [121.5654, 25.0330],
-        zoom: 12,
-        pitch: 45,
+        zoom: 7,
+        pitch: 0,
         bearing: 0,
-        duration: 5000,
+        duration: 3000,
         essential: true
       });
 
-      // 動畫完成後立即切換投影（避免停留在 globe + 高 zoom + pitch 的狀態）
+      // 3秒後切換投影
       setTimeout(() => {
-        console.log('Zoom in 完成，立即切換到 mercator');
+        console.log('切換投影到 mercator');
 
-        // 切換到 mercator 投影以避免無限遞歸問題
+        // 切換到 mercator 投影
         mapInstance.setProjection('mercator');
 
-        if (onAnimationComplete) {
-          onAnimationComplete();
-        }
-      }, 5000);
+        // 等待1秒讓投影切換完成，然後繼續 zoom in
+        setTimeout(() => {
+          console.log('繼續 zoom in 到台北市');
+
+          // 第二階段：zoom in 到台北市最終視角
+          mapInstance.flyTo({
+            center: [121.5654, 25.0330],
+            zoom: 14,
+            pitch: 45,
+            bearing: 0,
+            duration: 3000,
+            essential: true
+          });
+
+          // 動畫完成後的回調
+          setTimeout(() => {
+            console.log('Zoom in 完成');
+            if (onAnimationComplete) {
+              onAnimationComplete();
+            }
+          }, 3000);
+        }, 1000);
+      }, 3000);
     }, 5500);
 
     // 清理函數
