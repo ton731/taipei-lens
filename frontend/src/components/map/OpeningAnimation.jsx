@@ -56,14 +56,36 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
     if (!mapInstance || hasStartedRef.current) return;
 
     hasStartedRef.current = true;
-    console.log('開場動畫開始（使用 Mercator 投影）');
+    console.log('開場動畫開始（使用 Globe 投影）');
+
+    // 階段0：旋轉地球（低倍率，僅改變 bearing）
+    const startSpinGlobe = () => {
+      console.log('開始旋轉地球');
+      // 確保在低倍率下的全球視角
+      mapInstance.easeTo({
+        center: [0, 20],
+        zoom: 1.2,
+        pitch: 0,
+        bearing: -30,
+        duration: 0
+      });
+
+      // 緩慢旋轉到另一個方位
+      mapInstance.easeTo({
+        bearing: 110,
+        duration: 3000,
+        easing: (t) => t
+      });
+
+      mapInstance.once('idle', startPanToAsia);
+    };
 
     // 階段1：從全球視角移動到亞洲上空
     const startPanToAsia = () => {
       console.log('開始移動到亞洲上空');
       mapInstance.easeTo({
-        center: [121.5654, 25.0330],
-        zoom: 3,
+        center: [110, 25],
+        zoom: 2.5,
         pitch: 0,
         bearing: 0,
         duration: 4000,
@@ -95,8 +117,8 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
       });
     };
 
-    // 延遲 500ms 開始動畫
-    setTimeout(startPanToAsia, 500);
+    // 延遲 500ms 開始動畫（先旋轉地球）
+    setTimeout(startSpinGlobe, 500);
 
     // 清理函數
     return () => {
