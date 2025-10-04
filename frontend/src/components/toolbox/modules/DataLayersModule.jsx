@@ -77,6 +77,36 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
           <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
         </svg>
       )
+    },
+    {
+      id: 'lst',
+      label: 'LST地表溫度',
+      description: '地表溫度分布',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2"/>
+          <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" strokeWidth="2"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" strokeWidth="2"/>
+          <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2"/>
+          <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" strokeWidth="2"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" strokeWidth="2"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" strokeWidth="2"/>
+        </svg>
+      )
+    },
+    {
+      id: 'ndvi',
+      label: 'NDVI植被指數',
+      description: '植被覆蓋指數分布',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <polyline points="7.5,12 12,15 16.5,12" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <line x1="12" y1="15" x2="12" y2="21" stroke="currentColor" strokeWidth="2"/>
+        </svg>
+      )
     }
   ];
 

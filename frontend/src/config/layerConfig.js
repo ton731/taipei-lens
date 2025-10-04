@@ -97,6 +97,39 @@ export const LAYER_CONFIGS = {
     unit: '',
     outlineColor: '#d67e4b',
     isDynamic: true
+  },
+  lst: {
+    title: 'LST地表溫度',
+    property: 'norm_lst_p90',
+    colorStops: [
+      { value: 0, color: '#fff7e6' },
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
+    ],
+    minValue: 2.5996,      // 原始溫度範圍的最小值
+    maxValue: 35.4709,     // 原始溫度範圍的最大值
+    unit: '°C',
+    outlineColor: '#d67e4b',
+    displayOriginalValues: true  // 標記此圖層需要顯示原始值而非標準化值
+  },
+  ndvi: {
+    title: 'NDVI植被指數',
+    property: 'ndvi_mean',
+    colorStops: [
+      { value: 0, color: '#fff7e6' },
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
+    ],
+    minValue: 0,
+    maxValue: 1,
+    unit: '',
+    outlineColor: '#d67e4b'
   }
 };
 

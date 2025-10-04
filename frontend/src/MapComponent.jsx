@@ -194,6 +194,13 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         maxLabel = `100% (極高風險)`;
       }
       
+      // 如果是 LST 圖層，顯示原始溫度值範圍
+      if (selectedDataLayer === 'lst') {
+        // 保持原始邏輯，因為 config.minValue 和 config.maxValue 已經設置為原始溫度值
+        minLabel = `${config.minValue}${config.unit}`;
+        maxLabel = `${config.maxValue}${config.unit}`;
+      }
+      
       setActiveLegends([{
         title: title,
         type: 'gradient',
