@@ -39,7 +39,7 @@ const WeightInput = ({
           fontSize: '12px',
           color: '#6b7280'
         }}>
-          權重:
+          Weight:
         </span>
         <input
           type="number"

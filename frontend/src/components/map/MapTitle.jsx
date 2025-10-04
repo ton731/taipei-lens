@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * 地圖標題組件
+ * Map title component
  */
 const MapTitle = () => {
   return (
@@ -20,7 +20,7 @@ const MapTitle = () => {
       backdropFilter: 'blur(8px)',
       border: '1px solid rgba(255, 255, 255, 0.2)'
     }}>
-      Taipei Lens - 台北都市韌性規劃平台
+      Taipei Lens - Urban Resilience Planning Platform
     </div>
   );
 };

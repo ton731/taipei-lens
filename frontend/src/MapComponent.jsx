@@ -21,11 +21,11 @@ import { useMapInteractions } from './hooks/useMapInteractions';
 import { LAYER_CONFIGS, generateLegendGradient } from './config/layerConfig';
 
 const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetHoverInfo, llmHighlightAreas, clearLlmHighlight }) => {
-  // 圖層選擇狀態
+  // Layer selection state
   const [selectedDataLayer, setSelectedDataLayer] = useState(null);
   const [activeLegends, setActiveLegends] = useState([]);
 
-  // 通用分析結果狀態 - 儲存所有模組的分析結果
+  // General analysis results state - stores analysis results from all modules
   const [analysisResults, setAnalysisResults] = useState({
     test: null,
     roadGreening: null,
@@ -34,7 +34,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     urbanRenewal: null
   });
 
-  // 模組配置狀態 - 儲存所有模組的權重和閥值配置
+  // Module configuration state - stores weights and threshold configurations for all modules
   const [moduleConfigs, setModuleConfigs] = useState({
     test: {
       weights: { building_age: 0.5, pop_density: 0.5 },
@@ -58,7 +58,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }
   });
 
-  // 使用 custom hooks
+  // Use custom hooks
   const {
     mapInstance,
     isStyleLoaded,
@@ -84,20 +84,20 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     highlightedBuilding
   } = useMapInteractions(mapInstance, customBuildingData, statisticalAreaSourceLayer, externalSetHoverInfo || null);
 
-  // 使用外部 hoverInfo 如果提供了，否則使用內部的
+  // Use external hoverInfo if provided, otherwise use internal
   const actualHoverInfo = externalHoverInfo !== undefined ? externalHoverInfo : hoverInfo;
 
-  // 處理來自 DataLayersModule 的圖層變化
+  // Handle layer changes from DataLayersModule
   const handleDataLayerChange = useCallback((layerId) => {
     setSelectedDataLayer(layerId);
 
-    // 當開啟圖層時，清除 AI highlight
+    // Clear AI highlight when opening layer
     if (layerId && clearLlmHighlight) {
       clearLlmHighlight();
     }
   }, [clearLlmHighlight]);
 
-  // 通用分析執行回調 - 所有模組共用
+  // General analysis execution callback - shared by all modules
   const handleAnalysisExecute = useCallback((moduleId, highlightedCodes) => {
     console.log(`[${moduleId}] Analysis executed. Highlighted districts:`, highlightedCodes.length);
     setAnalysisResults(prev => ({
@@ -105,13 +105,13 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       [moduleId]: highlightedCodes
     }));
 
-    // 當執行分析時，清除 AI highlight
+    // Clear AI highlight when executing analysis
     if (clearLlmHighlight) {
       clearLlmHighlight();
     }
   }, [clearLlmHighlight]);
 
-  // 通用分析清除回調 - 所有模組共用
+  // General analysis clear callback - shared by all modules
   const handleAnalysisClear = useCallback((moduleId) => {
     setAnalysisResults(prev => ({
       ...prev,
@@ -119,12 +119,12 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }));
   }, []);
 
-  // 清除原始數據圖層選擇 - 當執行分析時調用
+  // Clear raw data layer selection - called when executing analysis
   const handleClearDataLayer = useCallback(() => {
     setSelectedDataLayer(null);
   }, []);
 
-  // 更新模組配置 - 所有模組共用
+  // Update module configuration - shared by all modules
   const handleModuleConfigChange = useCallback((moduleId, config) => {
     setModuleConfigs(prev => ({
       ...prev,
@@ -132,12 +132,12 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }));
   }, []);
 
-  // 處理 LLM highlight areas
+  // Handle LLM highlight areas
   useEffect(() => {
     if (llmHighlightAreas) {
       console.log('LLM highlight areas received:', llmHighlightAreas);
 
-      // 當 AI highlight 出現時，清除所有 Toolbox 的圖層和分析結果
+      // When AI highlight appears, clear all Toolbox layers and analysis results
       setSelectedDataLayer(null);
       setAnalysisResults({
         test: null,
@@ -149,7 +149,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       });
 
     } else {
-      // 清除 LLM highlight
+      // Clear LLM highlight
       setAnalysisResults(prev => ({
         ...prev,
         llm: null
@@ -157,7 +157,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }
   }, [llmHighlightAreas]);
 
-  // 處理圖層選擇變化並更新圖例
+  // Handle layer selection changes and update legend
   useEffect(() => {
     if (!selectedDataLayer) {
       setActiveLegends([]);
@@ -186,7 +186,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         fontSize: '18px',
         color: '#666'
       }}>
-        請在 .env 檔案中設定 VITE_MAPBOX_ACCESS_PUBLIC_TOKEN
+        Please set VITE_MAPBOX_ACCESS_PUBLIC_TOKEN in the .env file
       </div>
     );
   }
@@ -236,7 +236,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           }
         }}
       >
-        {/* 地圖圖層 */}
+        {/* Map layers */}
         {isStyleLoaded && (
           <MapLayers
             buildingData={buildingData}
@@ -251,10 +251,10 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           />
         )}
 
-        {/* 地圖標題 */}
+        {/* Map title */}
         <MapTitle />
 
-        {/* 工具箱面板 */}
+        {/* Toolbox panel */}
         <ToolboxPanel
           onMouseEnter={() => externalSetHoverInfo(null)}
           onDataLayerChange={handleDataLayerChange}

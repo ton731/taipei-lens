@@ -1,8 +1,8 @@
 import React from 'react';
 
 /**
- * 統計區 Popup 組件
- * @param {Object} props.data - Hover 資訊
+ * Statistical Area Popup Component
+ * @param {Object} props.data - Hover information
  */
 const DistrictPopup = ({ data }) => {
   return (
@@ -24,7 +24,7 @@ const DistrictPopup = ({ data }) => {
         paddingBottom: '6px',
         borderBottom: '1px solid #dee2e6'
       }}>
-        統計區資訊
+        Statistical Area Information
       </div>
       {Object.entries(data.feature.properties).map(([key, value]) => (
         <div key={key} style={{

@@ -1,13 +1,13 @@
 import React from 'react';
 
 /**
- * FragilityCurve - 易損性曲線圖表組件
- * 使用純 SVG 繪製，顯示建築物在不同地震強度下的損壞機率
+ * FragilityCurve - Fragility Curve Chart Component
+ * Rendered using pure SVG, displays building damage probability under different earthquake intensities
  */
 const FragilityCurve = () => {
-  // 假資料：地震規模 vs 損壞機率
-  // X軸：地震規模 3-9 級
-  // Y軸：損壞機率 0-100%
+  // Mock data: Earthquake magnitude vs. Damage probability
+  // X-axis: Earthquake magnitude 3-9
+  // Y-axis: Damage probability 0-100%
   const mockData = [
     { magnitude: 3, damageProb: 2 },
     { magnitude: 4, damageProb: 8 },
@@ -18,20 +18,20 @@ const FragilityCurve = () => {
     { magnitude: 9, damageProb: 99 }
   ];
 
-  // SVG 尺寸設定
+  // SVG size settings
   const width = 200;
   const height = 120;
   const padding = { top: 15, right: 15, bottom: 25, left: 40 };
 
-  // 繪圖區域尺寸
+  // Chart area dimensions
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
-  // 數據範圍
+  // Data range
   const xMin = 3, xMax = 9;
   const yMin = 0, yMax = 100;
 
-  // 座標轉換函數
+  // Coordinate transformation functions
   const getX = (magnitude) => {
     return padding.left + ((magnitude - xMin) / (xMax - xMin)) * chartWidth;
   };
@@ -40,14 +40,14 @@ const FragilityCurve = () => {
     return padding.top + chartHeight - ((damageProb - yMin) / (yMax - yMin)) * chartHeight;
   };
 
-  // 生成 SVG 路徑
+  // Generate SVG path
   const pathData = mockData.map((point, index) => {
     const x = getX(point.magnitude);
     const y = getY(point.damageProb);
     return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
   }).join(' ');
 
-  // 生成平滑曲線（使用二次貝茲曲線）
+  // Generate smooth curve (using quadratic Bezier curve)
   const smoothPathData = mockData.map((point, index, array) => {
     const x = getX(point.magnitude);
     const y = getY(point.damageProb);
@@ -56,7 +56,7 @@ const FragilityCurve = () => {
       return `M ${x} ${y}`;
     }
 
-    // 計算控制點以創造平滑曲線
+    // Calculate control points to create smooth curve
     const prevPoint = array[index - 1];
     const prevX = getX(prevPoint.magnitude);
     const prevY = getY(prevPoint.damageProb);
@@ -66,10 +66,10 @@ const FragilityCurve = () => {
     return `Q ${controlX} ${prevY}, ${x} ${y}`;
   }).join(' ');
 
-  // Y軸刻度（0%, 25%, 50%, 75%, 100%）
+  // Y-axis ticks (0%, 25%, 50%, 75%, 100%)
   const yTicks = [0, 25, 50, 75, 100];
 
-  // X軸刻度（3, 5, 7, 9）
+  // X-axis ticks (3, 5, 7, 9)
   const xTicks = [3, 5, 7, 9];
 
   return (
@@ -82,7 +82,7 @@ const FragilityCurve = () => {
         borderRadius: '4px'
       }}
     >
-      {/* 背景網格線 - Y軸 */}
+      {/* Background grid lines - Y axis */}
       {yTicks.map(tick => {
         const y = getY(tick);
         return (
@@ -99,7 +99,7 @@ const FragilityCurve = () => {
         );
       })}
 
-      {/* 背景網格線 - X軸 */}
+      {/* Background grid lines - X axis */}
       {xTicks.map(tick => {
         const x = getX(tick);
         return (
@@ -116,7 +116,7 @@ const FragilityCurve = () => {
         );
       })}
 
-      {/* X軸 */}
+      {/* X axis */}
       <line
         x1={padding.left}
         y1={padding.top + chartHeight}
@@ -126,7 +126,7 @@ const FragilityCurve = () => {
         strokeWidth="1.5"
       />
 
-      {/* Y軸 */}
+      {/* Y axis */}
       <line
         x1={padding.left}
         y1={padding.top}
@@ -136,7 +136,7 @@ const FragilityCurve = () => {
         strokeWidth="1.5"
       />
 
-      {/* 易損性曲線（平滑版） */}
+      {/* Fragility curve (smooth version) */}
       <path
         d={smoothPathData}
         fill="none"
@@ -146,7 +146,7 @@ const FragilityCurve = () => {
         strokeLinejoin="round"
       />
 
-      {/* 定義漸層色 */}
+      {/* Define gradient color */}
       <defs>
         <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style={{ stopColor: '#ff6b35', stopOpacity: 1 }} />
@@ -154,7 +154,7 @@ const FragilityCurve = () => {
         </linearGradient>
       </defs>
 
-      {/* 數據點 */}
+      {/* Data points */}
       {mockData.map(point => {
         const x = getX(point.magnitude);
         const y = getY(point.damageProb);
@@ -171,7 +171,7 @@ const FragilityCurve = () => {
         );
       })}
 
-      {/* Y軸刻度標籤 */}
+      {/* Y-axis tick labels */}
       {yTicks.map(tick => {
         const y = getY(tick);
         return (
@@ -188,7 +188,7 @@ const FragilityCurve = () => {
         );
       })}
 
-      {/* X軸刻度標籤 */}
+      {/* X-axis tick labels */}
       {xTicks.map(tick => {
         const x = getX(tick);
         return (
@@ -200,12 +200,12 @@ const FragilityCurve = () => {
             fontSize="9"
             fill="#666"
           >
-            {tick}級
+            {tick}
           </text>
         );
       })}
 
-      {/* Y軸標題 */}
+      {/* Y-axis title */}
       <text
         x={8}
         y={padding.top + chartHeight / 2}
@@ -215,10 +215,10 @@ const FragilityCurve = () => {
         fontWeight="500"
         transform={`rotate(-90 8 ${padding.top + chartHeight / 2})`}
       >
-        損壞機率
+        Damage Prob.
       </text>
 
-      {/* X軸標題 */}
+      {/* X-axis title */}
       <text
         x={padding.left + chartWidth / 2}
         y={height - 1}
@@ -227,7 +227,7 @@ const FragilityCurve = () => {
         fill="#444"
         fontWeight="500"
       >
-        地震規模
+        Magnitude
       </text>
     </svg>
   );

@@ -15,13 +15,13 @@ const TestModule = ({
   onConfigChange,
   analysisResult
 }) => {
-  const MODULE_ID = 'test'; // 模組 ID，用於標識此模組的分析結果
+  const MODULE_ID = 'test'; // Module ID used to identify this module's analysis results
 
-  // 使用外部傳入的 weights 和 threshold (來自父組件的 state)
+  // Use externally passed weights and threshold (from parent component's state)
   const weights = externalWeights;
   const threshold = externalThreshold;
 
-  // 從 analysisResult 推導出結果狀態（不使用內部 state）
+  // Derive result status from analysisResult (don't use internal state)
   const hasResults = analysisResult && analysisResult.length > 0;
   const resultCount = analysisResult ? analysisResult.length : 0;
 
@@ -30,7 +30,7 @@ const TestModule = ({
     const updatedWeights = { ...weights };
     updatedWeights[weightKeys[index]] = newWeight;
 
-    // 如果不是最後一個因子，自動調整最後一個因子的權重
+    // If not the last factor, automatically adjust the last factor's weight
     if (index < weightKeys.length - 1) {
       const sumExceptLast = weightKeys
         .slice(0, -1)
@@ -39,7 +39,7 @@ const TestModule = ({
       const lastKey = weightKeys[weightKeys.length - 1];
       updatedWeights[lastKey] = Math.max(0, Math.min(1, 1 - sumExceptLast));
     } else {
-      // 如果調整的是最後一個因子，需要按比例調整其他因子
+      // If adjusting the last factor, need to proportionally adjust other factors
       const otherKeys = weightKeys.slice(0, -1);
       const otherSum = otherKeys.reduce((sum, key) => sum + updatedWeights[key], 0);
       const remainingWeight = 1 - newWeight;
@@ -49,7 +49,7 @@ const TestModule = ({
           updatedWeights[key] = (updatedWeights[key] / otherSum) * remainingWeight;
         });
       } else {
-        // 如果前面的因子總和為0，平均分配
+        // If the sum of previous factors is 0, distribute evenly
         const avgWeight = remainingWeight / otherKeys.length;
         otherKeys.forEach(key => {
           updatedWeights[key] = avgWeight;
@@ -57,7 +57,7 @@ const TestModule = ({
       }
     }
 
-    // 更新父組件的 state
+    // Update parent component's state
     onConfigChange({ weights: updatedWeights });
   };
 
@@ -66,39 +66,39 @@ const TestModule = ({
 
   const handleExecute = () => {
     if (!isWeightValid) {
-      alert('權重總和必須等於 1，目前總和為 ' + totalWeight.toFixed(2));
+      alert('Weight sum must equal 1, current sum is ' + totalWeight.toFixed(2));
       return;
     }
 
     if (!mapInstance || !statisticalAreaSourceLayer) {
-      console.error('地圖實例或統計區圖層未準備好');
-      alert('地圖尚未載入完成，請稍後再試');
+      console.error('Map instance or statistical area layer not ready');
+      alert('Map has not finished loading, please try again later');
       return;
     }
 
-    // 清除原始數據圖層，避免圖層疊加
+    // Clear raw data layers to avoid layer stacking
     if (onClearDataLayer) {
       onClearDataLayer();
     }
 
     try {
-      // 1. 查詢所有統計區的 features（使用最小統計區域資料）
+      // 1. Query all statistical area features (using minimum statistical area data)
       const features = mapInstance.querySourceFeatures('statistical-areas', {
         sourceLayer: statisticalAreaSourceLayer
       });
 
       if (features.length === 0) {
-        alert('無法取得統計區資料，請確認地圖已載入');
+        alert('Unable to retrieve statistical area data, please confirm map has loaded');
         return;
       }
 
-      // 2. 計算每個統計區的分數並篩選
+      // 2. Calculate score for each statistical area and filter
       const highlightedDistricts = [];
 
       features.forEach(feature => {
         const props = feature.properties;
 
-        // 使用標準化資料計算加權分數
+        // Use normalized data to calculate weighted score
         const normBuildingAge = props.norm_avg_building_age || 0;
         const normPopDensity = props.norm_population_density || 0;
 
@@ -106,18 +106,18 @@ const TestModule = ({
           normBuildingAge * weights.building_age +
           normPopDensity * weights.pop_density;
 
-        // 如果分數超過閥值，加入 highlight 列表
+        // If score exceeds threshold, add to highlight list
         if (score >= threshold) {
           highlightedDistricts.push(props.CODEBASE);
         }
       });
 
-      // 3. 呼叫回調函式更新分析結果
+      // 3. Call callback function to update analysis results
       onAnalysisExecute(MODULE_ID, highlightedDistricts);
 
     } catch (error) {
-      console.error('分析過程發生錯誤:', error);
-      // 清除分析結果
+      console.error('Error occurred during analysis:', error);
+      // Clear analysis results
       onAnalysisExecute(MODULE_ID, []);
     }
   };
@@ -127,13 +127,13 @@ const TestModule = ({
   };
 
   const factors = [
-    { name: '建築物年齡', weight: weights.building_age },
-    { name: '人口密度', weight: weights.pop_density }
+    { name: 'Building Age', weight: weights.building_age },
+    { name: 'Population Density', weight: weights.pop_density }
   ];
 
   const methodologyContent = `
-    • <strong>建築物年齡</strong>：測試用建築物年齡數據<br/>
-    • <strong>人口密度</strong>：測試用人口密度數據
+    • <strong>Building Age</strong>: Test building age data<br/>
+    • <strong>Population Density</strong>: Test population density data
   `;
 
   return (
@@ -156,7 +156,7 @@ const TestModule = ({
           lineHeight: '1.4',
           flex: 1
         }}>
-          測試模組：串接後端API測試
+          Test Module: Backend API Integration Testing
         </div>
         <MethodologyTooltip content={methodologyContent} />
       </div>
@@ -179,7 +179,7 @@ const TestModule = ({
           onChange={(e) => onConfigChange({ threshold: parseFloat(e.target.value) || 0 })}
         />
 
-        {/* 分析結果顯示 - 輕量 badge 樣式，使用藍色系呼應風險分數 */}
+        {/* Analysis result display - lightweight badge style, using blue theme to echo risk score */}
         {hasResults && (
           <div style={{
             display: 'inline-flex',
@@ -198,7 +198,7 @@ const TestModule = ({
               <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
             </svg>
             <span style={{ fontWeight: '600' }}>
-              符合 {resultCount} 個統計區
+              {resultCount} statistical areas matched
             </span>
           </div>
         )}
@@ -226,7 +226,7 @@ const TestModule = ({
               <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
-            權重總和必須等於 1.00
+            Weight sum must equal 1.00
           </div>
         )}
       </div>

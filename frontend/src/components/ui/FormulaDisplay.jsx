@@ -1,7 +1,7 @@
 import React from 'react';
 
 const FormulaDisplay = ({ factors }) => {
-  // factors 格式: [{ name: '因子A', weight: 0.4 }, { name: '因子B', weight: 0.3 }, ...]
+  // factors format: [{ name: 'Factor A', weight: 0.4 }, { name: 'Factor B', weight: 0.3 }, ...]
 
   return (
     <div style={{
@@ -20,7 +20,7 @@ const FormulaDisplay = ({ factors }) => {
         textTransform: 'uppercase',
         letterSpacing: '0.5px'
       }}>
-        計算公式
+        Calculation Formula
       </div>
 
       <div style={{
@@ -32,7 +32,7 @@ const FormulaDisplay = ({ factors }) => {
         alignItems: 'center',
         gap: '4px'
       }}>
-        <span style={{ fontWeight: '600', color: '#4264fb' }}>分數 =</span>
+        <span style={{ fontWeight: '600', color: '#4264fb' }}>Score =</span>
         {factors.map((factor, index) => (
           <React.Fragment key={index}>
             <span>(</span>

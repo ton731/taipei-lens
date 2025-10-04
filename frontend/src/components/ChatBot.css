@@ -249,7 +249,7 @@
   word-wrap: break-word;
 }
 
-/* Markdown 元素樣式 */
+/* Markdown element styles */
 .chatbot-response-content p {
   margin: 0.5em 0;
 }
@@ -319,7 +319,7 @@
   background: rgba(255, 107, 53, 0.6);
 }
 
-/* 用戶問題樣式 */
+/* User question styles */
 .chatbot-user-question {
   background: #f8f8f8;
   border-left: 3px solid #ff6b35;

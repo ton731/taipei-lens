@@ -4,13 +4,13 @@ import ChatBot from './components/ChatBot'
 import './App.css'
 
 function App() {
-  // 提升 hoverInfo 到 App 層級，讓 ChatBot 和 MapComponent 都可以清除它
+  // Lift hoverInfo to App level so both ChatBot and MapComponent can clear it
   const [hoverInfo, setHoverInfo] = useState(null)
 
   // LLM highlight areas state
   const [llmHighlightAreas, setLlmHighlightAreas] = useState(null)
 
-  // 清除 AI highlight 的函數
+  // Function to clear AI highlight
   const clearLlmHighlight = () => {
     setLlmHighlightAreas(null)
   }
