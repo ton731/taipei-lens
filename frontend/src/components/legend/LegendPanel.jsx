@@ -1,7 +1,7 @@
 import React from 'react';
 
 const LegendPanel = ({ activeLegends = [] }) => {
-  // 如果沒有激活的圖例，不顯示面板
+  // Don't show panel if there are no active legends
   if (activeLegends.length === 0) {
     return null;
   }
@@ -21,7 +21,7 @@ const LegendPanel = ({ activeLegends = [] }) => {
       overflow: 'hidden',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
-      {/* 標題欄 */}
+      {/* Title bar */}
       <div style={{
         padding: '14px 16px',
         borderBottom: '1px solid #e5e5e5',
@@ -39,12 +39,12 @@ const LegendPanel = ({ activeLegends = [] }) => {
             fontWeight: '600',
             color: '#1a1a1a'
           }}>
-            圖例 (Legend)
+            Legend
           </h4>
         </div>
       </div>
 
-      {/* 圖例內容 */}
+      {/* Legend content */}
       <div style={{
         padding: '16px',
         display: 'flex',
@@ -53,7 +53,7 @@ const LegendPanel = ({ activeLegends = [] }) => {
       }}>
         {activeLegends.map((legend, index) => (
           <div key={index}>
-            {/* 圖例標題 */}
+            {/* Legend title */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -72,7 +72,7 @@ const LegendPanel = ({ activeLegends = [] }) => {
               </span>
             </div>
 
-            {/* 圖例項目 */}
+            {/* Legend items */}
             <div style={{
               display: 'flex',
               flexDirection: legend.type === 'gradient' ? 'column' : 'row',
@@ -80,7 +80,7 @@ const LegendPanel = ({ activeLegends = [] }) => {
               flexWrap: 'wrap'
             }}>
               {legend.type === 'gradient' ? (
-                // 漸層色階顯示
+                // Gradient color scale display
                 <div>
                   <div style={{
                     height: '8px',
@@ -99,7 +99,7 @@ const LegendPanel = ({ activeLegends = [] }) => {
                   </div>
                 </div>
               ) : (
-                // 離散顏色項目
+                // Discrete color items
                 legend.items.map((item, itemIndex) => (
                   <div key={itemIndex} style={{
                     display: 'flex',

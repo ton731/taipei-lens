@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LoadingOverlay = ({ isLoading, message = "地圖載入中..." }) => {
+const LoadingOverlay = ({ isLoading, message = "Loading map..." }) => {
   if (!isLoading) return null;
 
   return (
@@ -19,7 +19,7 @@ const LoadingOverlay = ({ isLoading, message = "地圖載入中..." }) => {
       zIndex: 9999,
       transition: 'opacity 0.3s ease-out'
     }}>
-      {/* 轉圈圈動畫 */}
+      {/* Spinning animation */}
       <div
         className="loading-spinner"
         style={{
@@ -32,7 +32,7 @@ const LoadingOverlay = ({ isLoading, message = "地圖載入中..." }) => {
         }}
       />
 
-      {/* 載入訊息 */}
+      {/* Loading message */}
       <div style={{
         color: 'white',
         fontSize: '18px',
@@ -43,7 +43,7 @@ const LoadingOverlay = ({ isLoading, message = "地圖載入中..." }) => {
         {message}
       </div>
 
-      {/* 副標題 */}
+      {/* Subtitle */}
       <div style={{
         color: 'rgba(255, 255, 255, 0.7)',
         fontSize: '14px',
@@ -51,10 +51,10 @@ const LoadingOverlay = ({ isLoading, message = "地圖載入中..." }) => {
         maxWidth: '300px',
         lineHeight: '1.4'
       }}>
-        正在載入台北都市韌性規劃平台
+        Loading Taipei Urban Resilience Planning Platform
       </div>
 
-      {/* CSS 動畫定義 */}
+      {/* CSS animation definition */}
       <style>{`
         .loading-spinner {
           animation: spin 1s linear infinite;

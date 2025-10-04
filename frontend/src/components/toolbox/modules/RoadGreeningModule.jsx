@@ -13,13 +13,13 @@ const RoadGreeningModule = () => {
   const [threshold, setThreshold] = useState(0.8);
   const [hasResults, setHasResults] = useState(false);
 
-  // 自動平衡權重 - 只調整最後一個因子
+  // Auto-balance weights - only adjust the last factor
   const handleWeightChange = (index, newWeight) => {
     const weightKeys = Object.keys(weights);
     const updatedWeights = { ...weights };
     updatedWeights[weightKeys[index]] = newWeight;
 
-    // 如果不是最後一個因子，自動調整最後一個因子的權重
+    // If not the last factor, automatically adjust the last factor's weight
     if (index < weightKeys.length - 1) {
       const sumExceptLast = weightKeys
         .slice(0, -1)
@@ -28,7 +28,7 @@ const RoadGreeningModule = () => {
       const lastKey = weightKeys[weightKeys.length - 1];
       updatedWeights[lastKey] = Math.max(0, Math.min(1, 1 - sumExceptLast));
     } else {
-      // 如果調整的是最後一個因子，需要按比例調整其他因子
+      // If adjusting the last factor, proportionally adjust other factors
       const otherKeys = weightKeys.slice(0, -1);
       const otherSum = otherKeys.reduce((sum, key) => sum + updatedWeights[key], 0);
       const remainingWeight = 1 - newWeight;
@@ -38,7 +38,7 @@ const RoadGreeningModule = () => {
           updatedWeights[key] = (updatedWeights[key] / otherSum) * remainingWeight;
         });
       } else {
-        // 如果前面的因子總和為0，平均分配
+        // If sum of previous factors is 0, distribute evenly
         const avgWeight = remainingWeight / otherKeys.length;
         otherKeys.forEach(key => {
           updatedWeights[key] = avgWeight;
@@ -54,7 +54,7 @@ const RoadGreeningModule = () => {
 
   const handleExecute = () => {
     if (!isWeightValid) {
-      alert('權重總和必須等於 1，目前總和為 ' + totalWeight.toFixed(2));
+      alert('Weight sum must equal 1, current sum is ' + totalWeight.toFixed(2));
       return;
     }
     setHasResults(true);
@@ -65,15 +65,15 @@ const RoadGreeningModule = () => {
   };
 
   const factors = [
-    { name: '地表溫度', weight: weights.surface_temp },
-    { name: '(1-綠覆率)', weight: weights.green_deficit },
-    { name: '人口密度', weight: weights.pop_density }
+    { name: 'Surface Temperature', weight: weights.surface_temp },
+    { name: '(1-Green Coverage)', weight: weights.green_deficit },
+    { name: 'Population Density', weight: weights.pop_density }
   ];
 
   const methodologyContent = `
-    • <strong>地表溫度</strong>：反映熱島效應強度<br/>
-    • <strong>(1-綠覆率)</strong>：代表綠化不足程度<br/>
-    • <strong>人口密度</strong>：衡量受影響人口
+    • <strong>Surface Temperature</strong>: Reflects heat island effect intensity<br/>
+    • <strong>(1-Green Coverage)</strong>: Represents insufficient greening level<br/>
+    • <strong>Population Density</strong>: Measures affected population
   `;
 
   return (
@@ -95,7 +95,7 @@ const RoadGreeningModule = () => {
           lineHeight: '1.4',
           flex: 1
         }}>
-          識別最需要透過植樹進行降溫及環境改善的區域
+          Identify areas most in need of cooling and environmental improvement through tree planting
         </div>
         <MethodologyTooltip content={methodologyContent} />
       </div>
@@ -135,7 +135,7 @@ const RoadGreeningModule = () => {
             <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
-          權重總和必須等於 1.00
+          Weight sum must equal 1.00
         </div>
       )}
     </div>

@@ -1,22 +1,24 @@
 import { useState, useCallback } from 'react';
 
 /**
- * 地圖初始化 Hook
- * @returns {Object} 地圖實例、樣式載入狀態、初始視圖狀態和載入回調
+ * Map Initialization Hook
+ * @returns {Object} Map instance, style load status, initial view state, and load callback
  */
 export const useMapInitialization = () => {
   const [mapInstance, setMapInstance] = useState(null);
   const [isStyleLoaded, setIsStyleLoaded] = useState(false);
 
   const mapboxPublicToken = import.meta.env.VITE_MAPBOX_ACCESS_PUBLIC_TOKEN;
-  const styleUrl = import.meta.env.VITE_MAPBOX_STYLE_URL || 'mapbox://styles/mapbox/standard';
+  // 改為輕量樣式，降低初始化負擔
+  const styleUrl = import.meta.env.VITE_MAPBOX_STYLE_URL || 'mapbox://styles/mapbox/light-v11';
 
+  // 初始視角設為全球視角，避免載入台北建築資料
   const initialViewState = {
-    longitude: parseFloat(import.meta.env.VITE_MAP_INITIAL_LONGITUDE) || 121.5654,
-    latitude: parseFloat(import.meta.env.VITE_MAP_INITIAL_LATITUDE) || 25.0330,
-    zoom: parseFloat(import.meta.env.VITE_MAP_INITIAL_ZOOM) || 16,
-    pitch: parseFloat(import.meta.env.VITE_MAP_INITIAL_PITCH) || 45,
-    bearing: parseFloat(import.meta.env.VITE_MAP_INITIAL_BEARING) || 0
+    longitude: 40,
+    latitude: 25,
+    zoom: 1,
+    pitch: 0,
+    bearing: 0
   };
 
   const onMapLoad = useCallback((event) => {
@@ -27,10 +29,11 @@ export const useMapInitialization = () => {
     if (map.isStyleLoaded && map.isStyleLoaded()) {
       setIsStyleLoaded(true);
 
-      // 隱藏 Mapbox Standard Style 的預設建築物
+      // 嘗試關閉 basemap 3D 物件以降低負擔（若可用）
       setTimeout(() => {
         if (map.getConfigProperty) {
-          map.setConfigProperty('basemap', 'showBuildings', false);
+          try { map.setConfigProperty('basemap', 'showBuildings', false); } catch (_) {}
+          try { map.setConfigProperty('basemap', 'show3dObjects', false); } catch (_) {}
         }
       }, 100);
     } else {
@@ -39,9 +42,10 @@ export const useMapInitialization = () => {
         if (map.isStyleLoaded && map.isStyleLoaded()) {
           setIsStyleLoaded(true);
 
-          // 隱藏 Mapbox Standard Style 的預設建築物
+          // 關閉 basemap 3D 物件
           if (map.getConfigProperty) {
-            map.setConfigProperty('basemap', 'showBuildings', false);
+            try { map.setConfigProperty('basemap', 'showBuildings', false); } catch (_) {}
+            try { map.setConfigProperty('basemap', 'show3dObjects', false); } catch (_) {}
           }
         } else {
           setTimeout(checkStyleLoaded, 100);

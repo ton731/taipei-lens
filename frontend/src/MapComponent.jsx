@@ -9,6 +9,7 @@ import MapTitle from './components/map/MapTitle';
 import MapLayers from './components/map/MapLayers';
 import BuildingPopup from './components/map/BuildingPopup';
 import DistrictPopup from './components/map/DistrictPopup';
+import OpeningAnimation from './components/map/OpeningAnimation';
 
 // Hooks
 import { useMapInitialization } from './hooks/useMapInitialization';
@@ -25,14 +26,18 @@ const BUILDING_VIEW_ZOOM = 16.5; // 結構脆弱度圖層的視角高度 (數值
 const ZOOM_ANIMATION_DURATION = 1500; // 視角變化動畫持續時間（毫秒）
 
 const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetHoverInfo, llmHighlightAreas, clearLlmHighlight }) => {
-  // 圖層選擇狀態
+  // Opening animation state
+  const [isOpeningAnimationComplete, setIsOpeningAnimationComplete] = useState(false);
+  const [maxBounds, setMaxBounds] = useState(undefined);
+
+  // Layer selection state
   const [selectedDataLayer, setSelectedDataLayer] = useState(null);
   const [activeLegends, setActiveLegends] = useState([]);
   
   // 結構脆弱度圖層的地震強度狀態 - 使用離散值
   const [earthquakeIntensity, setEarthquakeIntensity] = useState('6弱');
 
-  // 通用分析結果狀態 - 儲存所有模組的分析結果
+  // General analysis results state - stores analysis results from all modules
   const [analysisResults, setAnalysisResults] = useState({
     test: null,
     roadGreening: null,
@@ -41,11 +46,11 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     urbanRenewal: null
   });
 
-  // 模組配置狀態 - 儲存所有模組的權重和閥值配置
+  // Module configuration state - stores weights and threshold configurations for all modules
   const [moduleConfigs, setModuleConfigs] = useState({
     test: {
-      weights: { building_age: 0.5, pop_density: 0.5 },
-      threshold: 0.7
+      weights: { building_age: 0.7, pop_density: 0.3 },
+      threshold: 0.4
     },
     roadGreening: {
       weights: { surface_temp: 0.4, inverse_green_cover: 0.3, pop_density: 0.3 },
@@ -65,7 +70,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }
   });
 
-  // 使用 custom hooks
+  // Use custom hooks
   const {
     mapInstance,
     isStyleLoaded,
@@ -89,12 +94,18 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   const {
     hoverInfo,
     highlightedBuilding
-  } = useMapInteractions(mapInstance, customBuildingData, statisticalAreaSourceLayer, externalSetHoverInfo || null);
+  } = useMapInteractions(
+    mapInstance,
+    customBuildingData,
+    statisticalAreaSourceLayer,
+    externalSetHoverInfo || null,
+    isOpeningAnimationComplete // 互動只在動畫完成後啟用
+  );
 
-  // 使用外部 hoverInfo 如果提供了，否則使用內部的
+  // Use external hoverInfo if provided, otherwise use internal
   const actualHoverInfo = externalHoverInfo !== undefined ? externalHoverInfo : hoverInfo;
 
-  // 處理來自 DataLayersModule 的圖層變化
+  // Handle layer changes from DataLayersModule
   const handleDataLayerChange = useCallback((layerId) => {
     console.log('MapComponent: 接收到圖層變化', { 
       newLayerId: layerId, 
@@ -102,7 +113,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     });
     setSelectedDataLayer(layerId);
 
-    // 當開啟圖層時，清除 AI highlight
+    // Clear AI highlight when opening layer
     if (layerId && clearLlmHighlight) {
       clearLlmHighlight();
     }
@@ -134,7 +145,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     setEarthquakeIntensity(intensity);
   }, []);
 
-  // 通用分析執行回調 - 所有模組共用
+  // General analysis execution callback - shared by all modules
   const handleAnalysisExecute = useCallback((moduleId, highlightedCodes) => {
     console.log(`[${moduleId}] Analysis executed. Highlighted districts:`, highlightedCodes.length);
     setAnalysisResults(prev => ({
@@ -142,13 +153,13 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       [moduleId]: highlightedCodes
     }));
 
-    // 當執行分析時，清除 AI highlight
+    // Clear AI highlight when executing analysis
     if (clearLlmHighlight) {
       clearLlmHighlight();
     }
   }, [clearLlmHighlight]);
 
-  // 通用分析清除回調 - 所有模組共用
+  // General analysis clear callback - shared by all modules
   const handleAnalysisClear = useCallback((moduleId) => {
     setAnalysisResults(prev => ({
       ...prev,
@@ -156,12 +167,12 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }));
   }, []);
 
-  // 清除原始數據圖層選擇 - 當執行分析時調用
+  // Clear raw data layer selection - called when executing analysis
   const handleClearDataLayer = useCallback(() => {
     setSelectedDataLayer(null);
   }, []);
 
-  // 更新模組配置 - 所有模組共用
+  // Update module configuration - shared by all modules
   const handleModuleConfigChange = useCallback((moduleId, config) => {
     setModuleConfigs(prev => ({
       ...prev,
@@ -169,12 +180,25 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }));
   }, []);
 
-  // 處理 LLM highlight areas
+  // Handle animation completion
+  const handleAnimationComplete = useCallback(() => {
+    // 停止可能尚未完成的相機動畫
+    if (mapInstance && mapInstance.stop) {
+      try { mapInstance.stop(); } catch (_) {}
+    }
+
+    setIsOpeningAnimationComplete(true);
+
+    // 暫不設定 maxBounds，以排除遞迴來源可能性
+    // 如需再加回，請在確認穩定後逐步恢復
+  }, [mapInstance]);
+
+  // Handle LLM highlight areas
   useEffect(() => {
     if (llmHighlightAreas) {
       console.log('LLM highlight areas received:', llmHighlightAreas);
 
-      // 當 AI highlight 出現時，清除所有 Toolbox 的圖層和分析結果
+      // When AI highlight appears, clear all Toolbox layers and analysis results
       setSelectedDataLayer(null);
       setAnalysisResults({
         test: null,
@@ -186,7 +210,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       });
 
     } else {
-      // 清除 LLM highlight
+      // Clear LLM highlight
       setAnalysisResults(prev => ({
         ...prev,
         llm: null
@@ -194,7 +218,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }
   }, [llmHighlightAreas]);
 
-  // 處理圖層選擇變化並更新圖例
+  // Handle layer selection changes and update legend
   useEffect(() => {
     if (!selectedDataLayer) {
       setActiveLegends([]);
@@ -241,7 +265,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         fontSize: '18px',
         color: '#666'
       }}>
-        請在 .env 檔案中設定 VITE_MAPBOX_ACCESS_PUBLIC_TOKEN
+        Please set VITE_MAPBOX_ACCESS_PUBLIC_TOKEN in the .env file
       </div>
     );
   }
@@ -255,10 +279,8 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
         mapStyle={styleUrl}
-        maxBounds={[
-          [121.46, 24.95],  // 西南角 [經度, 緯度]
-          [121.67, 25.20]   // 東北角 [經度, 緯度]
-        ]}
+        projection='globe'
+        maxBounds={maxBounds}
         mapConfig={{
           basemap: {
             show3dObjects: true,
@@ -291,8 +313,16 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           }
         }}
       >
-        {/* 地圖圖層 */}
-        {isStyleLoaded && (
+        {/* Opening animation */}
+        {isStyleLoaded && !isOpeningAnimationComplete && (
+          <OpeningAnimation
+            mapInstance={mapInstance}
+            onAnimationComplete={handleAnimationComplete}
+          />
+        )}
+
+        {/* Map layers：動畫完成後再渲染，降低動畫期間的計算負擔 */}
+        {isStyleLoaded && isOpeningAnimationComplete && (
           <MapLayers
             buildingData={buildingData}
             sourceLayerName={sourceLayerName}
@@ -307,11 +337,11 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           />
         )}
 
-        {/* 地圖標題 */}
-        <MapTitle />
+        {/* Map title - only show after animation */}
+        {isOpeningAnimationComplete && <MapTitle />}
 
-        {/* 工具箱面板 */}
-        <ToolboxPanel
+        {/* Toolbox panel - only show after animation */}
+        {isOpeningAnimationComplete && <ToolboxPanel
           onMouseEnter={() => externalSetHoverInfo(null)}
           onDataLayerChange={handleDataLayerChange}
           activeLegends={activeLegends}
@@ -329,8 +359,8 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           onEarthquakeIntensityChange={handleEarthquakeIntensityChange}
         />
 
-        {/* Hover Popup */}
-        {actualHoverInfo && (
+        {/* Hover Popup - only show after animation */}
+        {isOpeningAnimationComplete && actualHoverInfo && (
           <Popup
             longitude={actualHoverInfo.longitude}
             latitude={actualHoverInfo.latitude}

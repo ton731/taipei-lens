@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-工具服務：處理 OpenAI Function Calling 相關邏輯
+Tool Service: Handles OpenAI Function Calling related logic
 """
 import logging
 from typing import Dict, Any, List
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class ToolService:
-    """工具服務類別，負責管理 Function Calling 的 schema 與執行邏輯"""
+    """Tool service class responsible for managing Function Calling schema and execution logic"""
 
     # OpenAI Function Calling Tools Schema
     TOOLS_SCHEMA = [
@@ -18,7 +18,7 @@ class ToolService:
             "type": "function",
             "function": {
                 "name": "search_top_district_by_feature",
-                "description": "搜尋指定特徵值排名前N的行政區。可用於找出人口最多、高齡人口比例最高、低收入戶最多等行政區。",
+                "description": "Search for the top N administrative districts ranked by a specified feature value. Can be used to find districts with the highest population, highest elderly population ratio, most low-income households, etc.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -34,15 +34,15 @@ class ToolService:
                                 "living_alone_count",
                                 "avg_building_age"
                             ],
-                            "description": "要搜尋的特徵名稱。可選擇：total_population(總人口), elderly_population(高齡人口數), pop_elderly_percentage(高齡人口比例), low_income_percentage(低收入戶比例), elderly_alone_percentage(獨居老人比例), low_income_households(低收入戶數), living_alone_count(獨居人口數), avg_building_age(平均建築屋齡)"
+                            "description": "The feature name to search. Options: total_population (total population), elderly_population (elderly population count), pop_elderly_percentage (elderly population ratio), low_income_percentage (low-income household ratio), elderly_alone_percentage (elderly living alone ratio), low_income_households (low-income household count), living_alone_count (people living alone count), avg_building_age (average building age)"
                         },
                         "if_max": {
                             "type": "boolean",
-                            "description": "True 表示要找最高值的行政區（降序排列），False 表示要找最低值的行政區（升序排列）"
+                            "description": "True means to find districts with the highest values (descending order), False means to find districts with the lowest values (ascending order)"
                         },
                         "top_n": {
                             "type": "integer",
-                            "description": "要返回前幾名的行政區數量，若使用者明確提到「最大」或「最小」，請特別注意 top_n 的數量，若沒有提到，則預設為 1。",
+                            "description": "The number of top-ranked districts to return. If the user explicitly mentions 'maximum' or 'minimum', pay special attention to the top_n value. If not mentioned, default is 1.",
                             "default": 1
                         }
                     },
@@ -54,13 +54,13 @@ class ToolService:
             "type": "function",
             "function": {
                 "name": "filter_district_by_conditions",
-                "description": "根據多個條件篩選行政區。可組合多個條件進行篩選，例如同時要求人口數大於某值、高齡比例大於某值、低收入比例大於某值等。所有條件必須同時滿足（AND 邏輯）。",
+                "description": "Filter administrative districts based on multiple conditions. Can combine multiple conditions for filtering, such as requiring population greater than a certain value, elderly ratio greater than a certain value, low-income ratio greater than a certain value, etc. All conditions must be satisfied simultaneously (AND logic).",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "conditions": {
                             "type": "array",
-                            "description": "篩選條件列表，每個條件包含 feature（特徵名稱）、operator（比較運算符）、value（比較數值）",
+                            "description": "List of filter conditions, each containing feature (feature name), operator (comparison operator), and value (comparison value)",
                             "items": {
                                 "type": "object",
                                 "properties": {
@@ -76,16 +76,16 @@ class ToolService:
                                             "living_alone_count",
                                             "avg_building_age"
                                         ],
-                                        "description": "要篩選的特徵名稱。可選擇：total_population(總人口), elderly_population(高齡人口數), pop_elderly_percentage(高齡人口比例), low_income_percentage(低收入戶比例), elderly_alone_percentage(獨居老人比例), low_income_households(低收入戶數), living_alone_count(獨居人口數), avg_building_age(平均建築屋齡)"
+                                        "description": "The feature name to filter. Options: total_population (total population), elderly_population (elderly population count), pop_elderly_percentage (elderly population ratio), low_income_percentage (low-income household ratio), elderly_alone_percentage (elderly living alone ratio), low_income_households (low-income household count), living_alone_count (people living alone count), avg_building_age (average building age)"
                                     },
                                     "operator": {
                                         "type": "string",
                                         "enum": [">", ">=", "<", "<=", "=="],
-                                        "description": "比較運算符：> (大於), >= (大於等於), < (小於), <= (小於等於), == (等於)"
+                                        "description": "Comparison operator: > (greater than), >= (greater than or equal to), < (less than), <= (less than or equal to), == (equal to)"
                                     },
                                     "value": {
                                         "type": "number",
-                                        "description": "比較的數值"
+                                        "description": "The comparison value"
                                     }
                                 },
                                 "required": ["feature", "operator", "value"]
@@ -101,29 +101,29 @@ class ToolService:
     @staticmethod
     def execute_function_call(function_name: str, arguments: Dict[str, Any]) -> Any:
         """
-        動態執行指定的 function call
+        Dynamically execute specified function call
 
         Args:
-            function_name: 要執行的函數名稱
-            arguments: 函數參數（JSON 格式）
+            function_name: Function name to execute
+            arguments: Function arguments (JSON format)
 
         Returns:
-            函數執行結果，或錯誤訊息
+            Function execution result or error message
         """
-        # 定義可用的函數映射
+        # Define available function mappings
         available_functions = {
             "search_top_district_by_feature": ToolService._search_top_district,
             "filter_district_by_conditions": ToolService._filter_district,
         }
 
-        # 檢查函數是否存在
+        # Check if function exists
         if function_name not in available_functions:
             error_msg = f"Function '{function_name}' not found"
             logger.error(error_msg)
             return error_msg
 
         try:
-            # 執行函數
+            # Execute function
             function_to_call = available_functions[function_name]
             result = function_to_call(**arguments)
             # print("***** result: ", result)
@@ -138,31 +138,31 @@ class ToolService:
     @staticmethod
     def _search_top_district(feature: str, if_max: bool, top_n: int) -> List[Dict[str, Any]]:
         """
-        搜尋行政區（內部方法，調用 data_service）
+        Search districts (internal method, calls data_service)
 
         Args:
-            feature: 特徵名稱
-            if_max: True 表示找最大值，False 表示找最小值
-            top_n: 返回前幾名
+            feature: Feature name
+            if_max: True to find maximum values, False to find minimum values
+            top_n: Number of top results to return
 
         Returns:
-            包含 district 和特徵值的字典列表
+            List of dictionaries containing district and feature values
         """
         return data_service.search_top_districts(feature, if_max, top_n)
 
     @staticmethod
     def _filter_district(conditions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        根據多個條件篩選行政區（內部方法，調用 data_service）
+        Filter districts based on multiple conditions (internal method, calls data_service)
 
         Args:
-            conditions: 篩選條件列表
+            conditions: List of filter conditions
 
         Returns:
-            符合所有條件的行政區列表
+            List of districts that satisfy all conditions
         """
         return data_service.filter_districts_by_conditions(conditions)
 
 
-# 創建全局實例
+# Create global instance
 tool_service = ToolService()

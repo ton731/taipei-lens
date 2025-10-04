@@ -16,7 +16,7 @@ const AccordionItem = ({
       borderBottom: '1px solid #e5e5e5',
       overflow: 'hidden'
     }}>
-      {/* 標題列 - 包含圖示、標題、總開關和展開按鈕 */}
+      {/* Title row - includes icon, title, master switch and expand button */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -55,7 +55,7 @@ const AccordionItem = ({
             {title}
           </span>
 
-          {/* 展開/收合箭頭 */}
+          {/* Expand/collapse arrow */}
           <span style={{
             fontSize: '12px',
             color: '#666',
@@ -67,7 +67,7 @@ const AccordionItem = ({
           </span>
         </div>
 
-        {/* 總開關 */}
+        {/* Master switch */}
         <div style={{ marginLeft: '12px' }} onClick={(e) => e.stopPropagation()}>
           <ToggleSwitch
             id={`${title}-toggle`}
@@ -78,7 +78,7 @@ const AccordionItem = ({
         </div>
       </div>
 
-      {/* 展開內容區域 */}
+      {/* Expanded content area */}
       <div style={{
         maxHeight: isOpen ? '300px' : '0px',
         overflow: 'hidden',

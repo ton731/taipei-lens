@@ -113,11 +113,11 @@ const ToolboxPanel = ({
                 color: '#666',
                 marginTop: '4px'
               }}>
-                都市韌性規劃分析工具
+                Urban Resilience Planning Analysis Tools
               </div>
             </div>
 
-            {/* 手風琴選單 */}
+            {/* Accordion Menu */}
             <div style={{
               flex: 1,
               overflowY: 'auto',
@@ -126,9 +126,9 @@ const ToolboxPanel = ({
               scrollbarWidth: 'thin',
               scrollbarColor: '#d97706 #f1f1f1'
             }}>
-              {/* 1. 原始數據圖層 */}
+              {/* 1. Data Layers */}
               <AccordionSection
-                title="原始數據圖層"
+                title="Data Layers"
                 icon={(
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -148,9 +148,9 @@ const ToolboxPanel = ({
                 />
               </AccordionSection>
 
-              {/* 2. 整建分析模組 */}
+              {/* 2. Renovation Analysis Module */}
               <AccordionSection
-                title="整建：區域強化策略"
+                title="Renovation: Regional Strengthening Strategy"
                 icon={(
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -160,9 +160,9 @@ const ToolboxPanel = ({
                 onToggle={() => handleToggleSection('renovation')}
               >
                 <div style={{ padding: '0' }}>
-                  {/* 子模組 2.1: 道路綠化優先級分析 */}
+                  {/* Sub-Module 2.1: Road Greening Priority Analysis */}
                   <SubModuleAccordion
-                    title="道路綠化優先級分析"
+                    title="Road Greening Priority Analysis"
                     icon={(
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -176,9 +176,9 @@ const ToolboxPanel = ({
                     <RoadGreeningModule />
                   </SubModuleAccordion>
 
-                  {/* 子模組 2.2: 建築耐震補強優先級分析 */}
+                  {/* Sub-Module 2.2: Seismic Strengthening Priority Analysis */}
                   <SubModuleAccordion
-                    title="建築耐震補強優先級分析"
+                    title="Seismic Strengthening Priority Analysis"
                     icon={(
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <path d="M2 12h3l2-8 4 16 4-12 2 4h5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
@@ -192,9 +192,9 @@ const ToolboxPanel = ({
                 </div>
               </AccordionSection>
 
-              {/* 3. 重建分析模組 */}
+              {/* 3. Reconstruction Analysis Module */}
               <AccordionSection
-                title="重建：都市再生策略"
+                title="Reconstruction: Urban Regeneration Strategy"
                 icon={(
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <rect x="3" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -207,9 +207,9 @@ const ToolboxPanel = ({
                 onToggle={() => handleToggleSection('reconstruction')}
               >
                 <div style={{ padding: '0' }}>
-                  {/* 子模組 3.1: 公園新闢選址潛力分析 */}
+                  {/* Sub-Module 3.1: Park Siting Potential Analysis */}
                   <SubModuleAccordion
-                    title="公園新闢選址潛力分析"
+                    title="Park Siting Potential Analysis"
                     icon={(
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2a9 9 0 0 1 9 9c0 6-9 13-9 13S3 17 3 11a9 9 0 0 1 9-9z" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -222,9 +222,9 @@ const ToolboxPanel = ({
                     <ParkSitingModule />
                   </SubModuleAccordion>
 
-                  {/* 子模組 3.2: 都市更新急迫性分析 */}
+                  {/* Sub-Module 3.2: Urban Renewal Urgency Analysis */}
                   <SubModuleAccordion
-                    title="都市更新急迫性分析"
+                    title="Urban Renewal Urgency Analysis"
                     icon={(
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -239,9 +239,9 @@ const ToolboxPanel = ({
                 </div>
               </AccordionSection>
 
-              {/* 4. 測試模組 */}
+              {/* 4. Test Module */}
               <AccordionSection
-                title="測試模組"
+                title="Test Module"
                 icon={(
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M9 11l3 3L22 4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
@@ -265,7 +265,7 @@ const ToolboxPanel = ({
               </AccordionSection>
             </div>
 
-            {/* 底部資訊
+            {/* Footer Information
             <div style={{
               padding: '12px 20px',
               borderTop: '1px solid #e5e5e5',
@@ -274,13 +274,13 @@ const ToolboxPanel = ({
               color: '#888',
               textAlign: 'center'
             }}>
-              選擇分析模組開始探索台北都市韌性
+              Select an analysis module to explore Taipei's urban resilience
             </div> */}
           </div>
         )}
       </div>
 
-      {/* 收合/展開按鈕 */}
+      {/* Collapse/Expand Button */}
       <button
         onClick={handleToggleCollapse}
         style={{
@@ -311,7 +311,7 @@ const ToolboxPanel = ({
           e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
           e.target.style.transform = 'scale(1)';
         }}
-        title={isCollapsed ? '展開工具面板' : '收合工具面板'}
+        title={isCollapsed ? 'Expand Toolbox Panel' : 'Collapse Toolbox Panel'}
       >
         {isCollapsed ? '▶' : '◀'}
       </button>
@@ -319,13 +319,13 @@ const ToolboxPanel = ({
   );
 };
 
-// 主區塊手風琴元件
+// Main Section Accordion Component
 const AccordionSection = ({ title, icon, isOpen, onToggle, children }) => {
   return (
     <div style={{
       borderBottom: '1px solid #e5e5e5'
     }}>
-      {/* 主區塊標題 */}
+      {/* Main Section Title */}
       <div
         onClick={onToggle}
         style={{
@@ -367,7 +367,7 @@ const AccordionSection = ({ title, icon, isOpen, onToggle, children }) => {
         </span>
       </div>
 
-      {/* 主區塊內容 */}
+      {/* Main Section Content */}
       <div style={{
         maxHeight: isOpen ? '2000px' : '0px',
         overflow: 'hidden',
@@ -380,13 +380,13 @@ const AccordionSection = ({ title, icon, isOpen, onToggle, children }) => {
   );
 };
 
-// 子模組手風琴元件
+// Sub-Module Accordion Component
 const SubModuleAccordion = ({ title, icon, isOpen, onToggle, children }) => {
   return (
     <div style={{
       borderBottom: '1px solid #e0e7ff'
     }}>
-      {/* 子模組標題 */}
+      {/* Sub-Module Title */}
       <div
         onClick={onToggle}
         style={{
@@ -428,7 +428,7 @@ const SubModuleAccordion = ({ title, icon, isOpen, onToggle, children }) => {
         </span>
       </div>
 
-      {/* 子模組內容 */}
+      {/* Sub-Module Content */}
       <div style={{
         maxHeight: isOpen ? '1500px' : '0px',
         overflow: 'hidden',

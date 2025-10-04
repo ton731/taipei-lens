@@ -20,8 +20,8 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
   const otherLayers = [
     {
       id: 'building_age',
-      label: '建築屋齡',
-      description: '建築物平均屋齡分布',
+      label: 'Building Age',
+      description: 'Average building age distribution',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -32,8 +32,8 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
     },
     {
       id: 'population_density',
-      label: '人口密度',
-      description: '單位面積人口分布',
+      label: 'Population Density',
+      description: 'Population distribution per unit area',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -45,8 +45,8 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
     },
     {
       id: 'elderly_ratio',
-      label: '高齡比例',
-      description: '65歲以上人口比例分布',
+      label: 'Elderly Ratio',
+      description: 'Distribution of population aged 65 and above',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -57,8 +57,8 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
     },
     {
       id: 'elderly_alone_ratio',
-      label: '高齡中獨居比例',
-      description: '高齡獨居人口比例分布',
+      label: 'Elderly Living Alone Ratio',
+      description: 'Distribution of elderly living alone',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -69,8 +69,8 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
     },
     {
       id: 'low_income_ratio',
-      label: '低收入戶比例',
-      description: '低收入戶比例分布',
+      label: 'Low Income Ratio',
+      description: 'Distribution of low-income households',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -111,17 +111,14 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
   ];
 
   const handleLayerChange = (layerId) => {
-    console.log('DataLayersModule: 圖層變化', { layerId, selectedLayer });
-    // 如果點擊已選中的圖層，則取消選擇
+    // If clicking an already selected layer, deselect it
     if (selectedLayer === layerId) {
-      console.log('DataLayersModule: 取消選擇圖層', layerId);
-      // 通知父組件取消選擇
+      // Notify parent component to deselect
       if (onLayerChange) {
         onLayerChange(null);
       }
     } else {
-      console.log('DataLayersModule: 選擇新圖層', layerId);
-      // 通知父組件圖層變化
+      // Notify parent component of layer change
       if (onLayerChange) {
         onLayerChange(layerId);
       }
@@ -139,7 +136,7 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
         lineHeight: '1.4',
         marginBottom: '12px'
       }}>
-        選擇一個基礎數據圖層進行視覺化探查（一次只能顯示一個圖層）
+        Select a base data layer for visual exploration.
       </div>
 
       <div>

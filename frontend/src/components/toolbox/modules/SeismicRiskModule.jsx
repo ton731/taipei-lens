@@ -22,7 +22,7 @@ const SeismicRiskModule = ({ isOpen, onToggleOpen }) => {
           <path d="M2 12h3l2-8 4 16 4-12 2 4h5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       }
-      title="地震風險評估"
+      title="Seismic Risk Assessment"
       isOpen={isOpen}
       onToggleOpen={onToggleOpen}
       onToggleEnabled={handleToggleEnabled}
@@ -39,18 +39,18 @@ const SeismicRiskModule = ({ isOpen, onToggleOpen }) => {
           lineHeight: '1.4',
           marginBottom: '8px'
         }}>
-          調整地震強度以模擬不同震度下的建築物損壞風險。建築物顏色將從低風險（綠色）到高風險（紅色）變化。
+          Adjust seismic intensity to simulate building damage risk at different magnitudes. Building colors will vary from low risk (green) to high risk (red).
         </div>
 
         <Slider
           id="seismic-intensity"
-          label="地震強度"
+          label="Seismic Intensity"
           value={intensity}
           onChange={handleIntensityChange}
           min={1}
           max={7}
           step={0.5}
-          unit=" 級"
+          unit=" magnitude"
           disabled={!isEnabled}
         />
 
@@ -73,7 +73,7 @@ const SeismicRiskModule = ({ isOpen, onToggleOpen }) => {
               backgroundColor: '#22c55e',
               borderRadius: '2px'
             }}></div>
-            低風險
+            Low Risk
           </div>
           <div style={{
             display: 'flex',
@@ -86,7 +86,7 @@ const SeismicRiskModule = ({ isOpen, onToggleOpen }) => {
               backgroundColor: '#eab308',
               borderRadius: '2px'
             }}></div>
-            中風險
+            Medium Risk
           </div>
           <div style={{
             display: 'flex',
@@ -99,7 +99,7 @@ const SeismicRiskModule = ({ isOpen, onToggleOpen }) => {
               backgroundColor: '#ef4444',
               borderRadius: '2px'
             }}></div>
-            高風險
+            High Risk
           </div>
         </div>
       </div>

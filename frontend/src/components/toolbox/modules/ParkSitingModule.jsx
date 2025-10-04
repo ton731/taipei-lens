@@ -18,7 +18,7 @@ const ParkSitingModule = () => {
     const updatedWeights = { ...weights };
     updatedWeights[weightKeys[index]] = newWeight;
 
-    // 如果不是最後一個因子，自動調整最後一個因子的權重
+    // If not the last factor, automatically adjust the last factor's weight
     if (index < weightKeys.length - 1) {
       const sumExceptLast = weightKeys
         .slice(0, -1)
@@ -27,7 +27,7 @@ const ParkSitingModule = () => {
       const lastKey = weightKeys[weightKeys.length - 1];
       updatedWeights[lastKey] = Math.max(0, Math.min(1, 1 - sumExceptLast));
     } else {
-      // 如果調整的是最後一個因子，需要按比例調整其他因子
+      // If adjusting the last factor, need to proportionally adjust other factors
       const otherKeys = weightKeys.slice(0, -1);
       const otherSum = otherKeys.reduce((sum, key) => sum + updatedWeights[key], 0);
       const remainingWeight = 1 - newWeight;
@@ -37,7 +37,7 @@ const ParkSitingModule = () => {
           updatedWeights[key] = (updatedWeights[key] / otherSum) * remainingWeight;
         });
       } else {
-        // 如果前面的因子總和為0，平均分配
+        // If the sum of previous factors is 0, distribute evenly
         const avgWeight = remainingWeight / otherKeys.length;
         otherKeys.forEach(key => {
           updatedWeights[key] = avgWeight;
@@ -53,7 +53,7 @@ const ParkSitingModule = () => {
 
   const handleExecute = () => {
     if (!isWeightValid) {
-      alert('權重總和必須等於 1，目前總和為 ' + totalWeight.toFixed(2));
+      alert('Weight sum must equal 1, current sum is ' + totalWeight.toFixed(2));
       return;
     }
     setHasResults(true);
@@ -64,15 +64,15 @@ const ParkSitingModule = () => {
   };
 
   const factors = [
-    { name: '(1-綠地服務涵蓋率)', weight: weights.green_service_deficit },
-    { name: '人口密度', weight: weights.pop_density },
-    { name: '社會脆弱性指標', weight: weights.social_vulnerability }
+    { name: '(1-Green Space Service Coverage)', weight: weights.green_service_deficit },
+    { name: 'Population Density', weight: weights.pop_density },
+    { name: 'Social Vulnerability Index', weight: weights.social_vulnerability }
   ];
 
   const methodologyContent = `
-    • <strong>綠地服務涵蓋率</strong>：500公尺步行範圍內的公園面積<br/>
-    • <strong>人口密度</strong>：衡量綠地需求強度<br/>
-    • <strong>社會脆弱性</strong>：優先照顧弱勢族群
+    • <strong>Green Space Service Coverage</strong>: Park area within 500m walking distance<br/>
+    • <strong>Population Density</strong>: Measure of green space demand intensity<br/>
+    • <strong>Social Vulnerability</strong>: Priority care for disadvantaged groups
   `;
 
   return (
@@ -94,7 +94,7 @@ const ParkSitingModule = () => {
           lineHeight: '1.4',
           flex: 1
         }}>
-          找出最缺乏公園綠地且潛在需求最高的區域
+          Identify areas most lacking in parks and green spaces with the highest potential demand
         </div>
         <MethodologyTooltip content={methodologyContent} />
       </div>
@@ -134,7 +134,7 @@ const ParkSitingModule = () => {
             <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
-          權重總和必須等於 1.00
+          Weight sum must equal 1.00
         </div>
       )}
     </div>

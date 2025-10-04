@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { getBuildingTilesetInfo, getBuildingMapboxUrl } from '../services/api';
 
 /**
- * 建築物資料 Hook
- * @param {Object} mapInstance - 地圖實例
- * @param {boolean} isStyleLoaded - 樣式是否載入完成
- * @returns {Object} 建築物資料、source layer 資訊等
+ * Building Data Hook
+ * @param {Object} mapInstance - Map instance
+ * @param {boolean} isStyleLoaded - Whether style is loaded
+ * @returns {Object} Building data, source layer information, etc.
  */
 export const useBuildingData = (mapInstance, isStyleLoaded) => {
   const [sourceLayerInfo, setSourceLayerInfo] = useState(null);
@@ -15,7 +15,8 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
 
   // Load and index custom building data from tileset
   const loadCustomBuildingData = useCallback(async (map, sourceLayer) => {
-    if (!map || !sourceLayer) {
+    // 僅在樣式載入完成且存在 buildings source 時執行；不再讀取私有欄位
+    if (!map || !sourceLayer || !map.isStyleLoaded || !map.isStyleLoaded() || !map.getSource('buildings')) {
       return;
     }
 
@@ -81,8 +82,7 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
         setCustomBuildingData(new Map());
       }
     } catch (error) {
-      console.error('Error loading custom building data:', error);
-      // 即使有錯誤也要設置空 Map
+      console.error('Error during custom building data init:', error);
       setCustomBuildingData(new Map());
     }
   }, []);
@@ -99,7 +99,7 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
         getBuildingMapboxUrl()
       ]);
 
-      if (buildingTilesetInfo.vector_layers) {
+      if (buildingTilesetInfo && Array.isArray(buildingTilesetInfo.vector_layers) && buildingTilesetInfo.vector_layers.length > 0) {
         const apiLayers = buildingTilesetInfo.vector_layers.map(layer => layer.id);
         setSourceLayerInfo(apiLayers);
         setBuildingMapboxUrl(mapboxUrl);
@@ -111,34 +111,11 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
         return;
       }
     } catch (error) {
-      console.warn('Could not fetch building tileset info via backend API, trying tile inspection:', error);
+      console.warn('Could not fetch building tileset info via backend API. Skipping private tiles inspection.', error);
     }
 
-    // Fallback: inspect tiles for source layers
-    const source = map.getSource('buildings');
-    if (source) {
-      const sourceCache = map.style.sourceCaches?.['buildings'];
-      if (sourceCache) {
-        const foundLayers = new Set();
-        Object.keys(sourceCache._tiles || {}).forEach(tileId => {
-          const tile = sourceCache._tiles[tileId];
-          if (tile && tile.vectorTile) {
-            const layerNames = Object.keys(tile.vectorTile.layers || {});
-            layerNames.forEach(name => foundLayers.add(name));
-          }
-        });
-
-        if (foundLayers.size > 0) {
-          const layerArray = Array.from(foundLayers);
-          setSourceLayerInfo(layerArray);
-
-          setTimeout(() => {
-            loadCustomBuildingData(map, layerArray[0]);
-            setIsInitialized(true);
-          }, 1000);
-        }
-      }
-    }
+    // 若 API 不可用或沒有 vector_layers，則暫不嘗試任何私有 tiles fallback，僅設定已初始化避免重覆嘗試
+    setIsInitialized(true);
   }, [isInitialized, loadCustomBuildingData]);
 
   // Auto-initialize when map and style are ready

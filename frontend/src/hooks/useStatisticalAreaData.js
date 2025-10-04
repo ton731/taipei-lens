@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { getStatisticalAreaTilesetInfo, getStatisticalAreaMapboxUrl } from '../services/api';
 
 /**
- * 最小統計區域資料 Hook
- * @param {Object} mapInstance - 地圖實例
- * @param {boolean} isStyleLoaded - 樣式是否載入完成
- * @returns {Object} 統計區域 source layer 和 Mapbox URL
+ * Statistical Area Data Hook
+ * @param {Object} mapInstance - Map instance
+ * @param {boolean} isStyleLoaded - Whether style is loaded
+ * @returns {Object} Statistical area source layer and Mapbox URL
  */
 export const useStatisticalAreaData = (mapInstance, isStyleLoaded) => {
   const [statisticalAreaSourceLayer, setStatisticalAreaSourceLayer] = useState(null);

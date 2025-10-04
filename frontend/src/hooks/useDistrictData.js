@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { getDistrictTilesetInfo, getDistrictMapboxUrl } from '../services/api';
 
 /**
- * 行政區資料 Hook
- * @param {Object} mapInstance - 地圖實例
- * @param {boolean} isStyleLoaded - 樣式是否載入完成
- * @returns {Object} 行政區 source layer 和 Mapbox URL
+ * District Data Hook
+ * @param {Object} mapInstance - Map instance
+ * @param {boolean} isStyleLoaded - Whether style is loaded
+ * @returns {Object} District source layer and Mapbox URL
  */
 export const useDistrictData = (mapInstance, isStyleLoaded) => {
   const [districtSourceLayer, setDistrictSourceLayer] = useState(null);
