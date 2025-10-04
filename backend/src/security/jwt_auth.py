@@ -15,8 +15,8 @@ from src.config import settings
 
 # JWT 配置
 JWT_ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 120  # 2 小時
-REFRESH_TOKEN_EXPIRE_DAYS = 7     # 7 天
+ACCESS_TOKEN_EXPIRE_MINUTES = 60  # 60 分鐘
+REFRESH_TOKEN_EXPIRE_HOURS = 6     # 12 小時
 
 
 def get_jwt_secret() -> bytes:
@@ -75,7 +75,7 @@ class JWTManager:
             str: JWT refresh token
         """
         now = datetime.now(timezone.utc)
-        expire = now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = now + timedelta(hours=REFRESH_TOKEN_EXPIRE_HOURS)
 
         payload = {
             "session_id": session_id,

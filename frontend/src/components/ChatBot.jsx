@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import './ChatBot.css'
+import { apiPost } from '../lib/httpClient'
 
 // 預設問題列表
 const SAMPLE_QUESTIONS = [
@@ -11,7 +12,7 @@ const SAMPLE_QUESTIONS = [
   '高齡人口比例最高的行政區在哪裡？',
   '哪個行政區的總人口最多？',
   '平均建築屋齡最年輕的前三個行政區有哪些？',
-  '總人口超過 20 萬的行政區有哪些？',
+  '總人口超過 25 萬的行政區有哪些？',
   '高齡人口比例超過 25% 的行政區在哪裡？',
   '台北市都市更新的主要目標是什麼？',
   '什麼是容積獎勵制度？',
@@ -52,24 +53,11 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
       setIsLoading(true)
 
       try {
-        // 調用後端 API
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-        const response = await fetch(`${apiBaseUrl}/llm/chat`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            question: question
-          })
+        // 調用後端 API（使用 apiPost 自動附加 JWT token）
+        const data = await apiPost('/llm/chat', {
+          question: question
         })
 
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.detail || 'API request failed')
-        }
-
-        const data = await response.json()
         setAiResponse(data.answer)
         setShowResponse(true)
 
