@@ -20,7 +20,7 @@ const ParkSitingModule = ({
   // Use externally passed weights and threshold (from parent component's state)
   // Default to Public Works Bureau scenario (first scenario)
   const weights = externalWeights || { green_space_service_gap: 0.50, population_demand: 0.25, environmental_stress: 0.15, social_equity: 0.10 };
-  const threshold = externalThreshold !== undefined ? externalThreshold : 0.8;
+  const threshold = externalThreshold !== undefined ? externalThreshold : 0.5;
 
   // Derive result status from analysisResult (don't use internal state)
   const hasResults = analysisResult !== null && analysisResult !== undefined;

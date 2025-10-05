@@ -20,7 +20,7 @@ const RoadGreeningModule = ({
   // Use externally passed weights and threshold (from parent component's state)
   // Default to Environmental Protection Bureau scenario (first scenario)
   const weights = externalWeights || { thermal_stress: 0.50, greening_potential: 0.30, population_benefit: 0.20 };
-  const threshold = externalThreshold !== undefined ? externalThreshold : 0.8;
+  const threshold = externalThreshold !== undefined ? externalThreshold : 0.5;
 
   // Derive result status from analysisResult (don't use internal state)
   const hasResults = analysisResult !== null && analysisResult !== undefined;
