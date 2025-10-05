@@ -20,7 +20,7 @@ const UrbanRenewalModule = ({
   // Use externally passed weights and threshold (from parent component's state)
   // Default to Disaster Prevention scenario (first scenario)
   const weights = externalWeights || { building_vulnerability: 0.50, environmental_quality: 0.20, population_exposure: 0.30 };
-  const threshold = externalThreshold !== undefined ? externalThreshold : 0.3;
+  const threshold = externalThreshold !== undefined ? externalThreshold : 0.5;
 
   // Derive result status from analysisResult (don't use internal state)
   const hasResults = analysisResult !== null && analysisResult !== undefined;

@@ -70,7 +70,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     urbanRenewal: {
       // Disaster Prevention (first scenario)
       weights: { building_vulnerability: 0.50, environmental_quality: 0.20, population_exposure: 0.30 },
-      threshold: 0.3
+      threshold: 0.5
     }
   });
 
