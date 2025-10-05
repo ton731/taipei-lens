@@ -39,7 +39,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
   // General analysis results state - stores analysis results from all modules
   const [analysisResults, setAnalysisResults] = useState({
-    test: null,
     roadGreening: null,
     seismicStrengthening: null,
     parkSiting: null,
@@ -48,10 +47,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
   // Module configuration state - stores weights and threshold configurations for all modules
   const [moduleConfigs, setModuleConfigs] = useState({
-    test: {
-      weights: { building_age: 0.7, pop_density: 0.3 },
-      threshold: 0.4
-    },
     roadGreening: {
       weights: { thermal_stress: 0.4, greening_potential: 0.3, population_benefit: 0.3 },
       threshold: 0.8
@@ -201,7 +196,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       // When AI highlight appears, clear all Toolbox layers and analysis results
       setSelectedDataLayer(null);
       setAnalysisResults({
-        test: null,
         roadGreening: null,
         seismicStrengthening: null,
         parkSiting: null,
@@ -365,7 +359,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           onEarthquakeIntensityChange={handleEarthquakeIntensityChange}
         />}
 
-        {/* Hover Popup - only show after animation */}
+        {/* Click Popup - only show after animation */}
         {isOpeningAnimationComplete && actualHoverInfo && (
           <Popup
             longitude={actualHoverInfo.longitude}

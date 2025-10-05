@@ -4,7 +4,6 @@ import RoadGreeningModule from './modules/RoadGreeningModule';
 import SeismicStrengtheningModule from './modules/SeismicStrengtheningModule';
 import ParkSitingModule from './modules/ParkSitingModule';
 import UrbanRenewalModule from './modules/UrbanRenewalModule';
-import TestModule from './modules/TestModule';
 import MethodologyTooltip from '../ui/MethodologyTooltip';
 
 const ToolboxPanel = ({
@@ -25,7 +24,7 @@ const ToolboxPanel = ({
   onEarthquakeIntensityChange
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [openSection, setOpenSection] = useState(null); // 'data', 'renovation', 'reconstruction', 'test'
+  const [openSection, setOpenSection] = useState(null); // 'data', 'renovation', 'reconstruction'
   const [openSubModule, setOpenSubModule] = useState(null); // 'road_greening', 'seismic_strengthening', 'park_siting', 'urban_renewal'
 
   const handleToggleCollapse = () => {
@@ -278,31 +277,6 @@ const ToolboxPanel = ({
                     />
                   </SubModuleAccordion>
                 </div>
-              </AccordionSection>
-
-              {/* 4. Test Module */}
-              <AccordionSection
-                title="Test Module"
-                icon={(
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 11l3 3L22 4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                )}
-                isOpen={openSection === 'test'}
-                onToggle={() => handleToggleSection('test')}
-              >
-                <TestModule
-                  mapInstance={mapInstance}
-                  statisticalAreaSourceLayer={statisticalAreaSourceLayer}
-                  onAnalysisExecute={onAnalysisExecute}
-                  onAnalysisClear={onAnalysisClear}
-                  onClearDataLayer={onClearDataLayer}
-                  weights={moduleConfigs.test.weights}
-                  threshold={moduleConfigs.test.threshold}
-                  onConfigChange={(config) => onModuleConfigChange('test', config)}
-                  analysisResult={analysisResults.test}
-                />
               </AccordionSection>
             </div>
 

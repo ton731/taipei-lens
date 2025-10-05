@@ -46,6 +46,8 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
     let hoveredFeatureId = null;
     let hoveredSourceLayer = null;
     let hoveredStatisticalAreaId = null;
+    let clickedFeatureId = null; // 追蹤被點擊的feature
+    let clickedSource = null; // 追蹤被點擊的來源 ('building' 或 'statistical-area')
 
     setTimeout(() => {
       // 地圖尚未完全就緒時直接跳過初始化
@@ -58,7 +60,7 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
 
       const allLayers = layers.map(l => ({ id: l.id, type: l.type, source: l.source }));
 
-      // Mouse move handler for hover effects and highlighting
+      // Mouse move handler for hover effects and highlighting (no popup)
       const onMouseMove = (e) => {
         // 地圖尚未載入完成或正在移動時，不進行昂貴的查詢，避免在動畫/樣式更新期間觸發渲染重算
         if (!map.isStyleLoaded || !map.isStyleLoaded() || (map.isMoving && map.isMoving())) {
@@ -66,6 +68,41 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
         }
 
         const features = map.queryRenderedFeatures(e.point);
+
+        // 檢查是否有popup正在顯示，如果滑鼠移動到其他地方則清除popup
+        if (clickedFeatureId !== null) {
+          let stillOnClickedFeature = false;
+
+          if (clickedSource === 'building') {
+            const currentBuildingFeatures = features.filter(f =>
+              f.layer?.id === 'custom-3d-buildings' ||
+              (f.properties &&
+               (f.properties.height || f.properties.floor || f.properties.area || f.properties.levels || f.properties.building))
+            );
+            // 檢查是否還在同一個建築物上
+            stillOnClickedFeature = currentBuildingFeatures.some(f => {
+              if (f.id !== undefined) {
+                return f.id === clickedFeatureId;
+              }
+              return false;
+            });
+          } else if (clickedSource === 'statistical-area') {
+            const currentStatisticalAreaFeatures = features.filter(f =>
+              f.source === 'statistical-areas'
+            );
+            // 檢查是否還在同一個統計區上
+            stillOnClickedFeature = currentStatisticalAreaFeatures.some(f => {
+              return f.id === clickedFeatureId;
+            });
+          }
+
+          // 如果滑鼠不在被點擊的feature上，清除popup
+          if (!stillOnClickedFeature) {
+            setHoverInfo(null);
+            clickedFeatureId = null;
+            clickedSource = null;
+          }
+        }
 
         // First check if there are buildings
         const buildingFeatures = features.filter(f =>
@@ -126,33 +163,6 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
             }
           }
 
-          // 處理 properties，解析 fragility_curve JSON 字符串
-          const finalProperties = customData || feature.properties || {};
-          
-          // 如果 fragility_curve 是字符串，解析成物件
-          if (finalProperties.fragility_curve && typeof finalProperties.fragility_curve === 'string') {
-            try {
-              finalProperties.fragility_curve = JSON.parse(finalProperties.fragility_curve);
-              console.log('成功解析 fragility_curve:', finalProperties.fragility_curve);
-            } catch (error) {
-              console.error('解析 fragility_curve 失敗:', error);
-            }
-          }
-
-          // 顯示建築物資訊
-          setHoverInfo({
-            longitude: e.lngLat.lng,
-            latitude: e.lngLat.lat,
-            properties: finalProperties,
-            isCustomData: !!customData,
-            layerInfo: {
-              id: feature.layer?.id,
-              type: feature.layer?.type,
-              source: feature.source,
-              sourceLayer: feature.sourceLayer
-            }
-          });
-
           map.getCanvas().style.cursor = 'pointer';
         } else {
           // No buildings, check for statistical areas
@@ -190,26 +200,6 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
               );
             }
 
-            // Display statistical area information
-            const props = feature.properties || {};
-            setHoverInfo({
-              longitude: e.lngLat.lng,
-              latitude: e.lngLat.lat,
-              feature: {
-                type: 'district',
-                properties: {
-                  'District': props.TOWN || 'N/A',
-                  'Statistical Area Code': props.CODEBASE || 'N/A',
-                  'Population': props.population ? props.population.toLocaleString() : 'N/A',
-                  'Households': props.household ? props.household.toLocaleString() : 'N/A',
-                  'Avg Building Age': props.avg_building_age ? `${Math.round(props.avg_building_age)} years` : 'N/A',
-                  'Elderly Ratio': props.pop_elderly_percentage ? `${props.pop_elderly_percentage.toFixed(1)}%` : 'N/A',
-                  'Elderly Living Alone Ratio': props.elderly_alone_percentage ? `${props.elderly_alone_percentage.toFixed(1)}%` : 'N/A',
-                  'Low Income Ratio': props.low_income_percentage ? `${props.low_income_percentage.toFixed(1)}%` : 'N/A'
-                }
-              }
-            });
-
             map.getCanvas().style.cursor = 'pointer';
           } else {
             // Neither buildings nor statistical areas, clear all hover effects
@@ -231,8 +221,98 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
             }
 
             setHighlightedBuilding(null);
-            setHoverInfo(null);
             map.getCanvas().style.cursor = '';
+          }
+        }
+      };
+
+      // Click handler for showing popup
+      const onClick = (e) => {
+        if (!map.isStyleLoaded || !map.isStyleLoaded()) {
+          return;
+        }
+
+        const features = map.queryRenderedFeatures(e.point);
+
+        // First check if there are buildings
+        const buildingFeatures = features.filter(f =>
+          f.layer?.id === 'custom-3d-buildings' ||
+          (f.properties &&
+           (f.properties.height || f.properties.floor || f.properties.area || f.properties.levels || f.properties.building))
+        );
+
+        // If there are buildings, show building popup
+        if (buildingFeatures.length > 0) {
+          const feature = buildingFeatures[0];
+          const customData = findMatchingCustomData(feature, e.lngLat);
+
+          // 記錄被點擊的建築物
+          clickedFeatureId = feature.id;
+          clickedSource = 'building';
+
+          // 處理 properties，解析 fragility_curve JSON 字符串
+          const finalProperties = customData || feature.properties || {};
+
+          // 如果 fragility_curve 是字符串，解析成物件
+          if (finalProperties.fragility_curve && typeof finalProperties.fragility_curve === 'string') {
+            try {
+              finalProperties.fragility_curve = JSON.parse(finalProperties.fragility_curve);
+              console.log('成功解析 fragility_curve:', finalProperties.fragility_curve);
+            } catch (error) {
+              console.error('解析 fragility_curve 失敗:', error);
+            }
+          }
+
+          // 顯示建築物資訊
+          setHoverInfo({
+            longitude: e.lngLat.lng,
+            latitude: e.lngLat.lat,
+            properties: finalProperties,
+            isCustomData: !!customData,
+            layerInfo: {
+              id: feature.layer?.id,
+              type: feature.layer?.type,
+              source: feature.source,
+              sourceLayer: feature.sourceLayer
+            }
+          });
+        } else {
+          // No buildings, check for statistical areas
+          const statisticalAreaFeatures = features.filter(f =>
+            f.source === 'statistical-areas'
+          );
+
+          if (statisticalAreaFeatures.length > 0) {
+            const feature = statisticalAreaFeatures[0];
+            const props = feature.properties || {};
+
+            // 記錄被點擊的統計區
+            clickedFeatureId = feature.id;
+            clickedSource = 'statistical-area';
+
+            // Display statistical area information
+            setHoverInfo({
+              longitude: e.lngLat.lng,
+              latitude: e.lngLat.lat,
+              feature: {
+                type: 'district',
+                properties: {
+                  'District': props.TOWN || 'N/A',
+                  'Statistical Area Code': props.CODEBASE || 'N/A',
+                  'Population': props.population ? props.population.toLocaleString() : 'N/A',
+                  'Households': props.household ? props.household.toLocaleString() : 'N/A',
+                  'Avg Building Age': props.avg_building_age ? `${Math.round(props.avg_building_age)} years` : 'N/A',
+                  'Elderly Ratio': props.pop_elderly_percentage ? `${props.pop_elderly_percentage.toFixed(1)}%` : 'N/A',
+                  'Elderly Living Alone Ratio': props.elderly_alone_percentage ? `${props.elderly_alone_percentage.toFixed(1)}%` : 'N/A',
+                  'Low Income Ratio': props.low_income_percentage ? `${props.low_income_percentage.toFixed(1)}%` : 'N/A'
+                }
+              }
+            });
+          } else {
+            // Neither buildings nor statistical areas, clear popup
+            setHoverInfo(null);
+            clickedFeatureId = null;
+            clickedSource = null;
           }
         }
       };
@@ -257,17 +337,18 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
         }
 
         setHighlightedBuilding(null);
-        setHoverInfo(null);
         map.getCanvas().style.cursor = '';
       };
 
       // Remove existing listeners to avoid duplicates
       map.off('mousemove', onMouseMove);
       map.off('mouseleave', onMouseLeave);
+      map.off('click', onClick);
 
       // Add new listeners
       map.on('mousemove', onMouseMove);
       map.on('mouseleave', onMouseLeave);
+      map.on('click', onClick);
 
     }, 1000);
   }, [customBuildingData, findMatchingCustomData, statisticalAreaSourceLayer, setHoverInfo]);
