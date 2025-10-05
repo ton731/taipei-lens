@@ -213,12 +213,16 @@ const UrbanRenewalModule = ({
 
         {/* Analysis result display */}
         {hasResults && (
-          <>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+            alignSelf: 'flex-start'
+          }}>
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '7px',
-              alignSelf: 'flex-start',
               padding: '6px 12px',
               backgroundColor: resultCount > 0 ? '#fff7ed' : '#f3f4f6',
               borderRadius: '12px',
@@ -230,23 +234,18 @@ const UrbanRenewalModule = ({
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
                 <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
               </svg>
-              <span style={{ fontWeight: '600' }}>
-                {resultCount} priority renewal areas identified
-              </span>
-            </div>
-            {resultCount === 0 && (
-              <div style={{
-                padding: '6px 10px',
-                backgroundColor: '#fef3c7',
-                borderRadius: '6px',
-                fontSize: '11px',
-                color: '#92400e',
-                marginTop: '4px'
-              }}>
-                💡 Try lowering the threshold to identify more areas
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ fontWeight: '600' }}>
+                  {resultCount} priority renewal areas identified
+                </span>
+                {resultCount === 0 && (
+                  <span style={{ fontSize: '11px', color: '#6b7280', fontWeight: '400' }}>
+                    Try lowering the threshold to identify more areas
+                  </span>
+                )}
               </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
 
         <AnalysisButtons
