@@ -162,7 +162,7 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
             key={preset.id}
             onClick={() => handlePresetClick(preset)}
             style={{
-              padding: '8px 12px',
+              padding: '6px 12px',
               borderRadius: '8px',
               border: isPresetActive(preset.weights) 
                 ? '2px solid #d97706' 
@@ -176,14 +176,15 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
               fontWeight: '500',
               color: isPresetActive(preset.weights) ? '#d97706' : '#374151',
               transition: 'all 0.2s ease',
-              minHeight: '60px',
+              minHeight: 'auto',
               minWidth: '120px',
               flexShrink: 0,
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              gap: '4px'
+              gap: '2px',
+              outline: 'none'
             }}
             onMouseEnter={(e) => {
               if (!isPresetActive(preset.weights)) {
