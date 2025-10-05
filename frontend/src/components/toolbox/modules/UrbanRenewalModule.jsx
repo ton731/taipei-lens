@@ -174,7 +174,7 @@ const UrbanRenewalModule = ({
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: '10px',
+      gap: '6px',
       padding: '16px 20px'
     }}>
       <div style={{
@@ -199,10 +199,10 @@ const UrbanRenewalModule = ({
 
       <div style={{
         borderTop: '1px solid #f3f4f6',
-        paddingTop: '8px',
+        paddingTop: '6px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px'
+        gap: '8px'
       }}>
         <ThresholdInput
           id="threshold-renewal"

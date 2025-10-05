@@ -36,7 +36,7 @@ const InteractiveFormulaDisplay = ({ factors, onWeightChange }) => {
           gap: '4px',
           flexWrap: 'wrap'
         }}>
-          <span style={{ fontWeight: '600', color: '#4264fb' }}>Priority Score =</span>
+          <span style={{ fontWeight: '600', color: '#d97706' }}>Priority Score =</span>
         </div>
 
         {factors.map((factor, index) => (

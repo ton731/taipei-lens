@@ -145,7 +145,7 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
         color: '#374151',
         marginBottom: '6px'
       }}>
-        Scenario-based Presets
+        Weights of Scenario
       </div>
       
       <div style={{
@@ -203,15 +203,6 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
             <span>{preset.name}</span>
           </button>
         ))}
-      </div>
-      
-      <div style={{
-        fontSize: '11px',
-        color: '#6b7280',
-        textAlign: 'center',
-        fontStyle: 'italic'
-      }}>
-        Select a scenario preset or manually adjust weights
       </div>
     </div>
   );

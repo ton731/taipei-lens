@@ -46,7 +46,7 @@ const MethodologyTooltip = ({ content }) => {
             boxSizing: 'border-box'
           }}
         >
-          ?
+          i
         </button>
       </div>
       {showTooltip && ReactDOM.createPortal(
