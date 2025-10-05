@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
+import { getFormattedContactInfo } from '../constants/contactInfo'
 import './ChatBot.css'
 
 // Sample questions list
@@ -17,31 +18,21 @@ const SAMPLE_QUESTIONS = [
   
   // Climate and environmental features
   'Which district has the highest land surface temperature?',
-  'Find areas with surface temperature above 32°C',
-  'Find areas with poor thermal comfort (high UTFVI values)?',
   'Top 5 districts with lowest vegetation coverage?',
-  'Districts with NDVI below 0.3 (low vegetation)?',
   'Which district has the coolest temperatures?',
   'Districts with highest nighttime light intensity?',
   
   // Risk assessment features  
   'District with highest earthquake building fragility risk?',
-  'Areas with liquefaction risk above 0.5?',
-  'Find zones with both high fragility and liquefaction risk',
   'Districts with highest seismic vulnerability?',
-  'Districts with fragility risk >0.8 and low vegetation?',
   
   // Infrastructure and coverage
   'Districts with full park coverage within 300m?',
   'Districts lacking green space accessibility?',
-  'Find districts with coverage <50% and high temperature',
-  'Districts with no park access within 300m?',
   
   // Multi-criteria analysis
   'Hot districts with low vegetation and high population density?',
-  'Find vulnerable districts: high fragility + high temperature + elderly >25%?',
   'Districts needing urgent green infrastructure: low NDVI + high LST?',
-  'Priority districts for urban renewal: high risk + old buildings?',
   
   // Urban planning knowledge
   'Main goals of Taipei urban renewal?',
@@ -50,7 +41,10 @@ const SAMPLE_QUESTIONS = [
   'Difference between renovation and reconstruction?',
   'What is the dangerous buildings ordinance?',
   'Urban renewal FAR incentives?',
-  'Why promote urban resilience in Taipei?'
+  'Why promote urban resilience in Taipei?',
+  
+  // Platform information
+  'Who made this?'
 ]
 
 function ChatBot({ onMouseEnter, onHighlightAreas }) {
@@ -101,7 +95,14 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
         }
 
         const data = await response.json()
-        setAiResponse(data.answer)
+        
+        // Check if response contains contact info trigger
+        let finalResponse = data.answer
+        if (finalResponse && finalResponse.includes('SHOW_CONTACT_INFO')) {
+          finalResponse = getFormattedContactInfo()
+        }
+        
+        setAiResponse(finalResponse)
         setShowResponse(true)
 
         // Handle highlight areas (if available)
