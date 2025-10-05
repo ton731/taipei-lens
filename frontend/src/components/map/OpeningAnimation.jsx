@@ -69,7 +69,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
         zoom: 1.8,
         pitch: 0,
         bearing: 0,              // 順時鐘旋轉至北向上
-        duration: 4000,          // 稍慢一些，讓旋轉更自然
+        duration: 4500,          // 稍慢一些，讓旋轉更自然
         easing: (t) => t
       });
 

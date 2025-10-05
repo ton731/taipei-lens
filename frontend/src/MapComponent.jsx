@@ -370,16 +370,11 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           <Popup
             longitude={actualHoverInfo.longitude}
             latitude={actualHoverInfo.latitude}
-            closeButton={true}
+            closeButton={false}
             closeOnClick={false}
             anchor="bottom"
             offset={[0, -15]}
             style={{ zIndex: 1000 }}
-            onClose={() => {
-              if (externalSetHoverInfo) {
-                externalSetHoverInfo(null);
-              }
-            }}
           >
             {actualHoverInfo.feature?.type === 'district' ? (
               <DistrictPopup data={actualHoverInfo} />

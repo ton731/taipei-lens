@@ -46,6 +46,8 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
     let hoveredFeatureId = null;
     let hoveredSourceLayer = null;
     let hoveredStatisticalAreaId = null;
+    let clickedFeatureId = null; // 追蹤被點擊的feature
+    let clickedSource = null; // 追蹤被點擊的來源 ('building' 或 'statistical-area')
 
     setTimeout(() => {
       // 地圖尚未完全就緒時直接跳過初始化
@@ -66,6 +68,41 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
         }
 
         const features = map.queryRenderedFeatures(e.point);
+
+        // 檢查是否有popup正在顯示，如果滑鼠移動到其他地方則清除popup
+        if (clickedFeatureId !== null) {
+          let stillOnClickedFeature = false;
+
+          if (clickedSource === 'building') {
+            const currentBuildingFeatures = features.filter(f =>
+              f.layer?.id === 'custom-3d-buildings' ||
+              (f.properties &&
+               (f.properties.height || f.properties.floor || f.properties.area || f.properties.levels || f.properties.building))
+            );
+            // 檢查是否還在同一個建築物上
+            stillOnClickedFeature = currentBuildingFeatures.some(f => {
+              if (f.id !== undefined) {
+                return f.id === clickedFeatureId;
+              }
+              return false;
+            });
+          } else if (clickedSource === 'statistical-area') {
+            const currentStatisticalAreaFeatures = features.filter(f =>
+              f.source === 'statistical-areas'
+            );
+            // 檢查是否還在同一個統計區上
+            stillOnClickedFeature = currentStatisticalAreaFeatures.some(f => {
+              return f.id === clickedFeatureId;
+            });
+          }
+
+          // 如果滑鼠不在被點擊的feature上，清除popup
+          if (!stillOnClickedFeature) {
+            setHoverInfo(null);
+            clickedFeatureId = null;
+            clickedSource = null;
+          }
+        }
 
         // First check if there are buildings
         const buildingFeatures = features.filter(f =>
@@ -209,6 +246,10 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
           const feature = buildingFeatures[0];
           const customData = findMatchingCustomData(feature, e.lngLat);
 
+          // 記錄被點擊的建築物
+          clickedFeatureId = feature.id;
+          clickedSource = 'building';
+
           // 處理 properties，解析 fragility_curve JSON 字符串
           const finalProperties = customData || feature.properties || {};
 
@@ -245,6 +286,10 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
             const feature = statisticalAreaFeatures[0];
             const props = feature.properties || {};
 
+            // 記錄被點擊的統計區
+            clickedFeatureId = feature.id;
+            clickedSource = 'statistical-area';
+
             // Display statistical area information
             setHoverInfo({
               longitude: e.lngLat.lng,
@@ -266,6 +311,8 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
           } else {
             // Neither buildings nor statistical areas, clear popup
             setHoverInfo(null);
+            clickedFeatureId = null;
+            clickedSource = null;
           }
         }
       };
