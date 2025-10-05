@@ -8,25 +8,25 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
         return [
           {
             id: 'environmental_priority',
-            name: 'Environmental Protection Bureau',
+            name: 'Environmental Priority',
             description: 'Prioritize areas with most severe thermal stress',
             weights: { thermal_stress: 0.50, greening_potential: 0.30, population_benefit: 0.20 }
           },
           {
             id: 'social_equity',
-            name: 'Social Affairs Bureau',
+            name: 'Social Equity',
             description: 'Prioritize high population benefit areas',
             weights: { thermal_stress: 0.20, greening_potential: 0.30, population_benefit: 0.50 }
           },
           {
             id: 'investment_efficiency',
-            name: 'Urban Development Bureau',
+            name: 'Investment Efficiency',
             description: 'Balance greening potential and thermal stress',
             weights: { thermal_stress: 0.30, greening_potential: 0.40, population_benefit: 0.30 }
           },
           {
             id: 'balanced_development',
-            name: 'Municipal Integration',
+            name: 'Balanced Development',
             description: 'Equal weight for all three dimensions',
             weights: { thermal_stress: 0.33, greening_potential: 0.33, population_benefit: 0.34 }
           }
@@ -36,25 +36,25 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
         return [
           {
             id: 'structural_priority',
-            name: 'Public Works Bureau',
+            name: 'Structural Priority',
             description: 'Prioritize retrofitting most vulnerable buildings',
             weights: { building_vulnerability: 0.50, site_amplification: 0.30, population_exposure: 0.20 }
           },
           {
             id: 'life_safety_priority',
-            name: 'Civil Affairs Bureau/Fire Department',
+            name: 'Life Safety Priority',
             description: 'Protect areas with highest population exposure',
             weights: { building_vulnerability: 0.25, site_amplification: 0.15, population_exposure: 0.60 }
           },
           {
             id: 'comprehensive_risk',
-            name: 'Disaster Prevention Office',
+            name: 'Comprehensive Risk',
             description: 'Balance structural and site risks',
             weights: { building_vulnerability: 0.35, site_amplification: 0.35, population_exposure: 0.30 }
           },
           {
             id: 'scientific_assessment',
-            name: 'Academic Institution',
+            name: 'Scientific Assessment',
             description: 'Equal weight for all three factors',
             weights: { building_vulnerability: 0.33, site_amplification: 0.33, population_exposure: 0.34 }
           }
@@ -64,31 +64,31 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
         return [
           {
             id: 'fill_service_gap',
-            name: 'Public Works Bureau',
+            name: 'Fill Service Gap',
             description: 'Prioritize areas lacking park services',
             weights: { green_space_service_gap: 0.50, population_demand: 0.25, social_equity: 0.10, environmental_stress: 0.15 }
           },
           {
             id: 'climate_adaptation',
-            name: 'Environmental Protection Bureau',
+            name: 'Climate Adaptation',
             description: 'Prioritize heat island and low vegetation areas',
             weights: { green_space_service_gap: 0.20, population_demand: 0.20, social_equity: 0.10, environmental_stress: 0.50 }
           },
           {
             id: 'social_justice',
-            name: 'Social Affairs Bureau',
+            name: 'Social Justice',
             description: 'Prioritize vulnerable populations',
             weights: { green_space_service_gap: 0.20, population_demand: 0.20, social_equity: 0.50, environmental_stress: 0.10 }
           },
           {
             id: 'demand_driven',
-            name: 'Urban Development Bureau',
+            name: 'Demand Driven',
             description: 'Allocate resources by population demand',
             weights: { green_space_service_gap: 0.25, population_demand: 0.40, social_equity: 0.15, environmental_stress: 0.20 }
           },
           {
             id: 'balanced_development',
-            name: 'Municipal Integration',
+            name: 'Balanced Development',
             description: 'Equal weight for all four dimensions',
             weights: { green_space_service_gap: 0.25, population_demand: 0.25, social_equity: 0.25, environmental_stress: 0.25 }
           }
