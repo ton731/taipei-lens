@@ -21,7 +21,9 @@ const ContactInfo = ({ onIconClick }) => {
     backgroundColor: '#ff8c42',
     borderRadius: '50%',
     padding: '10px',
-    boxShadow: '0 2px 8px rgba(255, 140, 66, 0.3)',
+    boxShadow: isHovered 
+      ? '0 8px 24px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(255, 140, 66, 0.4)' 
+      : '0 4px 16px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(255, 140, 66, 0.3)',
     transform: isHovered ? 'scale(1.1)' : 'scale(1)',
     '&:hover': {
       transform: 'scale(1.1)'
@@ -101,28 +103,28 @@ const ContactInfo = ({ onIconClick }) => {
         <ellipse cx="17" cy="5.5" rx="1.5" ry="2" fill="#ff6b1a"/>
         
         {/* 貓咪眼睛 - 簡單黑色 */}
-        <ellipse cx="9" cy="11" rx="1.5" ry="2" fill="black"/>
-        <ellipse cx="15" cy="11" rx="1.5" ry="2" fill="black"/>
+        <ellipse cx="9" cy="11" rx="2.2" ry="2.8" fill="black"/>
+        <ellipse cx="15" cy="11" rx="2.2" ry="2.8" fill="black"/>
         
         {/* 貓咪鼻子 - 心形 */}
-        <path d="M12 14C10.8 13.2 10.1 13.5 10.1 14.2C10.1 14.9 10.8 15.3 12 15.3C13.2 15.3 13.9 14.9 13.9 14.2C13.9 13.5 13.2 13.2 12 14Z" fill="black"/>
+        <path d="M12 14C10.5 12.8 9.6 13.2 9.6 14.2C9.6 15.2 10.5 15.8 12 15.8C13.5 15.8 14.4 15.2 14.4 14.2C14.4 13.2 13.5 12.8 12 14Z" fill="black"/>
         
         {/* 貓咪嘴巴 - 可愛弧線 */}
-        <path d="M12 15.3C10.5 16.8 9 16.4 8.2 15.7" stroke="black" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
-        <path d="M12 15.3C13.5 16.8 15 16.4 15.8 15.7" stroke="black" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+        <path d="M12 15.8C10.2 17.5 8.5 17 7.5 16" stroke="black" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+        <path d="M12 15.8C13.8 17.5 15.5 17 16.5 16" stroke="black" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
         
         {/* 貓咪鬍鬚 - 優雅弧線 */}
-        <path d="M4 11C5.5 10.7 7 10.9 8.5 11" stroke="black" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
-        <path d="M3.5 12.5C5 12.3 6.5 12.5 8 12.7" stroke="black" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
-        <path d="M4 14C5.5 14.2 7 14 8.5 13.8" stroke="black" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
+        <path d="M3.5 11C5.2 10.6 7.2 10.8 8.8 11.2" stroke="black" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M3 12.5C4.8 12.2 6.8 12.4 8.5 12.8" stroke="black" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M3.5 14C5.2 14.3 7.2 14.1 8.8 13.7" stroke="black" strokeWidth="1" fill="none" strokeLinecap="round"/>
         
-        <path d="M15.5 11C17 10.9 18.5 10.7 20 11" stroke="black" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
-        <path d="M16 12.7C17.5 12.5 19 12.3 20.5 12.5" stroke="black" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
-        <path d="M15.5 13.8C17 14 18.5 14.2 20 14" stroke="black" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
+        <path d="M15.2 11.2C16.8 10.8 18.8 10.6 20.5 11" stroke="black" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M15.5 12.8C17.2 12.4 19.2 12.2 21 12.5" stroke="black" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M15.2 13.7C16.8 14.1 18.8 14.3 20.5 14" stroke="black" strokeWidth="1" fill="none" strokeLinecap="round"/>
         
         {/* 臉頰腮紅 */}
-        <ellipse cx="5.5" cy="13" rx="1.2" ry="1" fill="#ff69b4" opacity="0.4"/>
-        <ellipse cx="18.5" cy="13" rx="1.2" ry="1" fill="#ff69b4" opacity="0.4"/>
+        <ellipse cx="5.5" cy="13" rx="1.8" ry="1.5" fill="#ff69b4" opacity="0.4"/>
+        <ellipse cx="18.5" cy="13" rx="1.8" ry="1.5" fill="#ff69b4" opacity="0.4"/>
       </svg>
 
       {/* 聯絡資訊卡片 */}
