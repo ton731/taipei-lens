@@ -201,7 +201,17 @@ const ToolboxPanel = ({
                     onToggle={() => handleToggleSubModule('road_greening')}
                     methodologyTooltip={<MethodologyTooltip content={roadGreeningMethodologyContent} />}
                   >
-                    <RoadGreeningModule />
+                    <RoadGreeningModule
+                      mapInstance={mapInstance}
+                      statisticalAreaSourceLayer={statisticalAreaSourceLayer}
+                      onAnalysisExecute={onAnalysisExecute}
+                      onAnalysisClear={onAnalysisClear}
+                      onClearDataLayer={onClearDataLayer}
+                      weights={moduleConfigs.roadGreening.weights}
+                      threshold={moduleConfigs.roadGreening.threshold}
+                      onConfigChange={(config) => onModuleConfigChange('roadGreening', config)}
+                      analysisResult={analysisResults.roadGreening}
+                    />
                   </SubModuleAccordion>
 
                   {/* Sub-Module 2.2: Building Seismic Retrofit Urgency Assessment */}
@@ -216,7 +226,17 @@ const ToolboxPanel = ({
                     onToggle={() => handleToggleSubModule('seismic_strengthening')}
                     methodologyTooltip={<MethodologyTooltip content={seismicStrengtheningMethodologyContent} />}
                   >
-                    <SeismicStrengtheningModule />
+                    <SeismicStrengtheningModule
+                      mapInstance={mapInstance}
+                      statisticalAreaSourceLayer={statisticalAreaSourceLayer}
+                      onAnalysisExecute={onAnalysisExecute}
+                      onAnalysisClear={onAnalysisClear}
+                      onClearDataLayer={onClearDataLayer}
+                      weights={moduleConfigs.seismicStrengthening.weights}
+                      threshold={moduleConfigs.seismicStrengthening.threshold}
+                      onConfigChange={(config) => onModuleConfigChange('seismicStrengthening', config)}
+                      analysisResult={analysisResults.seismicStrengthening}
+                    />
                   </SubModuleAccordion>
                 </div>
               </AccordionSection>
@@ -249,7 +269,17 @@ const ToolboxPanel = ({
                     onToggle={() => handleToggleSubModule('park_siting')}
                     methodologyTooltip={<MethodologyTooltip content={parkSitingMethodologyContent} />}
                   >
-                    <ParkSitingModule />
+                    <ParkSitingModule
+                      mapInstance={mapInstance}
+                      statisticalAreaSourceLayer={statisticalAreaSourceLayer}
+                      onAnalysisExecute={onAnalysisExecute}
+                      onAnalysisClear={onAnalysisClear}
+                      onClearDataLayer={onClearDataLayer}
+                      weights={moduleConfigs.parkSiting.weights}
+                      threshold={moduleConfigs.parkSiting.threshold}
+                      onConfigChange={(config) => onModuleConfigChange('parkSiting', config)}
+                      analysisResult={analysisResults.parkSiting}
+                    />
                   </SubModuleAccordion>
 
                   {/* Sub-Module 3.2: Urban Renewal Priority Assessment */}

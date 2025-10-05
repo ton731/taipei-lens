@@ -145,7 +145,7 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
         color: '#374151',
         marginBottom: '6px'
       }}>
-        Weights of Scenario
+        Weights of Scenarios
       </div>
       
       <div style={{

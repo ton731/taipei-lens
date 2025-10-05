@@ -53,19 +53,23 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       threshold: 0.4
     },
     roadGreening: {
-      weights: { thermal_stress: 0.4, greening_potential: 0.3, population_benefit: 0.3 },
+      // Environmental Protection Bureau (first scenario)
+      weights: { thermal_stress: 0.50, greening_potential: 0.30, population_benefit: 0.20 },
       threshold: 0.8
     },
     seismicStrengthening: {
-      weights: { building_vulnerability: 0.5, site_amplification: 0.3, population_exposure: 0.2 },
+      // Public Works Bureau (first scenario)
+      weights: { building_vulnerability: 0.50, site_amplification: 0.30, population_exposure: 0.20 },
       threshold: 0.75
     },
     parkSiting: {
-      weights: { green_space_service_gap: 0.5, population_demand: 0.25, environmental_stress: 0.15, social_equity: 0.1 },
+      // Public Works Bureau (first scenario)
+      weights: { green_space_service_gap: 0.50, population_demand: 0.25, environmental_stress: 0.15, social_equity: 0.10 },
       threshold: 0.8
     },
     urbanRenewal: {
-      weights: { building_vulnerability: 0.4, environmental_quality: 0.3, population_exposure: 0.3 },
+      // Disaster Prevention (first scenario)
+      weights: { building_vulnerability: 0.50, environmental_quality: 0.20, population_exposure: 0.30 },
       threshold: 0.3
     }
   });
@@ -148,10 +152,19 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   // General analysis execution callback - shared by all modules
   const handleAnalysisExecute = useCallback((moduleId, highlightedCodes) => {
     console.log(`[${moduleId}] Analysis executed. Highlighted districts:`, highlightedCodes.length);
-    setAnalysisResults(prev => ({
-      ...prev,
-      [moduleId]: highlightedCodes
-    }));
+    
+    // Clear all other module results first, then set the new result
+    setAnalysisResults(prev => {
+      const clearedResults = Object.keys(prev).reduce((acc, key) => {
+        acc[key] = null;
+        return acc;
+      }, {});
+      
+      return {
+        ...clearedResults,
+        [moduleId]: highlightedCodes
+      };
+    });
 
     // Clear AI highlight when executing analysis
     if (clearLlmHighlight) {
