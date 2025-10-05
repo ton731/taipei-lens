@@ -3,12 +3,13 @@ import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
 import MethodologyTooltip from '../../ui/MethodologyTooltip';
+import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const RoadGreeningModule = () => {
   const [weights, setWeights] = useState({
-    surface_temp: 0.4,
-    green_deficit: 0.3,
-    pop_density: 0.3
+    thermal_stress: 0.4,
+    greening_potential: 0.3,
+    population_benefit: 0.3
   });
   const [threshold, setThreshold] = useState(0.8);
   const [hasResults, setHasResults] = useState(false);
@@ -64,16 +65,20 @@ const RoadGreeningModule = () => {
     setHasResults(false);
   };
 
+  const handlePresetSelect = (presetWeights) => {
+    setWeights(presetWeights);
+  };
+
   const factors = [
-    { name: 'Surface Temperature', weight: weights.surface_temp },
-    { name: '(1-Green Coverage)', weight: weights.green_deficit },
-    { name: 'Population Density', weight: weights.pop_density }
+    { name: 'Thermal Stress', weight: weights.thermal_stress },
+    { name: 'Greening Potential', weight: weights.greening_potential },
+    { name: 'Population Benefit', weight: weights.population_benefit }
   ];
 
   const methodologyContent = `
-    • <strong>Surface Temperature</strong>: Reflects heat island effect intensity<br/>
-    • <strong>(1-Green Coverage)</strong>: Represents insufficient greening level<br/>
-    • <strong>Population Density</strong>: Measures affected population
+    • <strong>Thermal Stress</strong>: Urban Thermal Field Variance Index (UTFVI) normalized - measures thermal discomfort and heat stress intensity<br/>
+    • <strong>Greening Potential</strong>: Inverse of NDVI (1 - NDVI) - areas with low vegetation coverage having higher potential for tree planting<br/>
+    • <strong>Population Benefit</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) representing both population size and urban activity intensity
   `;
 
   return (
@@ -95,10 +100,16 @@ const RoadGreeningModule = () => {
           lineHeight: '1.4',
           flex: 1
         }}>
-          Identify areas most in need of cooling and environmental improvement through tree planting
+          Identify areas most in need of cooling and environmental improvement through tree planting to optimize urban greening strategies
         </div>
         <MethodologyTooltip content={methodologyContent} />
       </div>
+
+      <RolePresetButtons
+        onPresetSelect={handlePresetSelect}
+        moduleType="roadGreening"
+        currentWeights={weights}
+      />
 
       <InteractiveFormulaDisplay
         factors={factors}

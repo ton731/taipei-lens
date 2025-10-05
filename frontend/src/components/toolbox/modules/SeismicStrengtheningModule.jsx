@@ -3,12 +3,13 @@ import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
 import MethodologyTooltip from '../../ui/MethodologyTooltip';
+import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const SeismicStrengtheningModule = () => {
   const [weights, setWeights] = useState({
-    building_age: 0.5,
-    structural_fragility: 0.3,
-    liquefaction: 0.2
+    building_vulnerability: 0.5,
+    site_amplification: 0.3,
+    population_exposure: 0.2
   });
   const [threshold, setThreshold] = useState(0.75);
   const [hasResults, setHasResults] = useState(false);
@@ -63,16 +64,20 @@ const SeismicStrengtheningModule = () => {
     setHasResults(false);
   };
 
+  const handlePresetSelect = (presetWeights) => {
+    setWeights(presetWeights);
+  };
+
   const factors = [
-    { name: 'Average Building Age', weight: weights.building_age },
-    { name: 'Structural Fragility', weight: weights.structural_fragility },
-    { name: 'Soil Liquefaction Potential', weight: weights.liquefaction }
+    { name: 'Building Vulnerability', weight: weights.building_vulnerability },
+    { name: 'Site Amplification Effect', weight: weights.site_amplification },
+    { name: 'Population Exposure', weight: weights.population_exposure }
   ];
 
   const methodologyContent = `
-    • <strong>Building Age</strong>: Older buildings have weaker seismic resistance<br/>
-    • <strong>Structural Fragility</strong>: Assessment based on building type<br/>
-    • <strong>Soil Liquefaction Potential</strong>: Data from National Disaster Prevention and Response Center
+    • <strong>Building Vulnerability</strong>: Building Collapse Probability at intensity 6 earthquake - derived from structural fragility curves for each building type<br/>
+    • <strong>Site Amplification Effect</strong>: Soil Liquefaction Potential Rating Score - geological amplification of seismic waves due to soil conditions<br/>
+    • <strong>Population Exposure</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) representing people and assets at risk
   `;
 
   return (
@@ -98,6 +103,12 @@ const SeismicStrengtheningModule = () => {
         </div>
         <MethodologyTooltip content={methodologyContent} />
       </div>
+
+      <RolePresetButtons
+        onPresetSelect={handlePresetSelect}
+        moduleType="seismicStrengthening"
+        currentWeights={weights}
+      />
 
       <InteractiveFormulaDisplay
         factors={factors}

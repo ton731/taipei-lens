@@ -176,9 +176,9 @@ const ToolboxPanel = ({
                     <RoadGreeningModule />
                   </SubModuleAccordion>
 
-                  {/* Sub-Module 2.2: Seismic Strengthening Priority Analysis */}
+                  {/* Sub-Module 2.2: Building Seismic Retrofit Urgency Assessment */}
                   <SubModuleAccordion
-                    title="Seismic Strengthening Priority Analysis"
+                    title="Building Seismic Retrofit Urgency Assessment"
                     icon={(
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <path d="M2 12h3l2-8 4 16 4-12 2 4h5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
@@ -207,9 +207,9 @@ const ToolboxPanel = ({
                 onToggle={() => handleToggleSection('reconstruction')}
               >
                 <div style={{ padding: '0' }}>
-                  {/* Sub-Module 3.1: Park Siting Potential Analysis */}
+                  {/* Sub-Module 3.1: Park Site Suitability Analysis */}
                   <SubModuleAccordion
-                    title="Park Siting Potential Analysis"
+                    title="Park Site Suitability Analysis"
                     icon={(
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2a9 9 0 0 1 9 9c0 6-9 13-9 13S3 17 3 11a9 9 0 0 1 9-9z" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -222,9 +222,9 @@ const ToolboxPanel = ({
                     <ParkSitingModule />
                   </SubModuleAccordion>
 
-                  {/* Sub-Module 3.2: Urban Renewal Urgency Analysis */}
+                  {/* Sub-Module 3.2: Urban Renewal Priority Assessment */}
                   <SubModuleAccordion
-                    title="Urban Renewal Urgency Analysis"
+                    title="Urban Renewal Priority Assessment"
                     icon={(
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -234,7 +234,17 @@ const ToolboxPanel = ({
                     isOpen={openSubModule === 'urban_renewal'}
                     onToggle={() => handleToggleSubModule('urban_renewal')}
                   >
-                    <UrbanRenewalModule />
+                    <UrbanRenewalModule
+                      mapInstance={mapInstance}
+                      statisticalAreaSourceLayer={statisticalAreaSourceLayer}
+                      onAnalysisExecute={onAnalysisExecute}
+                      onAnalysisClear={onAnalysisClear}
+                      onClearDataLayer={onClearDataLayer}
+                      weights={moduleConfigs.urbanRenewal.weights}
+                      threshold={moduleConfigs.urbanRenewal.threshold}
+                      onConfigChange={(config) => onModuleConfigChange('urbanRenewal', config)}
+                      analysisResult={analysisResults.urbanRenewal}
+                    />
                   </SubModuleAccordion>
                 </div>
               </AccordionSection>

@@ -22,7 +22,7 @@ export const ANALYSIS_MODULES = {
     outlineWidth: 2
   },
 
-  // Building seismic strengthening priority analysis
+  // Building Building Seismic Retrofit Urgency Assessment
   seismicStrengthening: {
     id: 'seismicStrengthening',
     name: 'Seismic Strengthening Priority',
@@ -32,7 +32,7 @@ export const ANALYSIS_MODULES = {
     outlineWidth: 2
   },
 
-  // Park siting potential analysis
+  // Park Site Suitability Analysis
   parkSiting: {
     id: 'parkSiting',
     name: 'Park Siting Potential',
@@ -42,7 +42,7 @@ export const ANALYSIS_MODULES = {
     outlineWidth: 2
   },
 
-  // Urban renewal urgency analysis
+  // Urban Renewal Priority Assessment
   urbanRenewal: {
     id: 'urbanRenewal',
     name: 'Urban Renewal Urgency',

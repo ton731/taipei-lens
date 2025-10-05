@@ -3,15 +3,28 @@ import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
 import MethodologyTooltip from '../../ui/MethodologyTooltip';
+import RolePresetButtons from '../../ui/RolePresetButtons';
 
-const UrbanRenewalModule = () => {
-  const [weights, setWeights] = useState({
-    seismic_risk: 0.4,
-    heat_island: 0.3,
-    land_efficiency_deficit: 0.3
-  });
-  const [threshold, setThreshold] = useState(0.85);
-  const [hasResults, setHasResults] = useState(false);
+const UrbanRenewalModule = ({
+  mapInstance,
+  statisticalAreaSourceLayer,
+  onAnalysisExecute,
+  onAnalysisClear,
+  onClearDataLayer,
+  weights: externalWeights,
+  threshold: externalThreshold,
+  onConfigChange,
+  analysisResult
+}) => {
+  const MODULE_ID = 'urbanRenewal'; // Module ID used to identify this module's analysis results
+
+  // Use externally passed weights and threshold (from parent component's state)
+  const weights = externalWeights;
+  const threshold = externalThreshold;
+
+  // Derive result status from analysisResult (don't use internal state)
+  const hasResults = analysisResult && analysisResult.length > 0;
+  const resultCount = analysisResult ? analysisResult.length : 0;
 
   const handleWeightChange = (index, newWeight) => {
     const weightKeys = Object.keys(weights);
@@ -45,7 +58,8 @@ const UrbanRenewalModule = () => {
       }
     }
 
-    setWeights(updatedWeights);
+    // Update parent component's state
+    onConfigChange({ weights: updatedWeights });
   };
 
   const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
@@ -56,41 +70,130 @@ const UrbanRenewalModule = () => {
       alert('Weight sum must equal 1, current sum is ' + totalWeight.toFixed(2));
       return;
     }
-    setHasResults(true);
+
+    if (!mapInstance || !statisticalAreaSourceLayer) {
+      console.error('Map instance or statistical area layer not ready');
+      alert('Map has not finished loading, please try again later');
+      return;
+    }
+
+    // Clear raw data layers to avoid layer stacking
+    if (onClearDataLayer) {
+      onClearDataLayer();
+    }
+
+    try {
+      // 1. Query all statistical area features
+      const features = mapInstance.querySourceFeatures('statistical-areas', {
+        sourceLayer: statisticalAreaSourceLayer
+      });
+
+      if (features.length === 0) {
+        alert('Unable to retrieve statistical area data, please confirm map has loaded');
+        return;
+      }
+
+      // 2. Calculate score for each statistical area and filter
+      const highlightedDistricts = [];
+      const scores = [];
+
+      features.forEach(feature => {
+        const props = feature.properties;
+
+        // Building Vulnerability: Extract from avg_fragility_curve JSON
+        let buildingVulnerability = 0;
+        if (props.avg_fragility_curve) {
+          try {
+            const fragilityCurve = JSON.parse(props.avg_fragility_curve);
+            buildingVulnerability = fragilityCurve['6弱'] || fragilityCurve['6weak'] || 0;
+          } catch (error) {
+            console.warn('Failed to parse fragility curve:', error);
+            buildingVulnerability = 0;
+          }
+        }
+
+        // Environmental Quality: 0.5×UTFVI + 0.5×(1-NDVI)
+        const utfvi = props.norm_utfvi || 0;
+        const ndvi = props.ndvi_mean || 0;
+        const environmentalQuality = 0.5 * utfvi + 0.5 * (1 - ndvi);
+
+        // Population Exposure: 0.5×Population Density + 0.5×VIIRS
+        const popDensity = props.norm_population_density || 0;
+        const viirs = props.norm_viirs_mean || 0;
+        const populationExposure = 0.5 * popDensity + 0.5 * viirs;
+
+        // Calculate weighted score
+        const score =
+          buildingVulnerability * weights.building_vulnerability +
+          environmentalQuality * weights.environmental_quality +
+          populationExposure * weights.population_exposure;
+
+        scores.push(score);
+
+        // If score exceeds threshold, add to highlight list
+        if (score >= threshold) {
+          highlightedDistricts.push(props.CODEBASE);
+        }
+      });
+
+      // Calculate statistics for debugging
+      const maxScore = Math.max(...scores);
+      const minScore = Math.min(...scores);
+      const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+
+      console.log(`Urban Renewal Analysis: Found ${highlightedDistricts.length} qualifying areas out of ${features.length} total areas`);
+      console.log('Score statistics:', { min: minScore.toFixed(3), max: maxScore.toFixed(3), avg: avgScore.toFixed(3) });
+      console.log('Threshold used:', threshold);
+      console.log('Weights used:', weights);
+      console.log('Sample data for first area:', features[0]?.properties);
+
+      // 3. Call callback function to update analysis results
+      onAnalysisExecute(MODULE_ID, highlightedDistricts);
+
+    } catch (error) {
+      console.error('Error occurred during urban renewal analysis:', error);
+      // Clear analysis results
+      onAnalysisExecute(MODULE_ID, []);
+    }
   };
 
   const handleClear = () => {
-    setHasResults(false);
+    onAnalysisClear(MODULE_ID);
+  };
+
+  const handlePresetSelect = (presetWeights) => {
+    onConfigChange({ weights: presetWeights });
   };
 
   const factors = [
-    { name: 'Comprehensive Seismic Risk', weight: weights.seismic_risk },
-    { name: 'Urban Heat Island Impact', weight: weights.heat_island },
-    { name: '(1-Land Use Efficiency)', weight: weights.land_efficiency_deficit }
+    { name: 'Building Vulnerability', weight: weights.building_vulnerability },
+    { name: 'Environmental Quality', weight: weights.environmental_quality },
+    { name: 'Population Exposure', weight: weights.population_exposure }
   ];
 
   const methodologyContent = `
-    • <strong>Comprehensive Seismic Risk</strong>: Reference from Seismic Strengthening Module<br/>
-    • <strong>Urban Heat Island Impact</strong>: Extreme heat threat to public health<br/>
-    • <strong>Land Use Efficiency</strong>: Such as average floor area ratio
+    • <strong>Building Vulnerability</strong>: Building Collapse Probability at intensity 6 earthquake - derived from structural fragility curves using fragility_curve data<br/>
+    • <strong>Environmental Quality</strong>: Combined thermal stress and vegetation deficit (0.5 × UTFVI + 0.5 × (1-NDVI)) using norm_utfvi and ndvi_mean<br/>
+    • <strong>Population Exposure</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) using norm_population_density and norm_viirs_mean
   `;
 
   return (
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: '12px'
+      gap: '14px',
+      padding: '16px 20px'
     }}>
       <div style={{
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'space-between',
         gap: '8px',
-        marginBottom: '4px'
+        marginBottom: '-2px'
       }}>
         <div style={{
           fontSize: '13px',
-          color: '#666',
+          color: '#6b7280',
           lineHeight: '1.4',
           flex: 1
         }}>
@@ -99,44 +202,81 @@ const UrbanRenewalModule = () => {
         <MethodologyTooltip content={methodologyContent} />
       </div>
 
+      <RolePresetButtons
+        onPresetSelect={handlePresetSelect}
+        moduleType="urbanRenewal"
+        currentWeights={weights}
+      />
+
       <InteractiveFormulaDisplay
         factors={factors}
         onWeightChange={handleWeightChange}
       />
 
-      <ThresholdInput
-        id="threshold-renewal"
-        value={threshold}
-        onChange={(e) => setThreshold(parseFloat(e.target.value) || 0)}
-      />
+      <div style={{
+        borderTop: '1px solid #f3f4f6',
+        paddingTop: '12px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px'
+      }}>
+        <ThresholdInput
+          id="threshold-renewal"
+          value={threshold}
+          onChange={(e) => onConfigChange({ threshold: parseFloat(e.target.value) || 0 })}
+        />
 
-      <AnalysisButtons
-        onExecute={handleExecute}
-        onClear={handleClear}
-        isExecuteDisabled={!isWeightValid}
-        hasResults={hasResults}
-      />
+        {/* Analysis result display */}
+        {hasResults && (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '7px',
+            alignSelf: 'flex-start',
+            padding: '6px 12px',
+            backgroundColor: '#fef3e7',
+            borderRadius: '12px',
+            fontSize: '13px',
+            color: '#d97706',
+            marginTop: '2px'
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: '#f59e0b', flexShrink: 0 }}>
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+            </svg>
+            <span style={{ fontWeight: '600' }}>
+              {resultCount} priority renewal areas identified
+            </span>
+          </div>
+        )}
 
-      {!isWeightValid && (
-        <div style={{
-          padding: '8px 10px',
-          backgroundColor: '#fef2f2',
-          border: '1px solid #fecaca',
-          borderRadius: '6px',
-          fontSize: '11px',
-          color: '#991b1b',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ color: '#dc2626' }}>
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
-            <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          Weight sum must equal 1.00
-        </div>
-      )}
+        <AnalysisButtons
+          onExecute={handleExecute}
+          onClear={handleClear}
+          isExecuteDisabled={!isWeightValid}
+          hasResults={hasResults}
+        />
+
+        {!isWeightValid && (
+          <div style={{
+            padding: '6px 10px',
+            backgroundColor: '#fef2f2',
+            borderRadius: '6px',
+            fontSize: '10px',
+            color: '#991b1b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style={{ color: '#dc2626', flexShrink: 0 }}>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+              <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            Weight sum must equal 1.00
+          </div>
+        )}
+      </div>
     </div>
   );
 };
