@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { getContactArray } from '../constants/contactInfo';
 
-const ContactInfo = () => {
+const ContactInfo = ({ onIconClick }) => {
   const [isHovered, setIsHovered] = useState(false);
   const contactData = getContactArray();
 
@@ -82,6 +82,12 @@ const ContactInfo = () => {
         viewBox="0 0 24 24" 
         fill="white" 
         xmlns="http://www.w3.org/2000/svg"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (onIconClick) {
+            onIconClick();
+          }
+        }}
       >
         {/* 貓咪頭部 */}
         <ellipse cx="12" cy="13" rx="6" ry="5" fill="white"/>

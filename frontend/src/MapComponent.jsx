@@ -11,6 +11,7 @@ import BuildingPopup from './components/map/BuildingPopup';
 import DistrictPopup from './components/map/DistrictPopup';
 import OpeningAnimation from './components/map/OpeningAnimation';
 import ContactInfo from './components/ContactInfo';
+import TeamMarker from './components/map/TeamMarker';
 
 // Hooks
 import { useMapInitialization } from './hooks/useMapInitialization';
@@ -26,10 +27,19 @@ import { LAYER_CONFIGS, generateLegendGradient } from './config/layerConfig';
 const BUILDING_VIEW_ZOOM = 16.5; // 結構脆弱度圖層的視角高度 (數值越大越接近地面，範圍通常是 0-22)
 const ZOOM_ANIMATION_DURATION = 1500; // 視角變化動畫持續時間（毫秒）
 
+// 團隊位置座標
+const TEAM_LOCATION = {
+  longitude: 121.54712993973214,
+  latitude: 25.01387196243084
+};
+
 const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetHoverInfo, llmHighlightAreas, clearLlmHighlight }) => {
   // Opening animation state
   const [isOpeningAnimationComplete, setIsOpeningAnimationComplete] = useState(false);
   const [maxBounds, setMaxBounds] = useState(undefined);
+  
+  // Team marker state
+  const [showTeamMarker, setShowTeamMarker] = useState(false);
 
   // Layer selection state
   const [selectedDataLayer, setSelectedDataLayer] = useState(null);
@@ -201,6 +211,31 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     // 暫不設定 maxBounds，以排除遞迴來源可能性
     // 如需再加回，請在確認穩定後逐步恢復
   }, [mapInstance]);
+  
+  // Handle team icon click
+  const handleTeamIconClick = useCallback(() => {
+    // Toggle team marker
+    if (showTeamMarker) {
+      // 如果已經顯示，就關閉它
+      setShowTeamMarker(false);
+    } else {
+      // 如果未顯示，飛到位置並顯示
+      if (mapInstance) {
+        // 飛到團隊位置，往北偏移視角中心點，讓popup顯示在畫面下方1/3處
+        mapInstance.flyTo({
+          center: [TEAM_LOCATION.longitude, TEAM_LOCATION.latitude + 0.001], // 往北偏移，讓標記點在畫面下方
+          zoom: 17.5,
+          bearing: 0,
+          pitch: 60,  // 增加傾斜角度，從較低的視線高度觀看
+          duration: 2000,
+          essential: true
+        });
+        
+        // 顯示團隊標記
+        setShowTeamMarker(true);
+      }
+    }
+  }, [mapInstance, showTeamMarker]);
 
   // Handle LLM highlight areas
   useEffect(() => {
@@ -351,6 +386,16 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           />
         )}
 
+        {/* Team marker - only show after animation and when toggled */}
+        {isOpeningAnimationComplete && (
+          <TeamMarker
+            longitude={TEAM_LOCATION.longitude}
+            latitude={TEAM_LOCATION.latitude}
+            showPopup={showTeamMarker}
+            onClose={() => setShowTeamMarker(false)}
+          />
+        )}
+
         {/* Map title - only show after animation */}
         {isOpeningAnimationComplete && <MapTitle />}
 
@@ -394,7 +439,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       </MapboxMap>
 
       {/* Contact Info - only show after animation */}
-      {isOpeningAnimationComplete && <ContactInfo />}
+      {isOpeningAnimationComplete && <ContactInfo onIconClick={handleTeamIconClick} />}
     </div>
   );
 };
