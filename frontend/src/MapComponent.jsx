@@ -223,10 +223,10 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       if (mapInstance) {
         // 飛到團隊位置，往北偏移視角中心點，讓popup顯示在畫面下方1/3處
         mapInstance.flyTo({
-          center: [TEAM_LOCATION.longitude, TEAM_LOCATION.latitude + 0.001], // 往北偏移，讓標記點在畫面下方
-          zoom: 17.5,
-          bearing: 0,
-          pitch: 60,  // 增加傾斜角度，從較低的視線高度觀看
+          center: [TEAM_LOCATION.longitude, TEAM_LOCATION.latitude + 0.0010], // 往北偏移，讓標記點在畫面下方
+          zoom: 18,
+          bearing: 40,
+          pitch:75,  // 接近最大傾斜角度，從很低的視線高度往上看
           duration: 2000,
           essential: true
         });
