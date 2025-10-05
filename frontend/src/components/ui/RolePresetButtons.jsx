@@ -138,12 +138,12 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
   };
 
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div style={{ marginBottom: '6px' }}>
       <div style={{
         fontSize: '13px',
         fontWeight: '600',
         color: '#374151',
-        marginBottom: '8px'
+        marginBottom: '6px'
       }}>
         Scenario-based Presets
       </div>
@@ -152,7 +152,7 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
         display: 'flex',
         overflowX: 'auto',
         gap: '8px',
-        marginBottom: '12px',
+        marginBottom: '8px',
         paddingBottom: '4px',
         scrollbarWidth: 'thin',
         scrollbarColor: '#d1d5db #f3f4f6'

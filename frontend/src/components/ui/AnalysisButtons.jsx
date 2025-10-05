@@ -62,13 +62,14 @@ const AnalysisButtons = ({
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: 'white' }}>
           <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>
         </svg>
-        Execute Analysis
+        Execute
       </button>
 
       <button
         onClick={onClear}
         disabled={isClearDisabled || !hasResults}
         style={{
+          flex: 1,
           padding: '10px 16px',
           fontSize: '13px',
           fontWeight: '600',
@@ -113,7 +114,7 @@ const AnalysisButtons = ({
           <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
         </svg>
-        Clear Results
+        Clear
       </button>
     </div>
   );

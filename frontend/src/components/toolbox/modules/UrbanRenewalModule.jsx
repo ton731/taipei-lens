@@ -181,7 +181,7 @@ const UrbanRenewalModule = ({
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: '14px',
+      gap: '10px',
       padding: '16px 20px'
     }}>
       <div style={{
@@ -215,7 +215,7 @@ const UrbanRenewalModule = ({
 
       <div style={{
         borderTop: '1px solid #f3f4f6',
-        paddingTop: '12px',
+        paddingTop: '8px',
         display: 'flex',
         flexDirection: 'column',
         gap: '10px'
