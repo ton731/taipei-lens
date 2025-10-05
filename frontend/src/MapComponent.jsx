@@ -61,12 +61,12 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     roadGreening: {
       // Environmental Protection Bureau (first scenario)
       weights: { thermal_stress: 0.50, greening_potential: 0.30, population_benefit: 0.20 },
-      threshold: 0.5
+      threshold: 0.79
     },
     seismicStrengthening: {
       // Public Works Bureau (first scenario)
       weights: { building_vulnerability: 0.50, site_amplification: 0.30, population_exposure: 0.20 },
-      threshold: 0.5
+      threshold: 0.39
     },
     parkSiting: {
       // Public Works Bureau (first scenario)
@@ -76,7 +76,7 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     urbanRenewal: {
       // Disaster Prevention (first scenario)
       weights: { building_vulnerability: 0.50, environmental_quality: 0.20, population_exposure: 0.30 },
-      threshold: 0.5
+      threshold: 0.45
     }
   });
 
