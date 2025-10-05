@@ -30,7 +30,6 @@ const MapLayers = ({
   // 生成建築物顏色表達式 - 支援結構脆弱度圖層
   const getBuildingColorExpression = () => {
     if (selectedDataLayer === 'structural_vulnerability') {
-      console.log('MapLayers: 結構脆弱度圖層被選中，地震強度:', earthquakeIntensity);
       const config = LAYER_CONFIGS.structural_vulnerability;
       
       // 暫時使用簡化的方案：根據建築物年齡來估計脆弱度

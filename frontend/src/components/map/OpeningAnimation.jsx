@@ -56,11 +56,9 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
     if (!mapInstance || hasStartedRef.current) return;
 
     hasStartedRef.current = true;
-    console.log('開場動畫開始（使用 Globe 投影）');
 
     // 階段A：沿地軸（水平）旋轉，從非洲開始，讓台灣置中（zoom 保持不變）
     const startSpinToTaiwan = () => {
-      console.log('沿地軸水平旋轉：起點非洲 → 終點台灣置中');
       // 初始：非洲附近（赤道）、水平視角，只用 bearing 旋轉
       mapInstance.easeTo({ center: [40, 25], zoom: 1.8, pitch: 0, bearing: 0, duration: 0 });
       // 單段動畫：同步旋轉與平移，將台灣帶到畫面中央（保持 zoom 低倍率）
@@ -78,7 +76,6 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
 
     // 階段B：單次連續 zoom in 到台北（不分段），最後加適度傾角
     const startZoomToTaipei = () => {
-      console.log('直接 zoom in 到台北市');
       mapInstance.easeTo({
         center: [121.5500, 25.0330], // 視角向左（西）微調
         zoom: 13,                    // 較深倍率
@@ -90,7 +87,6 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
 
       // 使用事件驅動：等待完全 idle 後觸發回調，確保樣式/資料都已穩定
       mapInstance.once('idle', () => {
-        console.log('Zoom in 完成');
         if (onAnimationComplete) {
           onAnimationComplete();
         }

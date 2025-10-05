@@ -27,7 +27,6 @@ export const useStatisticalAreaData = (mapInstance, isStyleLoaded) => {
           setStatisticalAreaMapboxUrl(mapboxUrl);
         }
       } catch (error) {
-        console.error('Failed to initialize statistical area data:', error);
       }
     };
 

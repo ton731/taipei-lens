@@ -257,9 +257,7 @@ export const useMapInteractions = (mapInstance, customBuildingData, statisticalA
           if (finalProperties.fragility_curve && typeof finalProperties.fragility_curve === 'string') {
             try {
               finalProperties.fragility_curve = JSON.parse(finalProperties.fragility_curve);
-              console.log('成功解析 fragility_curve:', finalProperties.fragility_curve);
             } catch (error) {
-              console.error('解析 fragility_curve 失敗:', error);
             }
           }
 

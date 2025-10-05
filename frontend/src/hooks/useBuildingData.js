@@ -54,7 +54,6 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
                     // 保留解析後的物件版本
                     properties.fragility_curve_parsed = fragilityCurve;
                   } catch (error) {
-                    console.error('Failed to parse fragility_curve:', error);
                   }
                 }
                 
@@ -77,12 +76,10 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
         // 即使沒有載入任何記錄，也要更新 state 來觸發 useMapInteractions
         setCustomBuildingData(buildingDataMap);
       } else {
-        console.warn('Source cache not available for buildings source');
         // 設置一個空的 Map 來觸發後續流程
         setCustomBuildingData(new Map());
       }
     } catch (error) {
-      console.error('Error during custom building data init:', error);
       setCustomBuildingData(new Map());
     }
   }, []);
@@ -111,7 +108,6 @@ export const useBuildingData = (mapInstance, isStyleLoaded) => {
         return;
       }
     } catch (error) {
-      console.warn('Could not fetch building tileset info via backend API. Skipping private tiles inspection.', error);
     }
 
     // 若 API 不可用或沒有 vector_layers，則暫不嘗試任何私有 tiles fallback，僅設定已初始化避免重覆嘗試
