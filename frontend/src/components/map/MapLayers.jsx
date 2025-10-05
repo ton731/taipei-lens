@@ -51,7 +51,8 @@ const MapLayers = ({
               // 地震強度越大，乘數越大
               ['case',
                 ['==', earthquakeIntensity, '3'], 0.01,
-                ['==', earthquakeIntensity, '5弱'], 0.015,
+                ['==', earthquakeIntensity, '4'], 0.013,
+                ['==', earthquakeIntensity, '5弱'], 0.016,
                 ['==', earthquakeIntensity, '5強'], 0.02,
                 ['==', earthquakeIntensity, '6弱'], 0.025,
                 ['==', earthquakeIntensity, '6強'], 0.03,
