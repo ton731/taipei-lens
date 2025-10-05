@@ -23,7 +23,7 @@ const ParkSitingModule = ({
   const threshold = externalThreshold !== undefined ? externalThreshold : 0.8;
 
   // Derive result status from analysisResult (don't use internal state)
-  const hasResults = analysisResult && analysisResult.length > 0;
+  const hasResults = analysisResult !== null && analysisResult !== undefined;
   const resultCount = analysisResult ? analysisResult.length : 0;
 
   const handleWeightChange = (index, newWeight) => {
@@ -213,26 +213,40 @@ const ParkSitingModule = ({
 
         {/* Analysis result display */}
         {hasResults && (
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '7px',
-            alignSelf: 'flex-start',
-            padding: '6px 12px',
-            backgroundColor: '#fff7ed',
-            borderRadius: '12px',
-            fontSize: '13px',
-            color: '#ea580c',
-            marginTop: '2px'
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: '#f97316', flexShrink: 0 }}>
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-              <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-            </svg>
-            <span style={{ fontWeight: '600' }}>
-              {resultCount} priority park sites identified
-            </span>
-          </div>
+          <>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              alignSelf: 'flex-start',
+              padding: '6px 12px',
+              backgroundColor: resultCount > 0 ? '#fff7ed' : '#f3f4f6',
+              borderRadius: '12px',
+              fontSize: '13px',
+              color: resultCount > 0 ? '#ea580c' : '#6b7280',
+              marginTop: '2px'
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: resultCount > 0 ? '#f97316' : '#9ca3af', flexShrink: 0 }}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              </svg>
+              <span style={{ fontWeight: '600' }}>
+                {resultCount} priority park sites identified
+              </span>
+            </div>
+            {resultCount === 0 && (
+              <div style={{
+                padding: '6px 10px',
+                backgroundColor: '#fef3c7',
+                borderRadius: '6px',
+                fontSize: '11px',
+                color: '#92400e',
+                marginTop: '4px'
+              }}>
+                💡 Try lowering the threshold to identify more areas
+              </div>
+            )}
+          </>
         )}
 
         <AnalysisButtons
