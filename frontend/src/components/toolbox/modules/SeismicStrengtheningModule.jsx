@@ -20,7 +20,7 @@ const SeismicStrengtheningModule = ({
   // Use externally passed weights and threshold (from parent component's state)
   // Default to Public Works Bureau scenario (first scenario)
   const weights = externalWeights || { building_vulnerability: 0.50, site_amplification: 0.30, population_exposure: 0.20 };
-  const threshold = externalThreshold !== undefined ? externalThreshold : 0.75;
+  const threshold = externalThreshold !== undefined ? externalThreshold : 0.5;
 
   // Derive result status from analysisResult (don't use internal state)
   const hasResults = analysisResult !== null && analysisResult !== undefined;
