@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
+import PriorityScoreBlock from '../../ui/PriorityScoreBlock';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const SeismicStrengtheningModule = ({
   mapInstance,
@@ -179,12 +178,9 @@ const SeismicStrengtheningModule = ({
         Identify areas with the highest seismic damage risk that need priority structural reinforcement
       </div>
 
-      <InteractiveFormulaDisplay
+      <PriorityScoreBlock
         factors={factors}
         onWeightChange={handleWeightChange}
-      />
-
-      <RolePresetButtons
         onPresetSelect={handlePresetSelect}
         moduleType="seismicStrengthening"
         currentWeights={weights}

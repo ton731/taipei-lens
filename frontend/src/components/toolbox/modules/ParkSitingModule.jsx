@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
+import PriorityScoreBlock from '../../ui/PriorityScoreBlock';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const ParkSitingModule = ({
   mapInstance,
@@ -180,12 +179,9 @@ const ParkSitingModule = ({
         Identify areas most lacking in parks and green spaces with the highest potential demand for priority park siting
       </div>
 
-      <InteractiveFormulaDisplay
+      <PriorityScoreBlock
         factors={factors}
         onWeightChange={handleWeightChange}
-      />
-
-      <RolePresetButtons
         onPresetSelect={handlePresetSelect}
         moduleType="parkSiting"
         currentWeights={weights}
