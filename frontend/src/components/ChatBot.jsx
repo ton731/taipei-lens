@@ -18,6 +18,8 @@ const SAMPLE_QUESTIONS = [
   // Climate and environmental features
   'Which district has the highest land surface temperature?',
   'Find areas with surface temperature above 32°C',
+  'Districts with highest thermal comfort index (UTFVI)?',
+  'Find areas with poor thermal comfort (high UTFVI values)?',
   'Top 5 districts with lowest vegetation coverage?',
   'Districts with NDVI below 0.3 (low vegetation)?',
   'Which district has the coolest temperatures?',
