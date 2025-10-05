@@ -245,6 +245,12 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         maxLabel = `${config.maxValue}${config.unit}`;
       }
       
+      // If UTFVI layer, display comfort labels
+      if (selectedDataLayer === 'utfvi' && config.comfortLabels) {
+        minLabel = config.comfortLabels.min;
+        maxLabel = config.comfortLabels.max;
+      }
+      
       setActiveLegends([{
         title: title,
         type: 'gradient',

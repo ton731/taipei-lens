@@ -97,6 +97,18 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
       )
     },
     {
+      id: 'utfvi',
+      label: 'Thermal Comfort Index',
+      description: 'Urban thermal field variance and comfort index',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2v10l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="12" cy="18" r="4" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <path d="M8 18h8" stroke="currentColor" strokeWidth="1.5"/>
+        </svg>
+      )
+    },
+    {
       id: 'ndvi',
       label: 'Vegetation Index',
       description: 'Distribution of Normalized Difference Vegetation Index (NDVI)',
@@ -242,7 +254,7 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
         {/* Other layers - Each layer option followed by its own colorbar */}
         {otherLayers.map((layer) => {
           // NASA 圖層列表
-          const nasaLayers = ['lst', 'ndvi', 'coverage_strict_300m', 'viirs_mean'];
+          const nasaLayers = ['lst', 'utfvi', 'ndvi', 'coverage_strict_300m', 'viirs_mean'];
           const isNasaLayer = nasaLayers.includes(layer.id);
           
           return (

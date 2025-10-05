@@ -180,6 +180,28 @@ export const LAYER_CONFIGS = {
     unit: 'nW·cm⁻²·sr⁻¹',
     outlineColor: '#d67e4b',
     displayOriginalValues: true
+  },
+  utfvi: {
+    title: 'Urban Thermal Field Variance Index',
+    property: 'norm_utfvi',
+    colorStops: [
+      { value: 0, color: '#fff7e6' },
+      { value: 0.2, color: '#fdd49e' },
+      { value: 0.4, color: '#fdae6b' },
+      { value: 0.6, color: '#fd8d3c' },
+      { value: 0.8, color: '#e6550d' },
+      { value: 1, color: '#8c3a00' }
+    ],
+    minValue: -0.4997,
+    maxValue: 0.1017,
+    unit: '',
+    outlineColor: '#d67e4b',
+    displayOriginalValues: true,
+    // 新增舒適度標籤
+    comfortLabels: {
+      min: 'Cool & Comfortable',
+      max: 'Hot & Uncomfortable'
+    }
   }
 };
 
