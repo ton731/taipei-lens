@@ -365,16 +365,21 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           onEarthquakeIntensityChange={handleEarthquakeIntensityChange}
         />}
 
-        {/* Hover Popup - only show after animation */}
+        {/* Click Popup - only show after animation */}
         {isOpeningAnimationComplete && actualHoverInfo && (
           <Popup
             longitude={actualHoverInfo.longitude}
             latitude={actualHoverInfo.latitude}
-            closeButton={false}
+            closeButton={true}
             closeOnClick={false}
             anchor="bottom"
             offset={[0, -15]}
             style={{ zIndex: 1000 }}
+            onClose={() => {
+              if (externalSetHoverInfo) {
+                externalSetHoverInfo(null);
+              }
+            }}
           >
             {actualHoverInfo.feature?.type === 'district' ? (
               <DistrictPopup data={actualHoverInfo} />
