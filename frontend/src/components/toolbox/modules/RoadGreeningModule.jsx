@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
+import PriorityScoreBlock from '../../ui/PriorityScoreBlock';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const RoadGreeningModule = ({
   mapInstance,
@@ -172,12 +171,9 @@ const RoadGreeningModule = ({
         Identify areas most in need of cooling and environmental improvement through tree planting to optimize urban greening strategies
       </div>
 
-      <InteractiveFormulaDisplay
+      <PriorityScoreBlock
         factors={factors}
         onWeightChange={handleWeightChange}
-      />
-
-      <RolePresetButtons
         onPresetSelect={handlePresetSelect}
         moduleType="roadGreening"
         currentWeights={weights}

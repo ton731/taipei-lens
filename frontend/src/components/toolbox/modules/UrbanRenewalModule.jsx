@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
+import PriorityScoreBlock from '../../ui/PriorityScoreBlock';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const UrbanRenewalModule = ({
   mapInstance,
@@ -179,12 +178,9 @@ const UrbanRenewalModule = ({
         Comprehensive assessment of multiple risks to identify core areas requiring large-scale reconstruction
       </div>
 
-      <InteractiveFormulaDisplay
+      <PriorityScoreBlock
         factors={factors}
         onWeightChange={handleWeightChange}
-      />
-
-      <RolePresetButtons
         onPresetSelect={handlePresetSelect}
         moduleType="urbanRenewal"
         currentWeights={weights}
