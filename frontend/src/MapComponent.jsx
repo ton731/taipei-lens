@@ -10,6 +10,7 @@ import MapLayers from './components/map/MapLayers';
 import BuildingPopup from './components/map/BuildingPopup';
 import DistrictPopup from './components/map/DistrictPopup';
 import OpeningAnimation from './components/map/OpeningAnimation';
+import ContactInfo from './components/ContactInfo';
 
 // Hooks
 import { useMapInitialization } from './hooks/useMapInitialization';
@@ -391,6 +392,9 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
           </Popup>
         )}
       </MapboxMap>
+
+      {/* Contact Info - only show after animation */}
+      {isOpeningAnimationComplete && <ContactInfo />}
     </div>
   );
 };
