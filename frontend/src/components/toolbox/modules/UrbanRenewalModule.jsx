@@ -207,6 +207,12 @@ const UrbanRenewalModule = ({
         onWeightChange={handleWeightChange}
       />
 
+      <RolePresetButtons
+        onPresetSelect={handlePresetSelect}
+        moduleType="urbanRenewal"
+        currentWeights={weights}
+      />
+
       <div style={{
         borderTop: '1px solid #f3f4f6',
         paddingTop: '12px',
@@ -218,12 +224,6 @@ const UrbanRenewalModule = ({
           id="threshold-renewal"
           value={threshold}
           onChange={(e) => onConfigChange({ threshold: parseFloat(e.target.value) || 0 })}
-        />
-
-        <RolePresetButtons
-          onPresetSelect={handlePresetSelect}
-          moduleType="urbanRenewal"
-          currentWeights={weights}
         />
 
         {/* Analysis result display */}
