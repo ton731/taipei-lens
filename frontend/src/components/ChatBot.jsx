@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
+import { getFormattedContactInfo } from '../constants/contactInfo'
 import './ChatBot.css'
 
 // Sample questions list
@@ -50,7 +51,10 @@ const SAMPLE_QUESTIONS = [
   'Difference between renovation and reconstruction?',
   'What is the dangerous buildings ordinance?',
   'Urban renewal FAR incentives?',
-  'Why promote urban resilience in Taipei?'
+  'Why promote urban resilience in Taipei?',
+  
+  // Platform information
+  'Who made this?'
 ]
 
 function ChatBot({ onMouseEnter, onHighlightAreas }) {
@@ -101,7 +105,14 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
         }
 
         const data = await response.json()
-        setAiResponse(data.answer)
+        
+        // Check if response contains contact info trigger
+        let finalResponse = data.answer
+        if (finalResponse && finalResponse.includes('SHOW_CONTACT_INFO')) {
+          finalResponse = getFormattedContactInfo()
+        }
+        
+        setAiResponse(finalResponse)
         setShowResponse(true)
 
         // Handle highlight areas (if available)

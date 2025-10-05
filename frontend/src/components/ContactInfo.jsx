@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
+import { getContactArray } from '../constants/contactInfo';
 
 const ContactInfo = () => {
   const [isHovered, setIsHovered] = useState(false);
-
-  const contactData = [
-    { name: 'Yuan-Tung Chou', email: 'ton731@gmail.com' },
-    { name: 'Chien-Yu Tseng', email: 'cy12tseng@gmail.com' },
-    { name: 'I-Hsiang Chang', email: 'ckbxkyle@gmail.com' },
-    { name: 'Shih-Hao Tseng', email: 'max87520987@gmail.com' }
-  ];
+  const contactData = getContactArray();
 
   const containerStyle = {
     position: 'fixed',
@@ -19,8 +14,8 @@ const ContactInfo = () => {
   };
 
   const iconStyle = {
-    width: '24px',
-    height: '24px',
+    width: '32px',
+    height: '32px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     filter: isHovered ? 'brightness(0.6)' : 'brightness(0.8)',
