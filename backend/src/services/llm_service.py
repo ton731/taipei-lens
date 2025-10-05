@@ -4,6 +4,7 @@ LLM Service: Handles OpenAI API communication and conversation logic
 """
 import json
 import logging
+import math
 from typing import Optional, Tuple, List, Dict, Any
 from openai import OpenAI, OpenAIError
 
@@ -12,6 +13,32 @@ from src.services.tool_service import tool_service
 from src.services.data_service import data_service
 
 logger = logging.getLogger(__name__)
+
+
+def sanitize_for_json(obj):
+    """
+    Recursively sanitize an object to make it JSON-serializable by replacing
+    NaN, infinity, and other non-finite float values with safe alternatives.
+    
+    Args:
+        obj: The object to sanitize
+        
+    Returns:
+        A JSON-safe version of the object
+    """
+    if isinstance(obj, dict):
+        return {key: sanitize_for_json(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize_for_json(item) for item in obj]
+    elif isinstance(obj, float):
+        if math.isnan(obj):
+            return 0.0  # Replace NaN with 0
+        elif math.isinf(obj):
+            return 1e308 if obj > 0 else -1e308  # Replace infinity with large finite numbers
+        else:
+            return obj
+    else:
+        return obj
 
 
 class ChatService:
@@ -174,12 +201,13 @@ class ChatService:
                         if "district" in item:
                             collected_district_ids.append(item["district"])
 
-            # Add function result to messages
+            # Add function result to messages (sanitize for JSON compatibility)
+            sanitized_result = sanitize_for_json(function_result)
             messages.append({
                 "role": "tool",
                 "tool_call_id": tool_call.id,
                 "name": function_name,
-                "content": json.dumps(function_result, ensure_ascii=False)
+                "content": json.dumps(sanitized_result, ensure_ascii=False)
             })
 
         # Create highlight_areas object (if district data was collected)

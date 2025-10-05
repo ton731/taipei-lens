@@ -5,6 +5,7 @@
 import pandas as pd
 import json
 import logging
+import math
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -151,6 +152,12 @@ class DataService:
             # 只選取 CODEBASE 和指定的 feature 欄位
             result = sorted_df[["CODEBASE", search_feature]].to_dict(orient="records")
             
+            # 清理 NaN 和 infinity 值
+            for item in result:
+                value = item[search_feature]
+                if pd.isna(value) or math.isinf(value):
+                    item[search_feature] = 0.0
+            
             # 如果是 fragility curve，需要重命名欄位
             if feature == 'avg_fragility_curve':
                 for item in result:
@@ -197,6 +204,12 @@ class DataService:
 
             # 只選取 district 和指定的 feature 欄位
             result = sorted_df[["district", search_feature]].to_dict(orient="records")
+            
+            # 清理 NaN 和 infinity 值
+            for item in result:
+                value = item[search_feature]
+                if pd.isna(value) or math.isinf(value):
+                    item[search_feature] = 0.0
             
             # 如果是 fragility curve，需要重命名欄位
             if feature == 'avg_fragility_curve':
@@ -264,6 +277,14 @@ class DataService:
             used_features = list(dict.fromkeys(used_features))
 
             result = filtered_df[used_features].to_dict(orient="records")
+            
+            # 清理 NaN 和 infinity 值
+            for item in result:
+                for key, value in item.items():
+                    if key != 'CODEBASE' and isinstance(value, (int, float)):
+                        if pd.isna(value) or math.isinf(value):
+                            item[key] = 0.0
+            
             # logger.info(f"Filtered statistical areas: {len(result)} results with {len(conditions)} conditions (limited to 30)")
             return result
 
@@ -322,6 +343,14 @@ class DataService:
             used_features = list(dict.fromkeys(used_features))
 
             result = filtered_df[used_features].to_dict(orient="records")
+            
+            # 清理 NaN 和 infinity 值
+            for item in result:
+                for key, value in item.items():
+                    if key != 'district' and isinstance(value, (int, float)):
+                        if pd.isna(value) or math.isinf(value):
+                            item[key] = 0.0
+            
             # logger.info(f"Filtered districts: {len(result)} results with {len(conditions)} conditions")
             return result
 
@@ -403,10 +432,25 @@ class DataService:
             result_list = filtered_df[['CODEBASE', 'TOWN', 'value']].rename(
                 columns={'TOWN': 'district'}
             ).to_dict(orient='records')
+            
+            # 清理 result_list 中的 NaN 和 infinity 值
+            for item in result_list:
+                if pd.isna(item['value']) or math.isinf(item['value']):
+                    item['value'] = 0.0
 
-            # 計算 min 和 max（用於前端計算顏色範圍）
-            min_value = float(filtered_df['value'].min())
-            max_value = float(filtered_df['value'].max())
+            # 計算 min 和 max（用於前端計算顏色範圍），處理 NaN 值
+            min_val = filtered_df['value'].min()
+            max_val = filtered_df['value'].max()
+            
+            # 確保 min/max 值是有效的數字，如果是 NaN 則使用默認值
+            min_value = float(min_val) if not pd.isna(min_val) else 0.0
+            max_value = float(max_val) if not pd.isna(max_val) else 1.0
+            
+            # 處理 infinity 值
+            if math.isinf(min_value):
+                min_value = 0.0
+            if math.isinf(max_value):
+                max_value = 1.0
 
             logger.info(
                 f"Found {len(result_list)} statistical areas for districts {district_names} "
