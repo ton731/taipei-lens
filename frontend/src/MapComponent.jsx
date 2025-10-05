@@ -117,10 +117,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
   // Handle layer changes from DataLayersModule
   const handleDataLayerChange = useCallback((layerId) => {
-    console.log('MapComponent: 接收到圖層變化', { 
-      newLayerId: layerId, 
-      currentLayer: selectedDataLayer 
-    });
     setSelectedDataLayer(layerId);
 
     // Clear AI highlight when opening layer
@@ -129,7 +125,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
     }
     
     if (layerId === 'structural_vulnerability') {
-      console.log('MapComponent: 選擇了結構脆弱度圖層，當前地震強度:', earthquakeIntensity);
       
       // 自動調整地圖視角到較低的高度以顯示建築物細節
       if (mapInstance) {
@@ -151,13 +146,11 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
 
   // 處理地震強度變化
   const handleEarthquakeIntensityChange = useCallback((intensity) => {
-    console.log('地震強度變化:', intensity);
     setEarthquakeIntensity(intensity);
   }, []);
 
   // General analysis execution callback - shared by all modules
   const handleAnalysisExecute = useCallback((moduleId, highlightedCodes) => {
-    console.log(`[${moduleId}] Analysis executed. Highlighted districts:`, highlightedCodes.length);
     
     // Clear all other module results first, then set the new result
     setAnalysisResults(prev => {
@@ -223,9 +216,9 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       if (mapInstance) {
         // 飛到團隊位置，往北偏移視角中心點，讓popup顯示在畫面下方1/3處
         mapInstance.flyTo({
-          center: [TEAM_LOCATION.longitude, TEAM_LOCATION.latitude + 0.0010], // 往北偏移，讓標記點在畫面下方
-          zoom: 18,
-          bearing: 40,
+          center: [TEAM_LOCATION.longitude+0.001, TEAM_LOCATION.latitude + 0.0018], // 往北偏移，讓標記點在畫面下方
+          zoom: 17.2,
+          bearing: 45,
           pitch:75,  // 接近最大傾斜角度，從很低的視線高度往上看
           duration: 2000,
           essential: true
@@ -240,7 +233,6 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
   // Handle LLM highlight areas
   useEffect(() => {
     if (llmHighlightAreas) {
-      console.log('LLM highlight areas received:', llmHighlightAreas);
 
       // When AI highlight appears, clear all Toolbox layers and analysis results
       setSelectedDataLayer(null);

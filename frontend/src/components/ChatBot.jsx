@@ -107,7 +107,6 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
 
         // Handle highlight areas (if available)
         if (data.highlight_areas && onHighlightAreas) {
-          console.log('Received highlight areas from LLM:', data.highlight_areas)
           onHighlightAreas(data.highlight_areas)
         } else if (onHighlightAreas) {
           // Clear previous highlights if no highlight areas
@@ -117,7 +116,6 @@ function ChatBot({ onMouseEnter, onHighlightAreas }) {
         // Clear input after receiving response
         setInputValue('')
       } catch (error) {
-        console.error('Error calling LLM API:', error)
         setAiResponse(`Sorry, an error occurred: ${error.message}\n\nPlease confirm that the backend service is running and OPENAI_API_KEY is properly configured.`)
         setShowResponse(true)
         // Clear input even if error occurs

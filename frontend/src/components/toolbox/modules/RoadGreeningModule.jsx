@@ -66,8 +66,6 @@ const RoadGreeningModule = ({
   const isWeightValid = Math.abs(totalWeight - 1.0) < 0.01;
 
   const handleExecute = () => {
-    console.log('RoadGreening Execute clicked!');
-    console.log('Props check:', { mapInstance: !!mapInstance, statisticalAreaSourceLayer, weights, threshold });
     
     if (!isWeightValid) {
       alert('Weight sum must equal 1, current sum is ' + totalWeight.toFixed(2));
@@ -75,7 +73,6 @@ const RoadGreeningModule = ({
     }
 
     if (!mapInstance || !statisticalAreaSourceLayer) {
-      console.error('Map instance or statistical area layer not ready', { mapInstance: !!mapInstance, statisticalAreaSourceLayer });
       alert('Map has not finished loading, please try again later');
       return;
     }
@@ -134,17 +131,11 @@ const RoadGreeningModule = ({
       const minScore = Math.min(...scores);
       const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
 
-      console.log(`Road Greening Analysis: Found ${highlightedDistricts.length} qualifying areas out of ${features.length} total areas`);
-      console.log('Score statistics:', { min: minScore.toFixed(3), max: maxScore.toFixed(3), avg: avgScore.toFixed(3) });
-      console.log('Threshold used:', threshold);
-      console.log('Weights used:', weights);
-      console.log('Sample data for first area:', features[0]?.properties);
 
       // 3. Call callback function to update analysis results
       onAnalysisExecute(MODULE_ID, highlightedDistricts);
 
     } catch (error) {
-      console.error('Error occurred during road greening analysis:', error);
       // Clear analysis results
       onAnalysisExecute(MODULE_ID, []);
     }

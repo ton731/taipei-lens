@@ -72,7 +72,6 @@ const ParkSitingModule = ({
     }
 
     if (!mapInstance || !statisticalAreaSourceLayer) {
-      console.error('Map instance or statistical area layer not ready');
       alert('Map has not finished loading, please try again later');
       return;
     }
@@ -139,17 +138,11 @@ const ParkSitingModule = ({
       const minScore = Math.min(...scores);
       const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
 
-      console.log(`Park Siting Analysis: Found ${highlightedDistricts.length} qualifying areas out of ${features.length} total areas`);
-      console.log('Score statistics:', { min: minScore.toFixed(3), max: maxScore.toFixed(3), avg: avgScore.toFixed(3) });
-      console.log('Threshold used:', threshold);
-      console.log('Weights used:', weights);
-      console.log('Sample data for first area:', features[0]?.properties);
 
       // 3. Call callback function to update analysis results
       onAnalysisExecute(MODULE_ID, highlightedDistricts);
 
     } catch (error) {
-      console.error('Error occurred during park siting analysis:', error);
       // Clear analysis results
       onAnalysisExecute(MODULE_ID, []);
     }

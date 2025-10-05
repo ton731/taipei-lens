@@ -22,7 +22,6 @@ export const getBuildingTilesetInfo = async () => {
 
     return await response.json();
   } catch (error) {
-    console.error('Failed to fetch building tileset info:', error);
     throw error;
   }
 };
@@ -56,7 +55,6 @@ export const getBuildingMapboxUrl = async () => {
     const data = await response.json();
     return data.url;  // Returns URL in "mapbox://tonychou.xxx" format
   } catch (error) {
-    console.error('Failed to fetch building mapbox URL:', error);
     throw error;
   }
 };
@@ -70,7 +68,6 @@ export const checkBackendHealth = async () => {
     const response = await fetch(`${API_BASE_URL}/mapbox/health`);
     return await response.json();
   } catch (error) {
-    console.error('Backend health check failed:', error);
     return { status: 'unhealthy', error: error.message };
   }
 };
@@ -95,7 +92,6 @@ export const getDistrictTilesetInfo = async () => {
 
     return await response.json();
   } catch (error) {
-    console.error('Failed to fetch district tileset info:', error);
     throw error;
   }
 };
@@ -129,7 +125,6 @@ export const getDistrictMapboxUrl = async () => {
     const data = await response.json();
     return data.url;  // Returns URL in "mapbox://tonychou.xxx" format
   } catch (error) {
-    console.error('Failed to fetch district mapbox URL:', error);
     throw error;
   }
 };
@@ -154,7 +149,6 @@ export const getStatisticalAreaTilesetInfo = async () => {
 
     return await response.json();
   } catch (error) {
-    console.error('Failed to fetch statistical area tileset info:', error);
     throw error;
   }
 };
@@ -188,7 +182,6 @@ export const getStatisticalAreaMapboxUrl = async () => {
     const data = await response.json();
     return data.url;  // Returns URL in "mapbox://tonychou.xxx" format
   } catch (error) {
-    console.error('Failed to fetch statistical area mapbox URL:', error);
     throw error;
   }
 };

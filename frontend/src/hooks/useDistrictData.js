@@ -27,7 +27,6 @@ export const useDistrictData = (mapInstance, isStyleLoaded) => {
           setDistrictMapboxUrl(mapboxUrl);
         }
       } catch (error) {
-        console.error('Failed to initialize district data:', error);
       }
     };
 
