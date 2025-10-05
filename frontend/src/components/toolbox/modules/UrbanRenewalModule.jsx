@@ -172,9 +172,9 @@ const UrbanRenewalModule = ({
   ];
 
   const methodologyContent = `
-    • <strong>Building Vulnerability</strong>: Building Collapse Probability at intensity 6 earthquake - derived from structural fragility curves using fragility_curve data<br/>
-    • <strong>Environmental Quality</strong>: Combined thermal stress and vegetation deficit (0.5 × UTFVI + 0.5 × (1-NDVI)) using norm_utfvi and ndvi_mean<br/>
-    • <strong>Population Exposure</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) using norm_population_density and norm_viirs_mean
+    • <strong>Building Vulnerability</strong>: Building Collapse Probability at intensity 6 earthquake<br/>
+    • <strong>Environmental Quality</strong>: 0.5×UTFVI(normalized) + 0.5×(1-NDVI)<br/>
+    • <strong>Population Exposure</strong>: 0.5×Population Density (normalized) + 0.5×VIIRS (normalized)
   `;
 
   return (
@@ -202,12 +202,6 @@ const UrbanRenewalModule = ({
         <MethodologyTooltip content={methodologyContent} />
       </div>
 
-      <RolePresetButtons
-        onPresetSelect={handlePresetSelect}
-        moduleType="urbanRenewal"
-        currentWeights={weights}
-      />
-
       <InteractiveFormulaDisplay
         factors={factors}
         onWeightChange={handleWeightChange}
@@ -224,6 +218,12 @@ const UrbanRenewalModule = ({
           id="threshold-renewal"
           value={threshold}
           onChange={(e) => onConfigChange({ threshold: parseFloat(e.target.value) || 0 })}
+        />
+
+        <RolePresetButtons
+          onPresetSelect={handlePresetSelect}
+          moduleType="urbanRenewal"
+          currentWeights={weights}
         />
 
         {/* Analysis result display */}

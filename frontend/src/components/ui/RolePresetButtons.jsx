@@ -98,19 +98,19 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
         return [
           {
             id: 'disaster_prevention',
-            name: 'Disaster Prevention Office',
+            name: 'Disaster Prevention',
             description: 'Prioritize building vulnerability reduction',
             weights: { building_vulnerability: 0.50, environmental_quality: 0.20, population_exposure: 0.30 }
           },
           {
             id: 'quality_of_life',
-            name: 'Urban Development Bureau',
+            name: 'Quality of Life',
             description: 'Focus on improving environmental quality',
             weights: { building_vulnerability: 0.25, environmental_quality: 0.50, population_exposure: 0.25 }
           },
           {
             id: 'comprehensive_assessment',
-            name: 'Municipal Integration',
+            name: 'Comprehensive Assessment',
             description: 'Equal weight for all three dimensions',
             weights: { building_vulnerability: 0.33, environmental_quality: 0.33, population_exposure: 0.34 }
           }
@@ -145,21 +145,24 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
         color: '#374151',
         marginBottom: '8px'
       }}>
-        Role-based Presets
+        Scenario-based Presets
       </div>
       
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+        display: 'flex',
+        overflowX: 'auto',
         gap: '8px',
-        marginBottom: '12px'
+        marginBottom: '12px',
+        paddingBottom: '4px',
+        scrollbarWidth: 'thin',
+        scrollbarColor: '#d1d5db #f3f4f6'
       }}>
         {rolePresets.map((preset) => (
           <button
             key={preset.id}
             onClick={() => handlePresetClick(preset)}
             style={{
-              padding: '8px 10px',
+              padding: '8px 12px',
               borderRadius: '8px',
               border: isPresetActive(preset.weights) 
                 ? '2px solid #d97706' 
@@ -174,6 +177,8 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
               color: isPresetActive(preset.weights) ? '#d97706' : '#374151',
               transition: 'all 0.2s ease',
               minHeight: '60px',
+              minWidth: '120px',
+              flexShrink: 0,
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
@@ -205,7 +210,7 @@ const RolePresetButtons = ({ onPresetSelect, moduleType, currentWeights }) => {
         textAlign: 'center',
         fontStyle: 'italic'
       }}>
-        Select a role preset or manually adjust weights
+        Select a scenario preset or manually adjust weights
       </div>
     </div>
   );
