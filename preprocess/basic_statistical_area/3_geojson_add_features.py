@@ -30,8 +30,8 @@ elderly_alone_json_path = "data/social_vulnerability/processed/live_alone_elderl
 building_geojson_path = "data/building/geojson_w_fragility/building_extracted_with_fragility.geojson"
 
 # LST、NDVI 和 VIIRS 資料路徑
-lst_geojson_path = "data/ndvi_lst/result_lst_minstatic.geojson"
-ndvi_geojson_path = "data/ndvi_lst/result_ndvi_minstatic.geojson"
+lst_geojson_path = "data/ndvi_lst/utfvi_result_mean.geojson"
+ndvi_geojson_path = "data/ndvi_lst/ndvi_average_result.geojson"
 viirs_geojson_path = "data/ndvi_lst/taipei_VIIRS_statmin.geojson"
 
 # 土壤液化風險和綠地覆蓋率資料路徑
@@ -352,9 +352,10 @@ PROPERTIES_TO_NORMALIZE = [
     'low_income_percentage',
     'avg_building_age',
     'lst_p90',           # 地表溫度 p90 值
+    'utfvi',             # UTFVI 值（需標準化）
     'viirs_mean',  # VIIRS 平均值（用於標準化）
     'coverage_strict_300m',  # 綠地覆蓋率（需標準化）
-    # 注意：liq_risk 和 viirs_mean 不加入此列表，因為不需要標準化
+    # 注意：liq_risk 不加入此列表，因為不需要標準化
 ]
 
 
@@ -432,6 +433,7 @@ def add_social_vulnerability_to_geojson(
     building_age_data=None,
     fragility_curve_data=None,
     lst_data=None,
+    utfvi_data=None,
     ndvi_data=None,
     viirs_data=None,
     liq_risk_data=None,
@@ -458,6 +460,8 @@ def add_social_vulnerability_to_geojson(
         fragility curve 平均值資料（以 CODEBASE 為 key）
     lst_data : dict, optional
         LST p90 資料（以 CODEBASE 為 key）
+    utfvi_data : dict, optional
+        UTFVI 資料（以 CODEBASE 為 key）
     ndvi_data : dict, optional
         NDVI mean 資料（以 CODEBASE 為 key）
     viirs_data : dict, optional
@@ -553,6 +557,13 @@ def add_social_vulnerability_to_geojson(
             else:
                 vulnerability_data['lst_p90'] = None
         
+        # 加入 UTFVI 資料
+        if utfvi_data and codebase:
+            if codebase in utfvi_data:
+                vulnerability_data['utfvi'] = utfvi_data[codebase]
+            else:
+                vulnerability_data['utfvi'] = None
+        
         # 加入 NDVI mean 資料
         if ndvi_data and codebase:
             if codebase in ndvi_data:
@@ -567,7 +578,7 @@ def add_social_vulnerability_to_geojson(
                 vulnerability_data['viirs_mean'] = viirs_value  # 原始值
             else:
                 vulnerability_data['viirs_mean'] = None
-                
+
         # 加入土壤液化風險資料（不需標準化）
         if liq_risk_data and codebase:
             if codebase in liq_risk_data:
@@ -707,8 +718,9 @@ def main():
 
     # 載入環境資料
     print(f"\n📥 載入環境資料:")
-    lst_data = load_environmental_data(lst_geojson_path, 'p90', 'LST')
-    ndvi_data = load_environmental_data(ndvi_geojson_path, 'mean', 'NDVI')
+    lst_data = load_environmental_data(lst_geojson_path, 'LST_mean', 'LST')
+    utfvi_data = load_environmental_data(lst_geojson_path, 'UTFVI', 'UTFVI')  # 從同一個 LST 檔案載入 UTFVI
+    ndvi_data = load_environmental_data(ndvi_geojson_path, 'NDVI_mean', 'NDVI')
     viirs_data = load_environmental_data(viirs_geojson_path, '_mean', 'VIIRS')  # 使用 '_mean' 欄位名
     liq_risk_data = load_environmental_data(liq_risk_geojson_path, 'liq_risk', '土壤液化風險')  # 使用正確欄位名 'liq_risk'
     coverage_data = load_environmental_data(coverage_geojson_path, 'coverage_strict_300m', '綠地覆蓋率')  # 使用正確欄位名 'coverage_strict_300m'
@@ -740,6 +752,7 @@ def main():
             building_age_data=building_age_data,
             fragility_curve_data=fragility_curve_data,
             lst_data=lst_data,
+            utfvi_data=utfvi_data,
             ndvi_data=ndvi_data,
             viirs_data=viirs_data,
             liq_risk_data=liq_risk_data,

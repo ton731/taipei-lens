@@ -20,8 +20,8 @@ def merge_district_geojson():
     building_geojson_path = "data/building/geojson_w_fragility/building_extracted_with_fragility.geojson"
     
     # Environmental data paths
-    lst_geojson_path = "data/ndvi_lst/result_lst_admin.geojson"
-    ndvi_geojson_path = "data/ndvi_lst/result_ndvi_admin.geojson"
+    lst_geojson_path = "data/ndvi_lst/taipei_fused_HLS_heat_stress_index.geojson"
+    ndvi_geojson_path = "data/ndvi_lst/taiepi_fuesd_NDVI_vegetation_index.geojson"
     viirs_geojson_path = "data/ndvi_lst/taipei_VIIRS_admin.geojson"
     
     output_path = "data/district/district_with_features_test_2.geojson"
@@ -82,10 +82,10 @@ def merge_district_geojson():
                 return {}
 
         # Load LST p90 data
-        lst_data = load_environmental_geojson(lst_geojson_path, 'p90', 'LST')
+        lst_data = load_environmental_geojson(lst_geojson_path, 'avg_temp', 'LST')
         
         # Load NDVI mean data  
-        ndvi_data = load_environmental_geojson(ndvi_geojson_path, 'mean', 'NDVI')
+        ndvi_data = load_environmental_geojson(ndvi_geojson_path, 'avg_ndvi', 'NDVI')
         
         # Load VIIRS mean data
         viirs_data = load_environmental_geojson(viirs_geojson_path, '_mean', 'VIIRS')
