@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import MethodologyTooltip from '../../ui/MethodologyTooltip';
+import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const RoadGreeningModule = () => {
   const [weights, setWeights] = useState({
-    surface_temp: 0.4,
-    green_deficit: 0.3,
-    pop_density: 0.3
+    thermal_stress: 0.4,
+    greening_potential: 0.3,
+    population_benefit: 0.3
   });
   const [threshold, setThreshold] = useState(0.8);
   const [hasResults, setHasResults] = useState(false);
@@ -64,17 +64,16 @@ const RoadGreeningModule = () => {
     setHasResults(false);
   };
 
+  const handlePresetSelect = (presetWeights) => {
+    setWeights(presetWeights);
+  };
+
   const factors = [
-    { name: 'Surface Temperature', weight: weights.surface_temp },
-    { name: '(1-Green Coverage)', weight: weights.green_deficit },
-    { name: 'Population Density', weight: weights.pop_density }
+    { name: 'Thermal Stress', weight: weights.thermal_stress },
+    { name: 'Greening Potential', weight: weights.greening_potential },
+    { name: 'Population Benefit', weight: weights.population_benefit }
   ];
 
-  const methodologyContent = `
-    • <strong>Surface Temperature</strong>: Reflects heat island effect intensity<br/>
-    • <strong>(1-Green Coverage)</strong>: Represents insufficient greening level<br/>
-    • <strong>Population Density</strong>: Measures affected population
-  `;
 
   return (
     <div style={{
@@ -83,22 +82,19 @@ const RoadGreeningModule = () => {
       gap: '12px'
     }}>
       <div style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '4px'
+        fontSize: '13px',
+        color: '#6b7280',
+        lineHeight: '1.4',
+        marginBottom: '6px'
       }}>
-        <div style={{
-          fontSize: '13px',
-          color: '#666',
-          lineHeight: '1.4',
-          flex: 1
-        }}>
-          Identify areas most in need of cooling and environmental improvement through tree planting
-        </div>
-        <MethodologyTooltip content={methodologyContent} />
+        Identify areas most in need of cooling and environmental improvement through tree planting to optimize urban greening strategies
       </div>
+
+      <RolePresetButtons
+        onPresetSelect={handlePresetSelect}
+        moduleType="roadGreening"
+        currentWeights={weights}
+      />
 
       <InteractiveFormulaDisplay
         factors={factors}

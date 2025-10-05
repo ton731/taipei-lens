@@ -53,20 +53,20 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
       threshold: 0.4
     },
     roadGreening: {
-      weights: { surface_temp: 0.4, inverse_green_cover: 0.3, pop_density: 0.3 },
+      weights: { thermal_stress: 0.4, greening_potential: 0.3, population_benefit: 0.3 },
       threshold: 0.8
     },
     seismicStrengthening: {
-      weights: { building_age: 0.5, structural_vulnerability: 0.3, liquefaction: 0.2 },
+      weights: { building_vulnerability: 0.5, site_amplification: 0.3, population_exposure: 0.2 },
       threshold: 0.75
     },
     parkSiting: {
-      weights: { inverse_green_service: 0.5, pop_density: 0.3, social_vulnerability: 0.2 },
+      weights: { green_space_service_gap: 0.5, population_demand: 0.25, environmental_stress: 0.15, social_equity: 0.1 },
       threshold: 0.8
     },
     urbanRenewal: {
-      weights: { seismic_risk: 0.4, heat_island: 0.3, inverse_land_efficiency: 0.3 },
-      threshold: 0.85
+      weights: { building_vulnerability: 0.4, environmental_quality: 0.3, population_exposure: 0.3 },
+      threshold: 0.3
     }
   });
 
@@ -243,6 +243,12 @@ const MapComponent = ({ hoverInfo: externalHoverInfo, setHoverInfo: externalSetH
         // Keep original logic, as config.minValue and config.maxValue are already set to original temperature values
         minLabel = `${config.minValue}${config.unit}`;
         maxLabel = `${config.maxValue}${config.unit}`;
+      }
+      
+      // If UTFVI layer, display comfort labels
+      if (selectedDataLayer === 'utfvi' && config.comfortLabels) {
+        minLabel = config.comfortLabels.min;
+        maxLabel = config.comfortLabels.max;
       }
       
       setActiveLegends([{

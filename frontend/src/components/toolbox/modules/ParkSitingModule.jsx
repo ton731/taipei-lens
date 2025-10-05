@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import MethodologyTooltip from '../../ui/MethodologyTooltip';
+import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const ParkSitingModule = () => {
   const [weights, setWeights] = useState({
-    green_service_deficit: 0.5,
-    pop_density: 0.3,
-    social_vulnerability: 0.2
+    green_space_service_gap: 0.5,
+    population_demand: 0.25,
+    environmental_stress: 0.15,
+    social_equity: 0.1
   });
   const [threshold, setThreshold] = useState(0.8);
   const [hasResults, setHasResults] = useState(false);
@@ -63,17 +64,17 @@ const ParkSitingModule = () => {
     setHasResults(false);
   };
 
+  const handlePresetSelect = (presetWeights) => {
+    setWeights(presetWeights);
+  };
+
   const factors = [
-    { name: '(1-Green Space Service Coverage)', weight: weights.green_service_deficit },
-    { name: 'Population Density', weight: weights.pop_density },
-    { name: 'Social Vulnerability Index', weight: weights.social_vulnerability }
+    { name: 'Green Space Service Gap', weight: weights.green_space_service_gap },
+    { name: 'Population Demand', weight: weights.population_demand },
+    { name: 'Environmental Stress', weight: weights.environmental_stress },
+    { name: 'Social Equity', weight: weights.social_equity }
   ];
 
-  const methodologyContent = `
-    • <strong>Green Space Service Coverage</strong>: Park area within 500m walking distance<br/>
-    • <strong>Population Density</strong>: Measure of green space demand intensity<br/>
-    • <strong>Social Vulnerability</strong>: Priority care for disadvantaged groups
-  `;
 
   return (
     <div style={{
@@ -82,22 +83,19 @@ const ParkSitingModule = () => {
       gap: '12px'
     }}>
       <div style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '4px'
+        fontSize: '13px',
+        color: '#6b7280',
+        lineHeight: '1.4',
+        marginBottom: '6px'
       }}>
-        <div style={{
-          fontSize: '13px',
-          color: '#666',
-          lineHeight: '1.4',
-          flex: 1
-        }}>
-          Identify areas most lacking in parks and green spaces with the highest potential demand
-        </div>
-        <MethodologyTooltip content={methodologyContent} />
+        Identify areas most lacking in parks and green spaces with the highest potential demand for priority park siting
       </div>
+
+      <RolePresetButtons
+        onPresetSelect={handlePresetSelect}
+        moduleType="parkSiting"
+        currentWeights={weights}
+      />
 
       <InteractiveFormulaDisplay
         factors={factors}

@@ -7,7 +7,8 @@ const RadioLayerToggle = ({
   checked,
   onChange,
   icon,
-  disabled = false
+  disabled = false,
+  showNasaIcon = false
 }) => {
   return (
     <label
@@ -71,13 +72,33 @@ const RadioLayerToggle = ({
           gap: '6px',
           flexWrap: 'wrap'
         }}>
-          <span style={{
-            fontSize: '13px',
-            fontWeight: '600',
-            color: checked ? '#92400e' : '#374151'
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
           }}>
-            {label}
-          </span>
+            <span style={{
+              fontSize: '13px',
+              fontWeight: '600',
+              color: checked ? '#92400e' : '#374151'
+            }}>
+              {label}
+            </span>
+            {showNasaIcon && (
+              <img 
+                src="/nasa.png" 
+                alt="NASA" 
+                width="18" 
+                height="18"
+                style={{ 
+                  flexShrink: 0,
+                  objectFit: 'contain', // 保持原始比例，不變形
+                  opacity: checked ? 1 : 0.8,
+                  transition: 'opacity 0.2s ease'
+                }} 
+              />
+            )}
+          </div>
           {description && (
             <span style={{
               fontSize: '11px',

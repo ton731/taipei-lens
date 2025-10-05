@@ -20,10 +20,11 @@ def merge_district_geojson():
     building_geojson_path = "data/building/geojson_w_fragility/building_extracted_with_fragility.geojson"
     
     # Environmental data paths
-    lst_geojson_path = "data/ndvi_lst/result_lst_admin.geojson"
-    ndvi_geojson_path = "data/ndvi_lst/result_ndvi_admin.geojson"
+    lst_geojson_path = "data/ndvi_lst/taipei_fused_HLS_heat_stress_index.geojson"
+    ndvi_geojson_path = "data/ndvi_lst/taiepi_fuesd_NDVI_vegetation_index.geojson"
+    viirs_geojson_path = "data/ndvi_lst/taipei_VIIRS_admin.geojson"
     
-    output_path = "data/district/district_with_features_test.geojson"
+    output_path = "data/district/district_with_features_test_2.geojson"
 
     print("=== Taipei District Vulnerability GeoJSON Generator ===")
 
@@ -68,7 +69,7 @@ def merge_district_geojson():
                 environmental_data = {}
                 for feature in geojson_data.get('features', []):
                     properties = feature.get('properties', {})
-                    district_name = properties.get('TNAME')  # or 'TOWN' depending on the field name
+                    district_name = properties.get('TNAME') or properties.get('TOWN')  # Try both field names
                     value = properties.get(value_key)
                     
                     if district_name and value is not None:
@@ -81,10 +82,13 @@ def merge_district_geojson():
                 return {}
 
         # Load LST p90 data
-        lst_data = load_environmental_geojson(lst_geojson_path, 'p90', 'LST')
+        lst_data = load_environmental_geojson(lst_geojson_path, 'avg_temp', 'LST')
         
         # Load NDVI mean data  
-        ndvi_data = load_environmental_geojson(ndvi_geojson_path, 'mean', 'NDVI')
+        ndvi_data = load_environmental_geojson(ndvi_geojson_path, 'avg_ndvi', 'NDVI')
+        
+        # Load VIIRS mean data
+        viirs_data = load_environmental_geojson(viirs_geojson_path, '_mean', 'VIIRS')
 
         # 3. Read building GeoJSON
         print(f"\n3. Reading building GeoJSON...")
@@ -226,7 +230,8 @@ def merge_district_geojson():
             'elderly_alone_percentage': [],
             'avg_building_age': [],
             'lst_p90': [],
-            'ndvi_mean': []
+            'ndvi_mean': [],
+            'viirs_mean': []
         }
 
         for district in json_districts:
@@ -251,6 +256,10 @@ def merge_district_geojson():
             # Collect NDVI mean values  
             if district in ndvi_data:
                 all_values['ndvi_mean'].append(ndvi_data[district])
+            
+            # Collect VIIRS mean values
+            if district in viirs_data:
+                all_values['viirs_mean'].append(viirs_data[district])
 
         # Calculate min-max for normalization
         normalization_ranges = {}
@@ -334,6 +343,12 @@ def merge_district_geojson():
                     gdf.at[idx, 'ndvi_mean'] = ndvi_data[district]  
                 else:
                     gdf.at[idx, 'ndvi_mean'] = None
+                
+                # VIIRS mean data
+                if district in viirs_data:
+                    gdf.at[idx, 'viirs_mean'] = viirs_data[district]
+                else:
+                    gdf.at[idx, 'viirs_mean'] = None
 
         # 8. Clean up and optimize GeoJSON
         print(f"\n8. Preparing final GeoJSON...")
@@ -352,6 +367,7 @@ def merge_district_geojson():
             'avg_fragility_curve',
             'lst_p90',
             'ndvi_mean',
+            'viirs_mean',
             'geometry'
         ]
 
@@ -385,8 +401,10 @@ def merge_district_geojson():
             # Environmental data
             lst_val = row['lst_p90']
             ndvi_val = row['ndvi_mean']
+            viirs_val = row['viirs_mean']
             print(f"  LST p90: {lst_val:.4f}" if lst_val is not None else "  LST p90: None")
             print(f"  NDVI mean: {ndvi_val:.4f}" if ndvi_val is not None else "  NDVI mean: None")
+            print(f"  VIIRS mean: {viirs_val:.4f}" if viirs_val is not None else "  VIIRS mean: None")
             
             fragility = row['avg_fragility_curve']
             print(f"  Avg fragility curve:")

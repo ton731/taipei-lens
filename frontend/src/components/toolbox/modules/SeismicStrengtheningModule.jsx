@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import MethodologyTooltip from '../../ui/MethodologyTooltip';
+import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const SeismicStrengtheningModule = () => {
   const [weights, setWeights] = useState({
-    building_age: 0.5,
-    structural_fragility: 0.3,
-    liquefaction: 0.2
+    building_vulnerability: 0.5,
+    site_amplification: 0.3,
+    population_exposure: 0.2
   });
   const [threshold, setThreshold] = useState(0.75);
   const [hasResults, setHasResults] = useState(false);
@@ -63,17 +63,16 @@ const SeismicStrengtheningModule = () => {
     setHasResults(false);
   };
 
+  const handlePresetSelect = (presetWeights) => {
+    setWeights(presetWeights);
+  };
+
   const factors = [
-    { name: 'Average Building Age', weight: weights.building_age },
-    { name: 'Structural Fragility', weight: weights.structural_fragility },
-    { name: 'Soil Liquefaction Potential', weight: weights.liquefaction }
+    { name: 'Building Vulnerability', weight: weights.building_vulnerability },
+    { name: 'Site Amplification Effect', weight: weights.site_amplification },
+    { name: 'Population Exposure', weight: weights.population_exposure }
   ];
 
-  const methodologyContent = `
-    • <strong>Building Age</strong>: Older buildings have weaker seismic resistance<br/>
-    • <strong>Structural Fragility</strong>: Assessment based on building type<br/>
-    • <strong>Soil Liquefaction Potential</strong>: Data from National Disaster Prevention and Response Center
-  `;
 
   return (
     <div style={{
@@ -82,22 +81,19 @@ const SeismicStrengtheningModule = () => {
       gap: '12px'
     }}>
       <div style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '4px'
+        fontSize: '13px',
+        color: '#6b7280',
+        lineHeight: '1.4',
+        marginBottom: '6px'
       }}>
-        <div style={{
-          fontSize: '13px',
-          color: '#666',
-          lineHeight: '1.4',
-          flex: 1
-        }}>
-          Identify areas with the highest seismic damage risk that need priority structural reinforcement
-        </div>
-        <MethodologyTooltip content={methodologyContent} />
+        Identify areas with the highest seismic damage risk that need priority structural reinforcement
       </div>
+
+      <RolePresetButtons
+        onPresetSelect={handlePresetSelect}
+        moduleType="seismicStrengthening"
+        currentWeights={weights}
+      />
 
       <InteractiveFormulaDisplay
         factors={factors}

@@ -26,7 +26,13 @@ class DataService:
         "elderly_alone_percentage": "elderly_alone_percentage",
         "low_income_households": "household",  # 需要計算：household * low_income_percentage
         "living_alone_count": "household",  # 需要計算：household * elderly_alone_percentage
-        "avg_building_age": "avg_building_age"
+        "avg_building_age": "avg_building_age",
+        "lst_p90": "lst_p90",
+        "ndvi_mean": "ndvi_mean",
+        "liq_risk": "liq_risk",
+        "viirs_mean": "viirs_mean",
+        "avg_fragility_curve": "fragility_risk_score",
+        "utfvi": "utfvi"
     }
 
     def __new__(cls):
@@ -35,6 +41,43 @@ class DataService:
             cls._instance = super(DataService, cls).__new__(cls)
             cls._instance._load_data()
         return cls._instance
+
+    @staticmethod
+    def _calculate_fragility_risk_score(fragility_curve):
+        """
+        計算 fragility curve 的風險分數
+        
+        Args:
+            fragility_curve: dict，包含不同地震強度下的損壞機率
+            
+        Returns:
+            float: 0-1 的風險分數，越高表示風險越大
+        """
+        if not isinstance(fragility_curve, dict):
+            return 0.0
+            
+        # 地震強度權重（越強的地震權重越高）
+        weights = {
+            "3": 1.0,
+            "4": 2.0, 
+            "5弱": 3.0,
+            "5強": 4.0,
+            "6弱": 6.0,
+            "6強": 8.0,
+            "7": 10.0
+        }
+        
+        total_weighted_risk = 0.0
+        total_weight = 0.0
+        
+        for magnitude, probability in fragility_curve.items():
+            if magnitude in weights:
+                weight = weights[magnitude]
+                total_weighted_risk += probability * weight
+                total_weight += weight
+                
+        # 返回加權平均風險分數
+        return total_weighted_risk / total_weight if total_weight > 0 else 0.0
 
     def _load_data(self):
         """
@@ -55,6 +98,17 @@ class DataService:
 
             self._statistical_df = pd.DataFrame(statistical_properties)
             self._district_df = pd.DataFrame(district_properties)
+
+            # 計算 fragility curve 風險分數並添加到 DataFrame
+            if 'avg_fragility_curve' in self._statistical_df.columns:
+                self._statistical_df['fragility_risk_score'] = self._statistical_df['avg_fragility_curve'].apply(
+                    self._calculate_fragility_risk_score
+                )
+            
+            if 'avg_fragility_curve' in self._district_df.columns:
+                self._district_df['fragility_risk_score'] = self._district_df['avg_fragility_curve'].apply(
+                    self._calculate_fragility_risk_score
+                )
 
             logger.info(f"Data loaded successfully: {len(self._statistical_df)} statistical areas, {len(self._district_df)} districts")
 
@@ -83,14 +137,24 @@ class DataService:
             # 限制統計區最多回傳30個
             limited_top_n = min(top_n, 30)
 
+            # 處理 avg_fragility_curve 特殊情況
+            search_feature = feature
+            if feature == 'avg_fragility_curve':
+                search_feature = 'fragility_risk_score'
+
             # 根據 if_max 決定排序方式
             sorted_df = self._statistical_df.sort_values(
-                by=feature,
+                by=search_feature,
                 ascending=not if_max
             ).head(limited_top_n)
 
             # 只選取 CODEBASE 和指定的 feature 欄位
-            result = sorted_df[["CODEBASE", feature]].to_dict(orient="records")
+            result = sorted_df[["CODEBASE", search_feature]].to_dict(orient="records")
+            
+            # 如果是 fragility curve，需要重命名欄位
+            if feature == 'avg_fragility_curve':
+                for item in result:
+                    item['avg_fragility_curve'] = item.pop('fragility_risk_score')
 
             # logger.info(f"Found top {limited_top_n} statistical areas by {feature} ({'max' if if_max else 'min'})")
             return result
@@ -120,14 +184,24 @@ class DataService:
             包含 district 和特徵值的字典列表
         """
         try:
+            # 處理 avg_fragility_curve 特殊情況
+            search_feature = feature
+            if feature == 'avg_fragility_curve':
+                search_feature = 'fragility_risk_score'
+
             # 根據 if_max 決定排序方式
             sorted_df = self._district_df.sort_values(
-                by=feature,
+                by=search_feature,
                 ascending=not if_max
             ).head(top_n)
 
             # 只選取 district 和指定的 feature 欄位
-            result = sorted_df[["district", feature]].to_dict(orient="records")
+            result = sorted_df[["district", search_feature]].to_dict(orient="records")
+            
+            # 如果是 fragility curve，需要重命名欄位
+            if feature == 'avg_fragility_curve':
+                for item in result:
+                    item['avg_fragility_curve'] = item.pop('fragility_risk_score')
 
             # logger.info(f"Found top {top_n} districts by {feature} ({'max' if if_max else 'min'})")
             return result
@@ -165,16 +239,21 @@ class DataService:
                 operator = condition["operator"]
                 value = condition["value"]
 
+                # 處理 avg_fragility_curve 特殊情況
+                search_feature = feature
+                if feature == 'avg_fragility_curve':
+                    search_feature = 'fragility_risk_score'
+
                 if operator == ">":
-                    filtered_df = filtered_df[filtered_df[feature] > value]
+                    filtered_df = filtered_df[filtered_df[search_feature] > value]
                 elif operator == ">=":
-                    filtered_df = filtered_df[filtered_df[feature] >= value]
+                    filtered_df = filtered_df[filtered_df[search_feature] >= value]
                 elif operator == "<":
-                    filtered_df = filtered_df[filtered_df[feature] < value]
+                    filtered_df = filtered_df[filtered_df[search_feature] < value]
                 elif operator == "<=":
-                    filtered_df = filtered_df[filtered_df[feature] <= value]
+                    filtered_df = filtered_df[filtered_df[search_feature] <= value]
                 elif operator == "==":
-                    filtered_df = filtered_df[filtered_df[feature] == value]
+                    filtered_df = filtered_df[filtered_df[search_feature] == value]
 
             # 限制統計區最多回傳30個
             filtered_df = filtered_df.head(30)
@@ -221,16 +300,21 @@ class DataService:
                 operator = condition["operator"]
                 value = condition["value"]
 
+                # 處理 avg_fragility_curve 特殊情況
+                search_feature = feature
+                if feature == 'avg_fragility_curve':
+                    search_feature = 'fragility_risk_score'
+
                 if operator == ">":
-                    filtered_df = filtered_df[filtered_df[feature] > value]
+                    filtered_df = filtered_df[filtered_df[search_feature] > value]
                 elif operator == ">=":
-                    filtered_df = filtered_df[filtered_df[feature] >= value]
+                    filtered_df = filtered_df[filtered_df[search_feature] >= value]
                 elif operator == "<":
-                    filtered_df = filtered_df[filtered_df[feature] < value]
+                    filtered_df = filtered_df[filtered_df[search_feature] < value]
                 elif operator == "<=":
-                    filtered_df = filtered_df[filtered_df[feature] <= value]
+                    filtered_df = filtered_df[filtered_df[search_feature] <= value]
                 elif operator == "==":
-                    filtered_df = filtered_df[filtered_df[feature] == value]
+                    filtered_df = filtered_df[filtered_df[search_feature] == value]
 
             # 收集所有用到的 features
             used_features = ["district"] + [c["feature"] for c in conditions]
@@ -312,7 +396,7 @@ class DataService:
                     filtered_df['household'] * filtered_df['elderly_alone_percentage'] / 100
                 ).round().astype(int)
             else:
-                # 其他特徵直接使用統計區的欄位值
+                # 其他特徵（包括新字段）直接使用統計區的欄位值
                 filtered_df['value'] = filtered_df[stat_feature]
 
             # 準備返回資料

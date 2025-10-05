@@ -21,16 +21,6 @@ const InteractiveFormulaDisplay = ({ factors, onWeightChange }) => {
       padding: '14px 16px',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
-      <div style={{
-        fontSize: '11px',
-        fontWeight: '600',
-        color: '#6b7280',
-        marginBottom: '10px',
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px'
-      }}>
-        Calculation Formula
-      </div>
 
       <div style={{
         fontSize: '14px',
@@ -46,7 +36,7 @@ const InteractiveFormulaDisplay = ({ factors, onWeightChange }) => {
           gap: '4px',
           flexWrap: 'wrap'
         }}>
-          <span style={{ fontWeight: '600', color: '#4264fb' }}>Risk Score =</span>
+          <span style={{ fontWeight: '600', color: '#d97706' }}>Priority Score =</span>
         </div>
 
         {factors.map((factor, index) => (

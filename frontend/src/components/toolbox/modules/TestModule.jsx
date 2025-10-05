@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import MethodologyTooltip from '../../ui/MethodologyTooltip';
 
 const TestModule = ({
   mapInstance,
@@ -131,10 +130,6 @@ const TestModule = ({
     { name: 'Population Density', weight: weights.pop_density }
   ];
 
-  const methodologyContent = `
-    • <strong>Building Age</strong>: Test building age data<br/>
-    • <strong>Population Density</strong>: Test population density data
-  `;
 
   return (
     <div style={{
@@ -144,21 +139,12 @@ const TestModule = ({
       padding: '16px 20px'
     }}>
       <div style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '-2px'
+        fontSize: '13px',
+        color: '#6b7280',
+        lineHeight: '1.4',
+        marginBottom: '6px'
       }}>
-        <div style={{
-          fontSize: '13px',
-          color: '#6b7280',
-          lineHeight: '1.4',
-          flex: 1
-        }}>
-          Test Module: Backend API Integration Testing
-        </div>
-        <MethodologyTooltip content={methodologyContent} />
+        Test Module: Backend API Integration Testing
       </div>
 
       <InteractiveFormulaDisplay
