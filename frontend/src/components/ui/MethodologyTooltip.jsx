@@ -34,7 +34,7 @@ const MethodologyTooltip = ({ content }) => {
             color: '#d97706',
             fontSize: '11px',
             fontWeight: '600',
-            cursor: 'help',
+            cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
