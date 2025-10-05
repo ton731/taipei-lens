@@ -127,9 +127,10 @@ class ToolService:
                                 "liq_risk",
                                 "viirs_mean",
                                 "coverage_strict_300m",
-                                "avg_fragility_curve"
+                                "avg_fragility_curve",
+                                "utfvi"
                             ],
-                            "description": "The feature name to search. Options: population_density (population density), pop_elderly_percentage (elderly population ratio), low_income_percentage (low-income household ratio), elderly_alone_percentage (elderly living alone ratio), avg_building_age (average building age), lst_p90 (land surface temperature 90th percentile), ndvi_mean (normalized difference vegetation index mean), liq_risk (liquefaction risk), viirs_mean (nighttime light mean), coverage_strict_300m (strict 300m coverage ratio), avg_fragility_curve (average fragility curve risk score)"
+                            "description": "The feature name to search. Options: population_density (population density), pop_elderly_percentage (elderly population ratio), low_income_percentage (low-income household ratio), elderly_alone_percentage (elderly living alone ratio), avg_building_age (average building age), lst_p90 (land surface temperature 90th percentile), ndvi_mean (normalized difference vegetation index mean), liq_risk (liquefaction risk), viirs_mean (nighttime light mean), coverage_strict_300m (strict 300m coverage ratio), avg_fragility_curve (average fragility curve risk score), utfvi (urban thermal field variance index)"
                         },
                         "if_max": {
                             "type": "boolean",
@@ -172,9 +173,10 @@ class ToolService:
                                             "liq_risk",
                                             "viirs_mean",
                                             "coverage_strict_300m",
-                                            "avg_fragility_curve"
+                                            "avg_fragility_curve",
+                                            "utfvi"
                                         ],
-                                        "description": "The feature name to filter. Options: population_density (population density), pop_elderly_percentage (elderly population ratio), low_income_percentage (low-income household ratio), elderly_alone_percentage (elderly living alone ratio), avg_building_age (average building age), lst_p90 (land surface temperature 90th percentile), ndvi_mean (normalized difference vegetation index mean), liq_risk (liquefaction risk), viirs_mean (nighttime light mean), coverage_strict_300m (strict 300m coverage ratio), avg_fragility_curve (average fragility curve risk score)"
+                                        "description": "The feature name to filter. Options: population_density (population density), pop_elderly_percentage (elderly population ratio), low_income_percentage (low-income household ratio), elderly_alone_percentage (elderly living alone ratio), avg_building_age (average building age), lst_p90 (land surface temperature 90th percentile), ndvi_mean (normalized difference vegetation index mean), liq_risk (liquefaction risk), viirs_mean (nighttime light mean), coverage_strict_300m (strict 300m coverage ratio), avg_fragility_curve (average fragility curve risk score), utfvi (urban thermal field variance index)"
                                     },
                                     "operator": {
                                         "type": "string",

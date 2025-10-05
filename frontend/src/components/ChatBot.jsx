@@ -18,7 +18,6 @@ const SAMPLE_QUESTIONS = [
   // Climate and environmental features
   'Which district has the highest land surface temperature?',
   'Find areas with surface temperature above 32°C',
-  'Districts with highest thermal comfort index (UTFVI)?',
   'Find areas with poor thermal comfort (high UTFVI values)?',
   'Top 5 districts with lowest vegetation coverage?',
   'Districts with NDVI below 0.3 (low vegetation)?',
@@ -27,8 +26,8 @@ const SAMPLE_QUESTIONS = [
   
   // Risk assessment features  
   'District with highest earthquake building fragility risk?',
-  'Districts with liquefaction risk above 0.5?',
-  'Find districts with both high fragility and liquefaction risk',
+  'Areas with liquefaction risk above 0.5?',
+  'Find zones with both high fragility and liquefaction risk',
   'Districts with highest seismic vulnerability?',
   'Districts with fragility risk >0.8 and low vegetation?',
   

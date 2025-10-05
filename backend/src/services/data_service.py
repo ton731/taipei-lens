@@ -31,7 +31,8 @@ class DataService:
         "ndvi_mean": "ndvi_mean",
         "liq_risk": "liq_risk",
         "viirs_mean": "viirs_mean",
-        "avg_fragility_curve": "fragility_risk_score"
+        "avg_fragility_curve": "fragility_risk_score",
+        "utfvi": "utfvi"
     }
 
     def __new__(cls):
