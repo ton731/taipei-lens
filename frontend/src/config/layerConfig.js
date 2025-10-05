@@ -148,7 +148,7 @@ export const LAYER_CONFIGS = {
     outlineColor: '#d67e4b'
   },
   coverage_strict_300m: {
-    title: 'Green Space Coverage (300m)',
+    title: 'Green Space Accessibility (300m)',
     property: 'norm_coverage_strict_300m',
     colorStops: [
       { value: 0, color: '#fff7e6' },

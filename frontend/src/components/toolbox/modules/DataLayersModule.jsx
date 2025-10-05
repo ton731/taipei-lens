@@ -4,20 +4,84 @@ import StructuralVulnerabilityControl from '../../ui/StructuralVulnerabilityCont
 import { LAYER_CONFIGS, generateLegendGradient } from '../../../config/layerConfig';
 
 const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = null, earthquakeIntensity, onEarthquakeIntensityChange }) => {
-  // Separate structural vulnerability layer for individual handling
-  const structuralVulnerabilityLayer = {
-    id: 'structural_vulnerability',
-    label: 'Structural Vulnerability',
-    description: 'Structural collapse probability',
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2l3.5 7h7l-5.5 4 2 7-7-5-7 5 2-7-5.5-4h7z" stroke="currentColor" strokeWidth="2" fill="none"/>
-        <path d="M8 16l4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    )
-  };
 
-  const otherLayers = [
+  // NASA layers first
+  const nasaLayers = [
+    {
+      id: 'lst',
+      label: 'Surface Temperature',
+      description: 'Land surface temperature distribution',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2"/>
+          <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" strokeWidth="2"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" strokeWidth="2"/>
+          <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2"/>
+          <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" strokeWidth="2"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" strokeWidth="2"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" strokeWidth="2"/>
+        </svg>
+      )
+    },
+    {
+      id: 'utfvi',
+      label: 'Thermal Comfort Index',
+      description: 'Urban thermal field variance and comfort index',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2v10l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="12" cy="18" r="4" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <path d="M8 18h8" stroke="currentColor" strokeWidth="1.5"/>
+        </svg>
+      )
+    },
+    {
+      id: 'ndvi',
+      label: 'Vegetation Index',
+      description: 'Distribution of Normalized Difference Vegetation Index (NDVI)',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <polyline points="7.5,12 12,15 16.5,12" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <line x1="12" y1="15" x2="12" y2="21" stroke="currentColor" strokeWidth="2"/>
+        </svg>
+      )
+    },
+    {
+      id: 'coverage_strict_300m',
+      label: 'Green Space Accessibility',
+      description: 'Green space coverage within 300m radius',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7v10c0 5.55 3.84 10 9 11 5.16-1 9-5.45 9-11V7l-10-5z" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    },
+    {
+      id: 'viirs_mean',
+      label: 'Nighttime Light',
+      description: 'VIIRS nighttime light intensity distribution',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2"/>
+          <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" strokeWidth="2"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" strokeWidth="2"/>
+          <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2"/>
+          <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" strokeWidth="2"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" strokeWidth="2"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" strokeWidth="2"/>
+        </svg>
+      )
+    }
+  ];
+
+  // Other local layers
+  const localLayers = [
     {
       id: 'building_age',
       label: 'Building Age',
@@ -79,48 +143,6 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
       )
     },
     {
-      id: 'lst',
-      label: 'Surface Temperature',
-      description: 'Land surface temperature distribution',
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" fill="none"/>
-          <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2"/>
-          <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" strokeWidth="2"/>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" strokeWidth="2"/>
-          <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2"/>
-          <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" strokeWidth="2"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" strokeWidth="2"/>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" strokeWidth="2"/>
-        </svg>
-      )
-    },
-    {
-      id: 'utfvi',
-      label: 'Thermal Comfort Index',
-      description: 'Urban thermal field variance and comfort index',
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2v10l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          <circle cx="12" cy="18" r="4" stroke="currentColor" strokeWidth="2" fill="none"/>
-          <path d="M8 18h8" stroke="currentColor" strokeWidth="1.5"/>
-        </svg>
-      )
-    },
-    {
-      id: 'ndvi',
-      label: 'Vegetation Index',
-      description: 'Distribution of Normalized Difference Vegetation Index (NDVI)',
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" fill="none"/>
-          <polyline points="7.5,12 12,15 16.5,12" stroke="currentColor" strokeWidth="2" fill="none"/>
-          <line x1="12" y1="15" x2="12" y2="21" stroke="currentColor" strokeWidth="2"/>
-        </svg>
-      )
-    },
-    {
       id: 'liq_risk',
       label: 'Liquefaction Risk',
       description: 'Soil liquefaction risk distribution',
@@ -131,37 +153,24 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
           <rect x="6" y="6" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" rx="2"/>
         </svg>
       )
-    },
-    {
-      id: 'coverage_strict_300m',
-      label: 'Green Space Coverage',
-      description: 'Green space coverage within 300m radius',
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L2 7v10c0 5.55 3.84 10 9 11 5.16-1 9-5.45 9-11V7l-10-5z" stroke="currentColor" strokeWidth="2" fill="none"/>
-          <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )
-    },
-    {
-      id: 'viirs_mean',
-      label: 'Nighttime Light',
-      description: 'VIIRS nighttime light intensity distribution',
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" fill="none"/>
-          <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2"/>
-          <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" strokeWidth="2"/>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" strokeWidth="2"/>
-          <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2"/>
-          <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" strokeWidth="2"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" strokeWidth="2"/>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" strokeWidth="2"/>
-        </svg>
-      )
     }
   ];
+
+  // Structural vulnerability layer
+  const structuralVulnerabilityLayer = {
+    id: 'structural_vulnerability',
+    label: 'Structural Vulnerability',
+    description: 'Structural collapse probability',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2l3.5 7h7l-5.5 4 2 7-7-5-7 5 2-7-5.5-4h7z" stroke="currentColor" strokeWidth="2" fill="none"/>
+        <path d="M8 16l4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    )
+  };
+
+  // Combine NASA layers first, then structural vulnerability, then local layers
+  const otherLayers = [...nasaLayers, structuralVulnerabilityLayer, ...localLayers];
 
   const handleLayerChange = (layerId) => {
     // If clicking an already selected layer, deselect it
@@ -193,69 +202,11 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
       </div>
 
       <div>
-        {/* Structural Vulnerability Layer - Place at the front */}
-        <RadioLayerToggle
-          key={structuralVulnerabilityLayer.id}
-          id={structuralVulnerabilityLayer.id}
-          label={structuralVulnerabilityLayer.label}
-          description={structuralVulnerabilityLayer.description}
-          icon={structuralVulnerabilityLayer.icon}
-          checked={selectedLayer === structuralVulnerabilityLayer.id}
-          onChange={() => handleLayerChange(structuralVulnerabilityLayer.id)}
-        />
-
-        {/* Earthquake Intensity Control - Right after Structural Vulnerability */}
-        {selectedLayer === 'structural_vulnerability' && earthquakeIntensity && onEarthquakeIntensityChange && (
-          <div style={{ marginTop: '8px', marginBottom: '8px' }}>
-            <StructuralVulnerabilityControl
-              earthquakeIntensity={earthquakeIntensity}
-              onIntensityChange={onEarthquakeIntensityChange}
-            />
-          </div>
-        )}
-
-        {/* Structural Vulnerability colorbar */}
-        {selectedLayer === 'structural_vulnerability' && (
-          <div style={{
-            marginTop: '8px',
-            marginBottom: '16px',
-            marginLeft: '12px',
-            marginRight: '12px'
-          }}>
-            {(() => {
-              const config = LAYER_CONFIGS.structural_vulnerability;
-              if (config) {
-                const gradient = generateLegendGradient(config);
-                return (
-                  <div>
-                    <div style={{
-                      height: '8px',
-                      background: gradient,
-                      borderRadius: '3px',
-                      marginBottom: '4px'
-                    }}></div>
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: '10px',
-                      color: '#888'
-                    }}>
-                      <span>0% (No Risk)</span>
-                      <span>100% (Extreme Risk)</span>
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })()}
-          </div>
-        )}
-
-        {/* Other layers - Each layer option followed by its own colorbar */}
+        {/* All layers in order */}
         {otherLayers.map((layer) => {
           // NASA 圖層列表
-          const nasaLayers = ['lst', 'utfvi', 'ndvi', 'coverage_strict_300m', 'viirs_mean'];
-          const isNasaLayer = nasaLayers.includes(layer.id);
+          const nasaLayerIds = ['lst', 'utfvi', 'ndvi', 'coverage_strict_300m', 'viirs_mean'];
+          const isNasaLayer = nasaLayerIds.includes(layer.id);
           
           return (
             <div key={layer.id}>
@@ -268,6 +219,16 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
                 onChange={() => handleLayerChange(layer.id)}
                 showNasaIcon={isNasaLayer}
               />
+
+            {/* Special handling for Structural Vulnerability - Earthquake Intensity Control */}
+            {selectedLayer === 'structural_vulnerability' && layer.id === 'structural_vulnerability' && earthquakeIntensity && onEarthquakeIntensityChange && (
+              <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                <StructuralVulnerabilityControl
+                  earthquakeIntensity={earthquakeIntensity}
+                  onIntensityChange={onEarthquakeIntensityChange}
+                />
+              </div>
+            )}
             
             {/* Layer's colorbar - Only show when selected */}
             {selectedLayer === layer.id && (
@@ -277,29 +238,60 @@ const DataLayersModule = ({ onLayerChange, activeLegends = [], selectedLayer = n
                 marginLeft: '12px',
                 marginRight: '12px'
               }}>
-                {activeLegends.filter(legend => legend.layerType === layer.id || !legend.layerType).map((legend, index) => (
-                  <div key={index}>
-                    {legend.type === 'gradient' && (
-                      <div>
-                        <div style={{
-                          height: '8px',
-                          background: legend.gradient,
-                          borderRadius: '3px',
-                          marginBottom: '4px'
-                        }}></div>
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          fontSize: '10px',
-                          color: '#888'
-                        }}>
-                          <span>{legend.minLabel}</span>
-                          <span>{legend.maxLabel}</span>
+                {/* Special handling for Structural Vulnerability colorbar */}
+                {layer.id === 'structural_vulnerability' ? (
+                  (() => {
+                    const config = LAYER_CONFIGS.structural_vulnerability;
+                    if (config) {
+                      const gradient = generateLegendGradient(config);
+                      return (
+                        <div>
+                          <div style={{
+                            height: '8px',
+                            background: gradient,
+                            borderRadius: '3px',
+                            marginBottom: '4px'
+                          }}></div>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            fontSize: '10px',
+                            color: '#888'
+                          }}>
+                            <span>0% (No Risk)</span>
+                            <span>100% (Extreme Risk)</span>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      );
+                    }
+                    return null;
+                  })()
+                ) : (
+                  /* Regular colorbar for other layers */
+                  activeLegends.filter(legend => legend.layerType === layer.id || !legend.layerType).map((legend, index) => (
+                    <div key={index}>
+                      {legend.type === 'gradient' && (
+                        <div>
+                          <div style={{
+                            height: '8px',
+                            background: legend.gradient,
+                            borderRadius: '3px',
+                            marginBottom: '4px'
+                          }}></div>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            fontSize: '10px',
+                            color: '#888'
+                          }}>
+                            <span>{legend.minLabel}</span>
+                            <span>{legend.maxLabel}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             )}
             </div>
