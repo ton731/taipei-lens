@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import MethodologyTooltip from '../../ui/MethodologyTooltip';
 import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const UrbanRenewalModule = ({
@@ -171,12 +170,6 @@ const UrbanRenewalModule = ({
     { name: 'Population Exposure', weight: weights.population_exposure }
   ];
 
-  const methodologyContent = `
-    • <strong>Building Vulnerability</strong>: Building Collapse Probability at intensity 6 earthquake<br/>
-    • <strong>Environmental Quality</strong>: 0.5×UTFVI(normalized) + 0.5×(1-NDVI)<br/>
-    • <strong>Population Exposure</strong>: 0.5×Population Density (normalized) + 0.5×VIIRS (normalized)
-  `;
-
   return (
     <div style={{
       display: 'flex',
@@ -185,21 +178,12 @@ const UrbanRenewalModule = ({
       padding: '16px 20px'
     }}>
       <div style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '-2px'
+        fontSize: '13px',
+        color: '#6b7280',
+        lineHeight: '1.4',
+        marginBottom: '6px'
       }}>
-        <div style={{
-          fontSize: '13px',
-          color: '#6b7280',
-          lineHeight: '1.4',
-          flex: 1
-        }}>
-          Comprehensive assessment of multiple risks to identify core areas requiring large-scale reconstruction
-        </div>
-        <MethodologyTooltip content={methodologyContent} />
+        Comprehensive assessment of multiple risks to identify core areas requiring large-scale reconstruction
       </div>
 
       <InteractiveFormulaDisplay

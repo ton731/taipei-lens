@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import MethodologyTooltip from '../../ui/MethodologyTooltip';
 import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const RoadGreeningModule = () => {
@@ -75,11 +74,6 @@ const RoadGreeningModule = () => {
     { name: 'Population Benefit', weight: weights.population_benefit }
   ];
 
-  const methodologyContent = `
-    • <strong>Thermal Stress</strong>: Urban Thermal Field Variance Index (UTFVI) normalized - measures thermal discomfort and heat stress intensity<br/>
-    • <strong>Greening Potential</strong>: Inverse of NDVI (1 - NDVI) - areas with low vegetation coverage having higher potential for tree planting<br/>
-    • <strong>Population Benefit</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) representing both population size and urban activity intensity
-  `;
 
   return (
     <div style={{
@@ -88,21 +82,12 @@ const RoadGreeningModule = () => {
       gap: '12px'
     }}>
       <div style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '4px'
+        fontSize: '13px',
+        color: '#6b7280',
+        lineHeight: '1.4',
+        marginBottom: '6px'
       }}>
-        <div style={{
-          fontSize: '13px',
-          color: '#666',
-          lineHeight: '1.4',
-          flex: 1
-        }}>
-          Identify areas most in need of cooling and environmental improvement through tree planting to optimize urban greening strategies
-        </div>
-        <MethodologyTooltip content={methodologyContent} />
+        Identify areas most in need of cooling and environmental improvement through tree planting to optimize urban greening strategies
       </div>
 
       <RolePresetButtons

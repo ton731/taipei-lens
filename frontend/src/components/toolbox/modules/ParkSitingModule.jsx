@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import MethodologyTooltip from '../../ui/MethodologyTooltip';
 import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const ParkSitingModule = () => {
@@ -76,12 +75,6 @@ const ParkSitingModule = () => {
     { name: 'Social Equity', weight: weights.social_equity }
   ];
 
-  const methodologyContent = `
-    • <strong>Green Space Service Gap</strong>: Calculated as 1 - (Park area within 300m / Statistical area size) using norm_coverage_strict_300m data<br/>
-    • <strong>Population Demand</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) using norm_population_density and norm_viirs_mean<br/>
-    • <strong>Environmental Stress</strong>: Combined thermal and vegetation stress (0.5 × UTFVI + 0.5 × (1-NDVI)) using norm_utfvi and ndvi_mean<br/>
-    • <strong>Social Equity</strong>: Vulnerable population priority (0.5 × Elderly% + 0.5 × Low-income%) using pop_elderly_percentage and low_income_percentage
-  `;
 
   return (
     <div style={{
@@ -90,21 +83,12 @@ const ParkSitingModule = () => {
       gap: '12px'
     }}>
       <div style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '4px'
+        fontSize: '13px',
+        color: '#6b7280',
+        lineHeight: '1.4',
+        marginBottom: '6px'
       }}>
-        <div style={{
-          fontSize: '13px',
-          color: '#666',
-          lineHeight: '1.4',
-          flex: 1
-        }}>
-          Identify areas most lacking in parks and green spaces with the highest potential demand for priority park siting
-        </div>
-        <MethodologyTooltip content={methodologyContent} />
+        Identify areas most lacking in parks and green spaces with the highest potential demand for priority park siting
       </div>
 
       <RolePresetButtons

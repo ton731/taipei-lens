@@ -5,6 +5,7 @@ import SeismicStrengtheningModule from './modules/SeismicStrengtheningModule';
 import ParkSitingModule from './modules/ParkSitingModule';
 import UrbanRenewalModule from './modules/UrbanRenewalModule';
 import TestModule from './modules/TestModule';
+import MethodologyTooltip from '../ui/MethodologyTooltip';
 
 const ToolboxPanel = ({
   onMouseEnter,
@@ -48,6 +49,32 @@ const ToolboxPanel = ({
       setOpenSubModule(subModule);
     }
   };
+
+  // Methodology content for all modules
+  const roadGreeningMethodologyContent = `
+    • <strong>Thermal Stress</strong>: Urban Thermal Field Variance Index (UTFVI) normalized - measures thermal discomfort and heat stress intensity<br/>
+    • <strong>Greening Potential</strong>: Inverse of NDVI (1 - NDVI) - areas with low vegetation coverage having higher potential for tree planting<br/>
+    • <strong>Population Benefit</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) representing both population size and urban activity intensity
+  `;
+
+  const seismicStrengtheningMethodologyContent = `
+    • <strong>Building Vulnerability</strong>: Building Collapse Probability at intensity 6 earthquake - derived from structural fragility curves for each building type<br/>
+    • <strong>Site Amplification Effect</strong>: Soil Liquefaction Potential Rating Score - geological amplification of seismic waves due to soil conditions<br/>
+    • <strong>Population Exposure</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) representing people and assets at risk
+  `;
+
+  const parkSitingMethodologyContent = `
+    • <strong>Green Space Service Gap</strong>: Calculated as 1 - (Park area within 300m / Statistical area size) using norm_coverage_strict_300m data<br/>
+    • <strong>Population Demand</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) using norm_population_density and norm_viirs_mean<br/>
+    • <strong>Environmental Stress</strong>: Combined thermal and vegetation stress (0.5 × UTFVI + 0.5 × (1-NDVI)) using norm_utfvi and ndvi_mean<br/>
+    • <strong>Social Equity</strong>: Vulnerable population priority (0.5 × Elderly% + 0.5 × Low-income%) using pop_elderly_percentage and low_income_percentage
+  `;
+
+  const urbanRenewalMethodologyContent = `
+    • <strong>Building Vulnerability</strong>: Building Collapse Probability at intensity 6 earthquake<br/>
+    • <strong>Environmental Quality</strong>: 0.5×UTFVI(normalized) + 0.5×(1-NDVI)<br/>
+    • <strong>Population Exposure</strong>: 0.5×Population Density (normalized) + 0.5×VIIRS (normalized)
+  `;
 
   return (
     <div
@@ -172,6 +199,7 @@ const ToolboxPanel = ({
                     )}
                     isOpen={openSubModule === 'road_greening'}
                     onToggle={() => handleToggleSubModule('road_greening')}
+                    methodologyTooltip={<MethodologyTooltip content={roadGreeningMethodologyContent} />}
                   >
                     <RoadGreeningModule />
                   </SubModuleAccordion>
@@ -186,6 +214,7 @@ const ToolboxPanel = ({
                     )}
                     isOpen={openSubModule === 'seismic_strengthening'}
                     onToggle={() => handleToggleSubModule('seismic_strengthening')}
+                    methodologyTooltip={<MethodologyTooltip content={seismicStrengtheningMethodologyContent} />}
                   >
                     <SeismicStrengtheningModule />
                   </SubModuleAccordion>
@@ -218,6 +247,7 @@ const ToolboxPanel = ({
                     )}
                     isOpen={openSubModule === 'park_siting'}
                     onToggle={() => handleToggleSubModule('park_siting')}
+                    methodologyTooltip={<MethodologyTooltip content={parkSitingMethodologyContent} />}
                   >
                     <ParkSitingModule />
                   </SubModuleAccordion>
@@ -233,6 +263,7 @@ const ToolboxPanel = ({
                     )}
                     isOpen={openSubModule === 'urban_renewal'}
                     onToggle={() => handleToggleSubModule('urban_renewal')}
+                    methodologyTooltip={<MethodologyTooltip content={urbanRenewalMethodologyContent} />}
                   >
                     <UrbanRenewalModule
                       mapInstance={mapInstance}
@@ -391,7 +422,7 @@ const AccordionSection = ({ title, icon, isOpen, onToggle, children }) => {
 };
 
 // Sub-Module Accordion Component
-const SubModuleAccordion = ({ title, icon, isOpen, onToggle, children }) => {
+const SubModuleAccordion = ({ title, icon, isOpen, onToggle, children, methodologyTooltip }) => {
   return (
     <div style={{
       borderBottom: '1px solid #e0e7ff'
@@ -428,14 +459,23 @@ const SubModuleAccordion = ({ title, icon, isOpen, onToggle, children }) => {
           </span>
         </div>
 
-        <span style={{
-          fontSize: '10px',
-          color: '#999',
-          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-          transition: 'transform 0.3s ease'
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          ▼
-        </span>
+          <div onClick={(e) => e.stopPropagation()}>
+            {methodologyTooltip}
+          </div>
+          <span style={{
+            fontSize: '10px',
+            color: '#999',
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.3s ease'
+          }}>
+            ▼
+          </span>
+        </div>
       </div>
 
       {/* Sub-Module Content */}

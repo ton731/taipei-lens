@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import InteractiveFormulaDisplay from '../../ui/InteractiveFormulaDisplay';
 import ThresholdInput from '../../ui/ThresholdInput';
 import AnalysisButtons from '../../ui/AnalysisButtons';
-import MethodologyTooltip from '../../ui/MethodologyTooltip';
 import RolePresetButtons from '../../ui/RolePresetButtons';
 
 const SeismicStrengtheningModule = () => {
@@ -74,11 +73,6 @@ const SeismicStrengtheningModule = () => {
     { name: 'Population Exposure', weight: weights.population_exposure }
   ];
 
-  const methodologyContent = `
-    • <strong>Building Vulnerability</strong>: Building Collapse Probability at intensity 6 earthquake - derived from structural fragility curves for each building type<br/>
-    • <strong>Site Amplification Effect</strong>: Soil Liquefaction Potential Rating Score - geological amplification of seismic waves due to soil conditions<br/>
-    • <strong>Population Exposure</strong>: Composite index (0.5 × Population Density + 0.5 × VIIRS Nighttime Light) representing people and assets at risk
-  `;
 
   return (
     <div style={{
@@ -87,21 +81,12 @@ const SeismicStrengtheningModule = () => {
       gap: '12px'
     }}>
       <div style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '4px'
+        fontSize: '13px',
+        color: '#6b7280',
+        lineHeight: '1.4',
+        marginBottom: '6px'
       }}>
-        <div style={{
-          fontSize: '13px',
-          color: '#666',
-          lineHeight: '1.4',
-          flex: 1
-        }}>
-          Identify areas with the highest seismic damage risk that need priority structural reinforcement
-        </div>
-        <MethodologyTooltip content={methodologyContent} />
+        Identify areas with the highest seismic damage risk that need priority structural reinforcement
       </div>
 
       <RolePresetButtons

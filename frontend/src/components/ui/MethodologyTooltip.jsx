@@ -26,6 +26,8 @@ const MethodologyTooltip = ({ content }) => {
           style={{
             width: '18px',
             height: '18px',
+            minWidth: '18px',
+            minHeight: '18px',
             borderRadius: '50%',
             border: '1px solid #d97706',
             backgroundColor: '#fef3e7',
@@ -37,7 +39,11 @@ const MethodologyTooltip = ({ content }) => {
             alignItems: 'center',
             justifyContent: 'center',
             position: 'relative',
-            flexShrink: 0
+            flexShrink: 0,
+            padding: '0',
+            margin: '0',
+            outline: 'none',
+            boxSizing: 'border-box'
           }}
         >
           ?
