@@ -4,6 +4,7 @@ import './ChatBot.css'
 
 // Sample questions list
 const SAMPLE_QUESTIONS = [
+  // Population and demographics
   'Top 3 districts by population?',
   'Districts with elderly ratio >20% and building age >40 years?',
   'District with most elderly living alone?',
@@ -13,6 +14,35 @@ const SAMPLE_QUESTIONS = [
   'Top 3 districts with newest buildings?',
   'Districts with population over 200k?',
   'Districts with elderly ratio >25%?',
+  
+  // Climate and environmental features
+  'Which district has the highest land surface temperature?',
+  'Find areas with surface temperature above 32°C',
+  'Top 5 districts with lowest vegetation coverage?',
+  'Districts with NDVI below 0.3 (low vegetation)?',
+  'Which district has the coolest temperatures?',
+  'Districts with highest nighttime light intensity?',
+  
+  // Risk assessment features  
+  'District with highest earthquake building fragility risk?',
+  'Districts with liquefaction risk above 0.5?',
+  'Find districts with both high fragility and liquefaction risk',
+  'Districts with highest seismic vulnerability?',
+  'Districts with fragility risk >0.8 and low vegetation?',
+  
+  // Infrastructure and coverage
+  'Districts with full park coverage within 300m?',
+  'Districts lacking green space accessibility?',
+  'Find districts with coverage <50% and high temperature',
+  'Districts with no park access within 300m?',
+  
+  // Multi-criteria analysis
+  'Hot districts with low vegetation and high population density?',
+  'Find vulnerable districts: high fragility + high temperature + elderly >25%?',
+  'Districts needing urgent green infrastructure: low NDVI + high LST?',
+  'Priority districts for urban renewal: high risk + old buildings?',
+  
+  // Urban planning knowledge
   'Main goals of Taipei urban renewal?',
   'What is floor area ratio incentive?',
   'Notable urban renewal cases in Taipei?',
