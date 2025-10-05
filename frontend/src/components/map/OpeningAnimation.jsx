@@ -62,14 +62,14 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
     const startSpinToTaiwan = () => {
       console.log('沿地軸水平旋轉：起點非洲 → 終點台灣置中');
       // 初始：非洲附近（赤道）、水平視角，只用 bearing 旋轉
-      mapInstance.easeTo({ center: [20, 0], zoom: 1.3, pitch: 0, bearing: -90, duration: 0 });
+      mapInstance.easeTo({ center: [40, 25], zoom: 1.8, pitch: 0, bearing: 0, duration: 0 });
       // 單段動畫：同步旋轉與平移，將台灣帶到畫面中央（保持 zoom 低倍率）
       mapInstance.easeTo({
-        center: [121.0, 23.7],
-        zoom: 1.3,
+        center: [121.5500, 25.0330],
+        zoom: 1.8,
         pitch: 0,
         bearing: 0,              // 順時鐘旋轉至北向上
-        duration: 3200,          // 稍慢一些，讓旋轉更自然
+        duration: 4000,          // 稍慢一些，讓旋轉更自然
         easing: (t) => t
       });
 
@@ -84,7 +84,7 @@ const OpeningAnimation = ({ mapInstance, onAnimationComplete }) => {
         zoom: 13,                    // 較深倍率
         pitch: 20,                   // 適度傾角
         bearing: 0,
-        duration: 3200,              // 再慢一點點
+        duration: 4200,              // 再慢一點點
         essential: true
       });
 

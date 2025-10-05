@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F7931E;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="32" fill="url(#orangeGradient)"/>
+
+  <!-- Magnifying glass lens (circle) -->
+  <circle cx="28" cy="28" r="16" fill="none" stroke="#ffffff" stroke-width="4"/>
+
+  <!-- Simple city skyline inside lens -->
+  <rect x="20" y="30" width="4" height="6" fill="#ffffff"/>
+  <rect x="26" y="26" width="5" height="10" fill="#ffffff"/>
+  <rect x="33" y="28" width="4" height="8" fill="#ffffff"/>
+
+  <!-- Magnifying glass handle -->
+  <line x1="40" y1="40" x2="50" y2="50" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+</svg>
