@@ -16,8 +16,8 @@ export const ANALYSIS_MODULES = {
   roadGreening: {
     id: 'roadGreening',
     name: 'Road Greening Priority',
-    highlightColor: '#10B981',      // Green
-    outlineColor: '#059669',        // Dark green
+    highlightColor: '#FF6B35',      // Orange
+    outlineColor: '#d97706',        // Dark orange
     fillOpacity: 0.6,
     outlineWidth: 2
   },
@@ -26,8 +26,8 @@ export const ANALYSIS_MODULES = {
   seismicStrengthening: {
     id: 'seismicStrengthening',
     name: 'Seismic Strengthening Priority',
-    highlightColor: '#EF4444',      // Red
-    outlineColor: '#DC2626',        // Dark red
+    highlightColor: '#FF6B35',      // Orange
+    outlineColor: '#d97706',        // Dark orange
     fillOpacity: 0.6,
     outlineWidth: 2
   },
@@ -36,8 +36,8 @@ export const ANALYSIS_MODULES = {
   parkSiting: {
     id: 'parkSiting',
     name: 'Park Siting Potential',
-    highlightColor: '#8B5CF6',      // Purple
-    outlineColor: '#7C3AED',        // Dark purple
+    highlightColor: '#FF6B35',      // Orange
+    outlineColor: '#d97706',        // Dark orange
     fillOpacity: 0.6,
     outlineWidth: 2
   },
@@ -46,8 +46,8 @@ export const ANALYSIS_MODULES = {
   urbanRenewal: {
     id: 'urbanRenewal',
     name: 'Urban Renewal Urgency',
-    highlightColor: '#F59E0B',      // Amber
-    outlineColor: '#D97706',        // Dark amber
+    highlightColor: '#FF6B35',      // Orange
+    outlineColor: '#d97706',        // Dark orange
     fillOpacity: 0.6,
     outlineWidth: 2
   },
